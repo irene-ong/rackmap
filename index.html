@@ -5,16 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>RackMap – Lee Huat Frozen Warehouse</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--bg:#0f1117;--panel:#1a1d27;--border:#2a2e3e;--accent:#f5a623;--accent2:#4ecdc4;--accent3:#e74c3c;--green:#2ecc71;--text:#e8eaf0;--muted:#6b7280;--card:#22263a;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow:hidden;}
+.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.login-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:36px;width:min(400px,92vw);box-shadow:0 32px 80px rgba(0,0,0,.6);}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:3px;color:var(--accent);text-align:center;margin-bottom:4px;}
+.login-logo span{color:var(--accent2);}
+.login-tag{text-align:center;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:28px;}
+.login-field{margin-bottom:14px;}
+.login-field label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.login-field input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:.9rem;font-family:'DM Sans',sans-serif;transition:border-color .2s;}
+.login-field input:focus{outline:none;border-color:var(--accent);}
+.login-btn{width:100%;background:var(--accent);color:#000;border:none;padding:11px;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:6px;transition:opacity .2s;}
+.login-btn:hover{opacity:.85;}
+.login-err{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:#ff6b6b;border-radius:6px;padding:8px 12px;font-size:.76rem;margin-top:10px;display:none;}
+.login-loading{text-align:center;color:var(--muted);font-size:.8rem;padding:10px;display:none;}
 header{background:var(--panel);border-bottom:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:2px;color:var(--accent);line-height:1;}
 .logo span{color:var(--accent2);}
 .tagline{font-size:.66rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
 .toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.user-badge{background:rgba(78,205,196,.1);border:1px solid rgba(78,205,196,.2);border-radius:20px;padding:4px 12px;font-size:.7rem;color:var(--accent2);display:flex;align-items:center;gap:6px;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#2ecc71;animation:pulse 2s infinite;flex-shrink:0;}
+.sync-dot.syncing{background:var(--accent);}
+.sync-dot.error{background:var(--accent3);animation:none;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 input[type="text"],input[type="number"],input[type="date"]{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:.78rem;transition:border-color .2s;}
 input[type="text"]:focus,input[type="number"]:focus,input[type="date"]:focus{outline:none;border-color:var(--accent);}
 input[type="date"]{color-scheme:dark;width:138px;}
@@ -23,7 +42,6 @@ button{background:var(--accent);color:#000;border:none;padding:6px 13px;border-r
 button:hover{opacity:.84;transform:translateY(-1px);}
 button.sec{background:transparent;border:1px solid var(--border);color:var(--text);}
 button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
-button.sm{padding:2px 8px;font-size:.68rem;}
 .search-wrap{position:relative;display:flex;align-items:center;gap:6px;}
 .search-wrap input{width:200px;}
 .hint-bar{background:rgba(78,205,196,.05);border-bottom:1px solid rgba(78,205,196,.1);padding:3px 20px;font-size:.6rem;color:#3a5050;display:flex;align-items:center;gap:6px;}
@@ -36,7 +54,6 @@ button.sm{padding:2px 8px;font-size:.68rem;}
 .sku-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:4px;cursor:grab;transition:border-color .2s;display:flex;align-items:flex-start;gap:8px;user-select:none;}
 .sku-item:hover{border-color:var(--accent);}
 .sku-item.selected{border-color:var(--accent);background:#2a2217;}
-.sku-item.dragging{opacity:.3;}
 .sku-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px;}
 .sku-info{flex:1;min-width:0;}
 .sku-code{font-family:'DM Mono',monospace;font-size:.76rem;font-weight:500;color:var(--accent);}
@@ -107,7 +124,7 @@ button.sm{padding:2px 8px;font-size:.68rem;}
 .move-info{background:rgba(78,205,196,.07);border:1px solid rgba(78,205,196,.18);border-radius:7px;padding:8px 11px;font-size:.76rem;margin-bottom:10px;line-height:1.7;}
 .move-info strong{color:var(--accent2);}
 .search-panel{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
-.search-panel-inner{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;width:min(680px,94vw);max-height:86vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.7);}
+.search-panel-inner{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;width:min(680px,94vw);max-height:86vh;overflow-y:auto;}
 .sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .sp-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:var(--accent);}
 .sp-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:3px 8px;border-radius:6px;}
@@ -121,7 +138,7 @@ button.sm{padding:2px 8px;font-size:.68rem;}
 .sp-location-block{border-left:2px solid var(--border);padding-left:10px;margin-bottom:8px;}
 .sp-loc-label{font-size:.68rem;color:var(--accent2);font-family:'DM Mono',monospace;margin-bottom:4px;font-weight:600;}
 .sp-batch-table{width:100%;border-collapse:collapse;}
-.sp-batch-table th{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.sp-batch-table th{font-size:.62rem;color:var(--muted);text-transform:uppercase;padding:3px 8px;text-align:left;border-bottom:1px solid var(--border);}
 .sp-batch-table td{font-size:.68rem;font-family:'DM Mono',monospace;padding:4px 8px;border-bottom:1px solid rgba(42,46,62,.5);}
 .sp-batch-table tr:last-child td{border-bottom:none;}
 .no-result{text-align:center;padding:30px;color:var(--muted);font-size:.85rem;}
@@ -129,14 +146,33 @@ button.sm{padding:2px 8px;font-size:.68rem;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.ok{border-color:#2ecc71;color:#2ecc71;}
 .toast.err{border-color:#e74c3c;color:#e74c3c;}
-@media print{
-  .toolbar,.sidebar,.stats-bar,.hint-bar,.toast,.modal-bg,.search-panel{display:none!important;}
-  .main{height:auto;}body{background:#fff;color:#000;}
-}
+.loading-overlay{position:fixed;inset:0;background:rgba(15,17,23,.85);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:14px;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-txt{font-size:.8rem;color:var(--muted);}
+@media print{.login-screen,.toolbar,.sidebar,.stats-bar,.hint-bar,.toast,.modal-bg,.search-panel{display:none!important;}.main{height:auto;}body{background:#fff;color:#000;}}
 </style>
 </head>
 <body>
 
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">RACK<span>MAP</span></div>
+    <div class="login-tag">Lee Huat Frozen Warehouse System</div>
+    <div class="login-field"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email"/></div>
+    <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/></div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-loading" id="loginLoading">Signing in…</div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
+  <div class="spinner"></div>
+  <div class="loading-txt" id="loadingTxt">Loading warehouse data…</div>
+</div>
+
+<div id="appShell" style="display:none;">
 <header>
   <div>
     <div class="logo">RACK<span>MAP</span></div>
@@ -150,25 +186,18 @@ button.sm{padding:2px 8px;font-size:.68rem;}
     <button class="sec" onclick="clearSearch()">Clear</button>
     <button onclick="window.print()">🖨 Print</button>
     <button class="sec" onclick="exportToExcel()" style="border-color:#1d6f42;color:#1d6f42;">📊 Excel</button>
-    <button class="sec" onclick="saveData()" style="border-color:var(--accent2);color:var(--accent2);">💾 Save</button>
+    <div class="user-badge">
+      <div class="sync-dot" id="syncDot"></div>
+      <span id="userEmail">—</span>
+      <button onclick="doLogout()" style="background:transparent;border:none;color:var(--muted);font-size:.7rem;padding:0 0 0 6px;cursor:pointer;transform:none;">Sign out</button>
+    </div>
   </div>
 </header>
-
-<div class="hint-bar">
-  📦 Click any shelf to assign a SKU batch &nbsp;|&nbsp;
-  🔍 Search to see all batches &amp; FIFO order &nbsp;|&nbsp;
-  💾 Click Save to keep your data
-</div>
-
+<div class="hint-bar">📦 Click any shelf to assign a SKU batch &nbsp;|&nbsp; 🔍 Search to see all batches &amp; FIFO order &nbsp;|&nbsp; 🟢 Live sync — all users see changes instantly</div>
 <div class="main">
   <div class="sidebar">
-    <div class="sidebar-header">
-      SKU REGISTRY
-      <span style="font-size:.64rem;color:var(--muted);font-family:'DM Sans',sans-serif;" id="skuCount"></span>
-    </div>
-    <div style="padding:6px 8px;border-bottom:1px solid var(--border);">
-      <input type="text" id="skuFilter" placeholder="Filter SKUs…" style="width:100%;font-size:.74rem;" oninput="renderSKUList()"/>
-    </div>
+    <div class="sidebar-header">SKU REGISTRY <span style="font-size:.64rem;color:var(--muted);font-family:'DM Sans',sans-serif;" id="skuCount"></span></div>
+    <div style="padding:6px 8px;border-bottom:1px solid var(--border);"><input type="text" id="skuFilter" placeholder="Filter SKUs…" style="width:100%;font-size:.74rem;" oninput="renderSKUList()"/></div>
     <div class="sku-list" id="skuList"></div>
   </div>
   <div class="warehouse-wrap">
@@ -176,66 +205,20 @@ button.sm{padding:2px 8px;font-size:.68rem;}
     <div class="stats-bar" id="statsBar"></div>
   </div>
 </div>
+</div>
 
-<!-- ASSIGN MODAL -->
 <div class="modal-bg" id="assignBg" style="display:none;">
-  <div class="modal">
-    <h3>ASSIGN SKU BATCH TO SHELF</h3>
-    <div class="modal-loc" id="assignLoc"></div>
-    <div class="modal-section">Select SKU</div>
-    <select id="assignSku"></select>
-    <div class="modal-section">Batch Details</div>
-    <div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div>
-    <div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1" style="width:75px;"/></div>
-    <div class="modal-btns">
-      <button class="sec" onclick="closeAssign()">Cancel</button>
-      <button onclick="doAssign()">Add Batch</button>
-    </div>
-  </div>
+  <div class="modal"><h3>ASSIGN SKU BATCH TO SHELF</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">Select SKU</div><select id="assignSku"></select><div class="modal-section">Batch Details</div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1" style="width:75px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">Cancel</button><button onclick="doAssign()">Add Batch</button></div></div>
 </div>
-
-<!-- ADD BATCH MODAL -->
 <div class="modal-bg" id="addBatchBg" style="display:none;">
-  <div class="modal">
-    <h3>ADD NEW BATCH</h3>
-    <div class="modal-loc" id="addBatchLoc"></div>
-    <div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div>
-    <div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1" style="width:75px;"/></div>
-    <div class="modal-btns">
-      <button class="sec" onclick="closeAddBatch()">Cancel</button>
-      <button onclick="doAddBatch()">Add Batch</button>
-    </div>
-  </div>
+  <div class="modal"><h3>ADD NEW BATCH</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1" style="width:75px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">Cancel</button><button onclick="doAddBatch()">Add Batch</button></div></div>
 </div>
-
-<!-- MOVE MODAL -->
 <div class="modal-bg" id="moveBg" style="display:none;">
-  <div class="modal">
-    <h3>MOVE BATCH TO ANOTHER SHELF</h3>
-    <div class="move-info" id="moveInfo"></div>
-    <div style="font-size:.72rem;color:var(--muted);margin-bottom:5px;">Move to:</div>
-    <select id="moveZone" onchange="updateMoveRack()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
-    <select id="moveRack" onchange="updateMoveShelf()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
-    <select id="moveShelf" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
-    <div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1" style="width:75px;"/></div>
-    <div class="modal-btns">
-      <button class="sec" onclick="closeMove()">Cancel</button>
-      <button onclick="confirmMove()">Move</button>
-    </div>
-  </div>
+  <div class="modal"><h3>MOVE BATCH TO ANOTHER SHELF</h3><div class="move-info" id="moveInfo"></div><div style="font-size:.72rem;color:var(--muted);margin-bottom:5px;">Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select><select id="moveShelf" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select><div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1" style="width:75px;"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">Cancel</button><button onclick="confirmMove()">Move</button></div></div>
 </div>
-
-<!-- SEARCH PANEL -->
 <div class="search-panel" id="searchPanel" style="display:none;">
-  <div class="search-panel-inner">
-    <div class="sp-header">
-      <div class="sp-title" id="spTitle">SEARCH RESULTS</div>
-      <button class="sp-close" onclick="closeSearchPanel()">✕</button>
-    </div>
-    <div id="spBody"></div>
-  </div>
+  <div class="search-panel-inner"><div class="sp-header"><div class="sp-title" id="spTitle">SEARCH RESULTS</div><button class="sp-close" onclick="closeSearchPanel()">✕</button></div><div id="spBody"></div></div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -505,7 +488,6 @@ const ZONES = [
     {id:'rL4_20',name:'L4.20',shelves:[{id:'sL4_20_1',name:'Top'},{id:'sL4_20_2',name:'Middle'},{id:'sL4_20_3',name:'Bottom'}]}
   ]}
 ];
-
 const SKUS = [
   {code:'51010/15CV',name:'苏东 SOTONG WHOLE 510 10/15 1CTN X 10KGS',color:'#f5a623',minQty:5},
   {code:'51010/15CY',name:'苏东 SOTONG WHOLE 10/15 1CTNX10KGSX',color:'#4ecdc4',minQty:5},
@@ -1058,385 +1040,603 @@ const SKUS = [
   {code:'YTFMU',name:'黄尾 YELLOW TAILL',color:'#e91e63',minQty:5}
 ];
 
-// assignments stored in localStorage for persistence
+const SUPABASE_URL = 'https://xndxogfqaddzzyegtmzl.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuZHhvZ2ZxYWRkenp5ZWd0bXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMDM4NDYsImV4cCI6MjA4ODU3OTg0Nn0.S0fhpOQwvaAtZKovi1dcTgJ72mOenzX86lTFbWABoL4';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let assignments = {};
 let selectedSKU = null;
 let assignShelfId = null;
 let addBatchState = null;
 let moveState = null;
 let dragState = null;
+let currentUser = null;
+let realtimeChannel = null;
 
-// Load saved data
-function loadData() {
-  try {
-    const saved = localStorage.getItem('rackmap_assignments');
-    if (saved) assignments = JSON.parse(saved);
-  } catch(e) { assignments = {}; }
-}
-
-function saveData() {
-  try {
-    localStorage.setItem('rackmap_assignments', JSON.stringify(assignments));
-    toast('💾 Saved!', 'ok');
-  } catch(e) { toast('Save failed', 'err'); }
-}
-
-// Auto-save every 30 seconds
-setInterval(saveData, 30000);
-
+// ── UTILS ──
 function todayStr() { return new Date().toISOString().split('T')[0]; }
-function fmtDate(s) { if(!s)return'—'; const d=new Date(s+'T00:00:00'); return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); }
-function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function getSKU(code) { return SKUS.find(s=>s.code===code); }
-function getTotalQty(code) { let t=0; for(const items of Object.values(assignments)){ const e=items.find(i=>i.code===code); if(e)e.batches.forEach(b=>t+=b.qty); } return t; }
-function getBatchCount(code) { let n=0; for(const items of Object.values(assignments)){ const e=items.find(i=>i.code===code); if(e)n+=e.batches.length; } return n; }
+function fmtDate(s) {
+  if (!s) return '—';
+  const d = new Date(s + 'T00:00:00');
+  return d.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
+}
+function escH(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function getSKU(code) { return SKUS.find(s => s.code === code); }
+function getTotalQty(code) {
+  let t = 0;
+  for (const items of Object.values(assignments)) {
+    const e = items.find(i => i.code === code);
+    if (e) e.batches.forEach(b => t += b.qty);
+  }
+  return t;
+}
+function getBatchCount(code) {
+  let n = 0;
+  for (const items of Object.values(assignments)) {
+    const e = items.find(i => i.code === code);
+    if (e) n += e.batches.length;
+  }
+  return n;
+}
 function getShelfLocations(code) {
-  const locs=[];
-  for(const z of ZONES)for(const r of z.racks)for(const s of r.shelves){
-    if((assignments[s.id]||[]).some(i=>i.code===code))locs.push(r.name+'-'+s.name);
+  const locs = [];
+  for (const z of ZONES) for (const r of z.racks) for (const s of r.shelves) {
+    if ((assignments[s.id] || []).some(i => i.code === code)) locs.push(r.name + '-' + s.name);
   }
   return locs;
 }
 function findShelfById(id) {
-  for(const z of ZONES)for(const r of z.racks){ const s=r.shelves.find(s=>s.id===id); if(s)return{z,r,s}; }
+  for (const z of ZONES) for (const r of z.racks) {
+    const s = r.shelves.find(s => s.id === id);
+    if (s) return {z, r, s};
+  }
   return null;
 }
 function findRackById(id) {
-  for(const z of ZONES){ const r=z.racks.find(r=>r.id===id); if(r)return{z,r}; }
+  for (const z of ZONES) {
+    const r = z.racks.find(r => r.id === id);
+    if (r) return {z, r};
+  }
   return null;
 }
 
+// ── TOAST ──
 function toast(msg, type='ok') {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast '+type+' show';
-  setTimeout(()=>t.className='toast',3000);
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.className = 'toast', 3000);
 }
 
+// ── SYNC DOT ──
+function setSyncState(state) {
+  const d = document.getElementById('syncDot');
+  if (!d) return;
+  d.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+}
+
+// ── AUTH ──
+async function doLogin() {
+  const emailEl = document.getElementById('loginEmail');
+  const passEl = document.getElementById('loginPass');
+  const errEl = document.getElementById('loginErr');
+  const loadEl = document.getElementById('loginLoading');
+  const email = emailEl.value.trim();
+  const pass = passEl.value;
+  if (!email || !pass) {
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  loadEl.style.display = 'block';
+  try {
+    const result = await sb.auth.signInWithPassword({email: email, password: pass});
+    loadEl.style.display = 'none';
+    if (result.error) {
+      errEl.textContent = 'Login failed: ' + result.error.message;
+      errEl.style.display = 'block';
+      return;
+    }
+    currentUser = result.data.user;
+    bootApp();
+  } catch (e) {
+    loadEl.style.display = 'none';
+    errEl.textContent = 'Error: ' + e.message;
+    errEl.style.display = 'block';
+  }
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  assignments = {};
+  selectedSKU = null;
+  currentUser = null;
+}
+
+// Check existing session on page load
+window.addEventListener('load', async function() {
+  try {
+    const result = await sb.auth.getSession();
+    if (result.data && result.data.session) {
+      currentUser = result.data.session.user;
+      bootApp();
+    }
+  } catch(e) {
+    console.log('Session check failed:', e);
+  }
+});
+
+// Enter key support for login
+document.addEventListener('DOMContentLoaded', function() {
+  const passEl = document.getElementById('loginPass');
+  const emailEl = document.getElementById('loginEmail');
+  if (passEl) passEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+  if (emailEl) emailEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') passEl.focus(); });
+  const searchEl = document.getElementById('searchInput');
+  if (searchEl) searchEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') doSearch(); });
+});
+
+// ── BOOT ──
+async function bootApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  document.getElementById('loadingOverlay').style.display = 'flex';
+  document.getElementById('userEmail').textContent = currentUser.email;
+  await loadAssignments();
+  document.getElementById('loadingOverlay').style.display = 'none';
+  setupRealtime();
+  render();
+}
+
+// ── DATABASE ──
+async function loadAssignments() {
+  setSyncState('syncing');
+  const result = await sb.from('assignments').select('*');
+  if (result.error) {
+    setSyncState('error');
+    toast('Failed to load: ' + result.error.message, 'err');
+    return;
+  }
+  assignments = {};
+  for (const row of result.data) {
+    if (!assignments[row.shelf_id]) assignments[row.shelf_id] = [];
+    let entry = assignments[row.shelf_id].find(i => i.code === row.sku_code);
+    if (!entry) {
+      entry = {code: row.sku_code, batches: []};
+      assignments[row.shelf_id].push(entry);
+    }
+    entry.batches.push({batchId: row.batch_id, arrival: row.arrival, qty: row.qty});
+  }
+  setSyncState('ok');
+}
+
+async function dbAddBatch(shelfId, skuCode, batchId, arrival, qty) {
+  setSyncState('syncing');
+  const result = await sb.from('assignments').insert({
+    shelf_id: shelfId, sku_code: skuCode, batch_id: batchId, arrival: arrival, qty: qty
+  });
+  if (result.error) { setSyncState('error'); toast('Save failed: ' + result.error.message, 'err'); return false; }
+  setSyncState('ok');
+  return true;
+}
+
+async function dbUpdateQty(batchId, qty) {
+  setSyncState('syncing');
+  const result = await sb.from('assignments').update({qty: qty}).eq('batch_id', batchId);
+  if (result.error) { setSyncState('error'); toast('Update failed: ' + result.error.message, 'err'); return false; }
+  setSyncState('ok');
+  return true;
+}
+
+async function dbDeleteBatch(batchId) {
+  setSyncState('syncing');
+  const result = await sb.from('assignments').delete().eq('batch_id', batchId);
+  if (result.error) { setSyncState('error'); toast('Delete failed: ' + result.error.message, 'err'); return false; }
+  setSyncState('ok');
+  return true;
+}
+
+async function dbDeleteEntry(shelfId, skuCode) {
+  setSyncState('syncing');
+  const result = await sb.from('assignments').delete().eq('shelf_id', shelfId).eq('sku_code', skuCode);
+  if (result.error) { setSyncState('error'); toast('Delete failed: ' + result.error.message, 'err'); return false; }
+  setSyncState('ok');
+  return true;
+}
+
+// ── REALTIME ──
+function setupRealtime() {
+  realtimeChannel = sb.channel('assignments-changes')
+    .on('postgres_changes', {event: '*', schema: 'public', table: 'assignments'}, async function(payload) {
+      await loadAssignments();
+      render();
+    })
+    .subscribe();
+}
+
+// ── RENDER ──
 function render() { renderSKUList(); renderWarehouse(); renderStats(); }
 
 function renderSKUList() {
-  const filter=(document.getElementById('skuFilter')?.value||'').toUpperCase();
-  const filtered=SKUS.filter(s=>!filter||s.code.includes(filter)||s.name.toUpperCase().includes(filter));
-  document.getElementById('skuCount').textContent=SKUS.length+' SKUs';
-  document.getElementById('skuList').innerHTML=filtered.map(s=>{
-    const total=getTotalQty(s.code);
-    const bcount=getBatchCount(s.code);
-    const locs=getShelfLocations(s.code);
-    const isLow=total<s.minQty&&total>0;
-    return`<div class="sku-item${selectedSKU===s.code?' selected':''}" onclick="selectSKU('${s.code}')" draggable="true" ondragstart="sidebarDragStart(event,'${s.code}')" id="si-${s.code}">
-      <div class="sku-dot" style="background:${s.color}"></div>
-      <div class="sku-info">
-        <div class="sku-code">${s.code}${isLow?'<span class="low-badge">LOW</span>':''}</div>
-        <div class="sku-name">${s.name}</div>
-        <div class="sku-total">Stock: <strong style="color:${isLow?'#e74c3c':'#2ecc71'}">${total}</strong>${bcount?` · <strong style="color:var(--accent2)">${bcount}</strong> batch${bcount!==1?'es':''}`:''}</div>
-        ${locs.length?`<div class="sku-locs">📍 ${locs.slice(0,3).join(' · ')}${locs.length>3?` +${locs.length-3} more`:''}</div>`:'<div class="sku-locs" style="color:#3a3f52">Not placed</div>'}
-      </div>
-    </div>`;
-  }).join('');
+  const filter = (document.getElementById('skuFilter') ? document.getElementById('skuFilter').value : '').toUpperCase();
+  const filtered = SKUS.filter(s => !filter || s.code.includes(filter) || s.name.toUpperCase().includes(filter));
+  document.getElementById('skuCount').textContent = SKUS.length + ' SKUs';
+  let html = '';
+  for (const s of filtered) {
+    const total = getTotalQty(s.code);
+    const bcount = getBatchCount(s.code);
+    const locs = getShelfLocations(s.code);
+    const isLow = total < s.minQty && total > 0;
+    html += '<div class="sku-item' + (selectedSKU === s.code ? ' selected' : '') + '" onclick="selectSKU(\'' + s.code.replace(/'/g,"\\'") + '\')" draggable="true" ondragstart="sidebarDragStart(event,\'' + s.code.replace(/'/g,"\\'") + '\')" id="si-' + escH(s.code) + '">';
+    html += '<div class="sku-dot" style="background:' + s.color + '"></div>';
+    html += '<div class="sku-info">';
+    html += '<div class="sku-code">' + escH(s.code) + (isLow ? '<span class="low-badge">LOW</span>' : '') + '</div>';
+    html += '<div class="sku-name">' + escH(s.name) + '</div>';
+    html += '<div class="sku-total">Stock: <strong style="color:' + (isLow ? '#e74c3c' : '#2ecc71') + '">' + total + '</strong>' + (bcount ? ' · <strong style="color:var(--accent2)">' + bcount + '</strong> batch' + (bcount !== 1 ? 'es' : '') : '') + '</div>';
+    html += locs.length ? '<div class="sku-locs">📍 ' + locs.slice(0,3).join(' · ') + (locs.length > 3 ? ' +' + (locs.length-3) + ' more' : '') + '</div>' : '<div class="sku-locs" style="color:#3a3f52">Not placed</div>';
+    html += '</div></div>';
+  }
+  document.getElementById('skuList').innerHTML = html;
 }
 
 function renderWarehouse() {
-  const map=document.getElementById('warehouseMap');
-  let html='';
-  for(const z of ZONES){
-    html+=`<div class="zone-block"><div class="zone-header"><span class="zone-accent">▌</span><span class="zone-name">${escH(z.name)}</span></div><div class="rack-row">`;
-    for(const r of z.racks){
-      html+=`<div class="rack" id="rk-${r.id}" ondragover="rackOver(event,'${r.id}')" ondragleave="rackLeave('${r.id}')" ondrop="rackDrop(event,'${r.id}')"><div class="rack-header"><span class="rack-name">${escH(r.name)}</span></div>`;
-      for(const s of r.shelves){
-        const items=assignments[s.id]||[];
-        const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
-        html+=`<div class="shelf${hl?' highlight':''}" id="sh-${s.id}" onclick="openAssign('${s.id}')" ondragover="shelfOver(event,'${s.id}')" ondragleave="shelfLeave('${s.id}')" ondrop="shelfDrop(event,'${s.id}')">
-          <div class="shelf-top"><span class="shelf-label">${escH(s.name)}</span></div>
-          <div class="shelf-items">`;
-        if(items.length){
-          for(const item of items){
-            const sku=SKUS.find(sk=>sk.code===item.code);if(!sku)continue;
-            const shelfTotal=item.batches.reduce((a,b)=>a+b.qty,0);
-            const qc=shelfTotal<sku.minQty?'qty-low':shelfTotal<sku.minQty*2?'qty-ok':'qty-good';
-            const sorted=[...item.batches].sort((a,b)=>a.arrival.localeCompare(b.arrival));
-            html+=`<div class="shelf-sku-block">
-              <div class="shelf-sku-header">
-                <div class="row-dot" style="background:${sku.color}"></div>
-                <div class="row-code" style="color:${sku.color}" draggable="true" ondragstart="itemDragStart(event,'${s.id}','${item.code}',${shelfTotal})">${item.code}</div>
-                <span class="row-total ${qc}">${shelfTotal}</span>
-                <button class="row-act" onclick="event.stopPropagation();openMoveBlock('${s.id}','${item.code}',${shelfTotal})" title="Move">⇄</button>
-                <button class="row-act del" onclick="event.stopPropagation();removeEntry('${s.id}','${item.code}')" title="Remove">✕</button>
-              </div>
-              <div class="batch-list">`;
-            sorted.forEach((b,idx)=>{
-              html+=`<div class="batch-row">
-                <span class="batch-arr">📅 ${fmtDate(b.arrival)}${idx===0?'<span class="fifo-tag">FIFO</span>':''}</span>
-                <div class="batch-qty-ctrl">
-                  <button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty('${s.id}','${item.code}','${b.batchId}',-1)">−</button>
-                  <span class="bqty-val ${qc}">${b.qty}</span>
-                  <button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty('${s.id}','${item.code}','${b.batchId}',1)">+</button>
-                </div>
-                <button class="batch-del" onclick="event.stopPropagation();deleteBatch('${s.id}','${item.code}','${b.batchId}')">✕</button>
-              </div>`;
+  const map = document.getElementById('warehouseMap');
+  let html = '';
+  for (const z of ZONES) {
+    html += '<div class="zone-block"><div class="zone-header"><span class="zone-accent">▌</span><span class="zone-name">' + escH(z.name) + '</span></div><div class="rack-row">';
+    for (const r of z.racks) {
+      html += '<div class="rack" id="rk-' + r.id + '" ondragover="rackOver(event,\'' + r.id + '\')" ondragleave="rackLeave(\'' + r.id + '\')" ondrop="rackDrop(event,\'' + r.id + '\')"><div class="rack-header"><span class="rack-name">' + escH(r.name) + '</span></div>';
+      for (const s of r.shelves) {
+        const items = assignments[s.id] || [];
+        const hl = selectedSKU && items.some(i => i.code === selectedSKU);
+        html += '<div class="shelf' + (hl ? ' highlight' : '') + '" id="sh-' + s.id + '" onclick="openAssign(\'' + s.id + '\')" ondragover="shelfOver(event,\'' + s.id + '\')" ondragleave="shelfLeave(\'' + s.id + '\')" ondrop="shelfDrop(event,\'' + s.id + '\')">';
+        html += '<div class="shelf-top"><span class="shelf-label">' + escH(s.name) + '</span></div><div class="shelf-items">';
+        if (items.length) {
+          for (const item of items) {
+            const sku = SKUS.find(sk => sk.code === item.code);
+            if (!sku) continue;
+            const shelfTotal = item.batches.reduce((a,b) => a + b.qty, 0);
+            const qc = shelfTotal < sku.minQty ? 'qty-low' : shelfTotal < sku.minQty*2 ? 'qty-ok' : 'qty-good';
+            const sorted = [...item.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
+            const safeCode = item.code.replace(/'/g, "\\'").replace(/\\/g, '\\\\');
+            html += '<div class="shelf-sku-block"><div class="shelf-sku-header">';
+            html += '<div class="row-dot" style="background:' + sku.color + '"></div>';
+            html += '<div class="row-code" style="color:' + sku.color + '" draggable="true" ondragstart="itemDragStart(event,\'' + s.id + '\',\'' + safeCode + '\',' + shelfTotal + ')">' + escH(item.code) + '</div>';
+            html += '<span class="row-total ' + qc + '">' + shelfTotal + '</span>';
+            html += '<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\'' + s.id + '\',\'' + safeCode + '\',' + shelfTotal + ')" title="Move">⇄</button>';
+            html += '<button class="row-act del" onclick="event.stopPropagation();removeEntry(\'' + s.id + '\',\'' + safeCode + '\')" title="Remove">✕</button>';
+            html += '</div><div class="batch-list">';
+            sorted.forEach(function(b, idx) {
+              html += '<div class="batch-row">';
+              html += '<span class="batch-arr">📅 ' + fmtDate(b.arrival) + (idx === 0 ? '<span class="fifo-tag">FIFO</span>' : '') + '</span>';
+              html += '<div class="batch-qty-ctrl">';
+              html += '<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\'' + s.id + '\',\'' + safeCode + '\',\'' + b.batchId + '\',-1)">−</button>';
+              html += '<span class="bqty-val ' + qc + '">' + b.qty + '</span>';
+              html += '<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\'' + s.id + '\',\'' + safeCode + '\',\'' + b.batchId + '\',1)">+</button>';
+              html += '</div>';
+              html += '<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\'' + s.id + '\',\'' + safeCode + '\',\'' + b.batchId + '\')">✕</button>';
+              html += '</div>';
             });
-            html+=`</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch('${s.id}','${item.code}')">＋ add batch</span></div>`;
+            html += '</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\'' + s.id + '\',\'' + safeCode + '\')">＋ add batch</span></div>';
           }
-        }else{
-          html+=`<div class="empty-shelf">empty · click to assign</div>`;
+        } else {
+          html += '<div class="empty-shelf">empty · click to assign</div>';
         }
-        html+=`</div></div>`;
+        html += '</div></div>';
       }
-      html+=`</div>`;
+      html += '</div>';
     }
-    html+=`</div></div>`;
+    html += '</div></div>';
   }
-  map.innerHTML=html;
+  map.innerHTML = html;
 }
 
 function renderStats() {
-  const totalShelves=ZONES.flatMap(z=>z.racks).flatMap(r=>r.shelves).length;
-  const usedShelves=Object.keys(assignments).filter(k=>assignments[k]?.length).length;
-  const totalUnits=Object.values(assignments).flat().flatMap(e=>e.batches).reduce((a,b)=>a+b.qty,0);
-  const low=SKUS.filter(s=>getTotalQty(s.code)>0&&getTotalQty(s.code)<s.minQty);
-  document.getElementById('statsBar').innerHTML=`
-    <div class="stat">📦 <strong>${SKUS.length}</strong> SKUs</div>
-    <div class="stat">🗂 <strong>${usedShelves}</strong>/${totalShelves} shelves used</div>
-    <div class="stat">🔢 <strong>${totalUnits}</strong> total units</div>
-    ${low.length?`<div class="stat">⚠️ <strong style="color:#e74c3c">${low.length}</strong> low-stock`:''}
-    <div class="stat-link" onclick="showFullReport()">Full Report ›</div>
-  `;
+  const totalShelves = ZONES.flatMap(z => z.racks).flatMap(r => r.shelves).length;
+  const usedShelves = Object.keys(assignments).filter(k => assignments[k] && assignments[k].length).length;
+  const totalUnits = Object.values(assignments).flat().flatMap(e => e.batches).reduce((a,b) => a + b.qty, 0);
+  const low = SKUS.filter(s => getTotalQty(s.code) > 0 && getTotalQty(s.code) < s.minQty);
+  document.getElementById('statsBar').innerHTML =
+    '<div class="stat">📦 <strong>' + SKUS.length + '</strong> SKUs</div>' +
+    '<div class="stat">🗂 <strong>' + usedShelves + '</strong>/' + totalShelves + ' shelves used</div>' +
+    '<div class="stat">🔢 <strong>' + totalUnits + '</strong> total units</div>' +
+    (low.length ? '<div class="stat">⚠️ <strong style="color:#e74c3c">' + low.length + '</strong> low-stock</div>' : '') +
+    '<span class="stat-link" onclick="showFullReport()">Full Report ›</span>';
 }
 
-function selectSKU(code) { selectedSKU=(selectedSKU===code)?null:code; render(); }
+function selectSKU(code) { selectedSKU = (selectedSKU === code) ? null : code; render(); }
 
+// ── ASSIGN MODAL ──
 function openAssign(shelfId) {
-  assignShelfId=shelfId;
-  const found=findShelfById(shelfId);
-  document.getElementById('assignLoc').textContent=found?found.r.name+' – '+found.s.name:'Shelf';
-  document.getElementById('assignSku').innerHTML='<option value="">— Select SKU —</option>'+SKUS.map(s=>`<option value="${s.code}">${s.code} — ${s.name}</option>`).join('');
-  document.getElementById('assignArrival').value=todayStr();
-  document.getElementById('assignQty').value=1;
-  document.getElementById('assignBg').style.display='flex';
+  assignShelfId = shelfId;
+  const found = findShelfById(shelfId);
+  document.getElementById('assignLoc').textContent = found ? found.r.name + ' – ' + found.s.name : 'Shelf';
+  let opts = '<option value="">— Select SKU —</option>';
+  for (const s of SKUS) opts += '<option value="' + escH(s.code) + '">' + escH(s.code) + ' — ' + escH(s.name) + '</option>';
+  document.getElementById('assignSku').innerHTML = opts;
+  document.getElementById('assignArrival').value = todayStr();
+  document.getElementById('assignQty').value = 1;
+  document.getElementById('assignBg').style.display = 'flex';
+}
+async function doAssign() {
+  const code = document.getElementById('assignSku').value;
+  const arrival = document.getElementById('assignArrival').value;
+  const qty = parseInt(document.getElementById('assignQty').value) || 1;
+  if (!code) { alert('Select a SKU.'); return; }
+  if (!arrival) { alert('Enter arrival date.'); return; }
+  const batchId = 'b' + Date.now() + Math.random().toString(36).slice(2);
+  const ok = await dbAddBatch(assignShelfId, code, batchId, arrival, qty);
+  if (ok) {
+    if (!assignments[assignShelfId]) assignments[assignShelfId] = [];
+    let entry = assignments[assignShelfId].find(i => i.code === code);
+    if (!entry) { entry = {code: code, batches: []}; assignments[assignShelfId].push(entry); }
+    entry.batches.push({batchId: batchId, arrival: arrival, qty: qty});
+    toast('✅ Batch added!');
+    closeAssign();
+    render();
+  }
+}
+function closeAssign() { document.getElementById('assignBg').style.display = 'none'; assignShelfId = null; }
+
+// ── ADD BATCH ──
+function openAddBatch(shelfId, code) {
+  addBatchState = {shelfId: shelfId, code: code};
+  const found = findShelfById(shelfId);
+  const sku = getSKU(code);
+  document.getElementById('addBatchLoc').textContent = code + ' — ' + (sku ? sku.name : '') + ' @ ' + (found ? found.r.name + ' – ' + found.s.name : '');
+  document.getElementById('abArrival').value = todayStr();
+  document.getElementById('abQty').value = 1;
+  document.getElementById('addBatchBg').style.display = 'flex';
+}
+async function doAddBatch() {
+  if (!addBatchState) return;
+  const shelfId = addBatchState.shelfId;
+  const code = addBatchState.code;
+  const arrival = document.getElementById('abArrival').value;
+  const qty = parseInt(document.getElementById('abQty').value) || 1;
+  if (!arrival) { alert('Enter arrival date.'); return; }
+  const batchId = 'b' + Date.now() + Math.random().toString(36).slice(2);
+  const ok = await dbAddBatch(shelfId, code, batchId, arrival, qty);
+  if (ok) {
+    const entry = assignments[shelfId] ? assignments[shelfId].find(i => i.code === code) : null;
+    if (entry) entry.batches.push({batchId: batchId, arrival: arrival, qty: qty});
+    toast('✅ Batch added!');
+    closeAddBatch();
+    render();
+  }
+}
+function closeAddBatch() { document.getElementById('addBatchBg').style.display = 'none'; addBatchState = null; }
+
+// ── QTY + DELETE ──
+async function changeBatchQty(shelfId, code, batchId, delta) {
+  const entry = assignments[shelfId] ? assignments[shelfId].find(i => i.code === code) : null;
+  if (!entry) return;
+  const batch = entry.batches.find(b => b.batchId === batchId);
+  if (!batch) return;
+  const newQty = Math.max(0, batch.qty + delta);
+  const ok = await dbUpdateQty(batchId, newQty);
+  if (ok) { batch.qty = newQty; render(); }
+}
+async function deleteBatch(shelfId, code, batchId) {
+  if (!confirm('Remove this batch?')) return;
+  const ok = await dbDeleteBatch(batchId);
+  if (ok) {
+    const entry = assignments[shelfId] ? assignments[shelfId].find(i => i.code === code) : null;
+    if (entry) {
+      entry.batches = entry.batches.filter(b => b.batchId !== batchId);
+      if (!entry.batches.length) assignments[shelfId] = assignments[shelfId].filter(i => i.code !== code);
+    }
+    if (assignments[shelfId] && !assignments[shelfId].length) delete assignments[shelfId];
+    toast('🗑 Batch removed');
+    render();
+  }
+}
+async function removeEntry(shelfId, code) {
+  if (!confirm('Remove all batches of ' + code + ' from this shelf?')) return;
+  const ok = await dbDeleteEntry(shelfId, code);
+  if (ok) {
+    if (assignments[shelfId]) {
+      assignments[shelfId] = assignments[shelfId].filter(i => i.code !== code);
+      if (!assignments[shelfId].length) delete assignments[shelfId];
+    }
+    toast('🗑 Entry removed');
+    render();
+  }
 }
 
-function doAssign() {
-  const code=document.getElementById('assignSku').value;
-  const arrival=document.getElementById('assignArrival').value;
-  const qty=parseInt(document.getElementById('assignQty').value)||1;
-  if(!code){alert('Select a SKU.');return;}
-  if(!arrival){alert('Enter arrival date.');return;}
-  const batchId='b'+Date.now()+Math.random().toString(36).slice(2);
-  if(!assignments[assignShelfId])assignments[assignShelfId]=[];
-  let entry=assignments[assignShelfId].find(i=>i.code===code);
-  if(!entry){entry={code,batches:[]};assignments[assignShelfId].push(entry);}
-  entry.batches.push({batchId,arrival,qty});
-  saveData();
-  toast('✅ Batch added!');
-  closeAssign(); render();
-}
-function closeAssign() { document.getElementById('assignBg').style.display='none'; assignShelfId=null; }
-
-function openAddBatch(shelfId,code) {
-  addBatchState={shelfId,code};
-  const found=findShelfById(shelfId);
-  const sku=getSKU(code);
-  document.getElementById('addBatchLoc').textContent=code+' — '+(sku?.name||'')+' @ '+(found?found.r.name+' – '+found.s.name:'');
-  document.getElementById('abArrival').value=todayStr();
-  document.getElementById('abQty').value=1;
-  document.getElementById('addBatchBg').style.display='flex';
-}
-function doAddBatch() {
-  if(!addBatchState)return;
-  const{shelfId,code}=addBatchState;
-  const arrival=document.getElementById('abArrival').value;
-  const qty=parseInt(document.getElementById('abQty').value)||1;
-  if(!arrival){alert('Enter arrival date.');return;}
-  const batchId='b'+Date.now()+Math.random().toString(36).slice(2);
-  const entry=assignments[shelfId]?.find(i=>i.code===code);
-  if(entry)entry.batches.push({batchId,arrival,qty});
-  saveData(); toast('✅ Batch added!'); closeAddBatch(); render();
-}
-function closeAddBatch() { document.getElementById('addBatchBg').style.display='none'; addBatchState=null; }
-
-function changeBatchQty(shelfId,code,batchId,delta) {
-  const entry=assignments[shelfId]?.find(i=>i.code===code);
-  if(!entry)return;
-  const batch=entry.batches.find(b=>b.batchId===batchId);
-  if(!batch)return;
-  batch.qty=Math.max(0,batch.qty+delta);
-  saveData(); render();
-}
-function deleteBatch(shelfId,code,batchId) {
-  if(!confirm('Remove this batch?'))return;
-  const entry=assignments[shelfId]?.find(i=>i.code===code);
-  if(entry){entry.batches=entry.batches.filter(b=>b.batchId!==batchId);if(!entry.batches.length)assignments[shelfId]=assignments[shelfId].filter(i=>i.code!==code);}
-  if(!assignments[shelfId]?.length)delete assignments[shelfId];
-  saveData(); toast('🗑 Batch removed'); render();
-}
-function removeEntry(shelfId,code) {
-  if(!confirm('Remove all batches of '+code+' from this shelf?'))return;
-  if(assignments[shelfId]){assignments[shelfId]=assignments[shelfId].filter(i=>i.code!==code);if(!assignments[shelfId].length)delete assignments[shelfId];}
-  saveData(); toast('🗑 Entry removed'); render();
-}
-
-function openMoveBlock(fromShelfId,code,maxQty) {
-  moveState={fromShelfId,code,maxQty};
-  const sku=getSKU(code);
-  const loc=findShelfById(fromShelfId);
-  document.getElementById('moveInfo').innerHTML=`Moving: <strong>${code}</strong> — ${sku?.name||''}<br>From: <strong>${loc?loc.r.name+' – '+loc.s.name:fromShelfId}</strong><br>Available: <strong>${maxQty} units</strong>`;
-  document.getElementById('moveQtyInput').value=1;
-  document.getElementById('moveQtyInput').max=maxQty;
-  document.getElementById('moveZone').innerHTML=ZONES.map(z=>`<option value="${z.id}">${escH(z.name)}</option>`).join('');
+// ── MOVE ──
+function openMoveBlock(fromShelfId, code, maxQty) {
+  moveState = {fromShelfId: fromShelfId, code: code, maxQty: maxQty};
+  const sku = getSKU(code);
+  const loc = findShelfById(fromShelfId);
+  document.getElementById('moveInfo').innerHTML = 'Moving: <strong>' + escH(code) + '</strong> — ' + escH(sku ? sku.name : '') + '<br>From: <strong>' + (loc ? loc.r.name + ' – ' + loc.s.name : fromShelfId) + '</strong><br>Available: <strong>' + maxQty + ' units</strong>';
+  document.getElementById('moveQtyInput').value = 1;
+  document.getElementById('moveQtyInput').max = maxQty;
+  let zoneOpts = '';
+  for (const z of ZONES) zoneOpts += '<option value="' + z.id + '">' + escH(z.name) + '</option>';
+  document.getElementById('moveZone').innerHTML = zoneOpts;
   updateMoveRack();
-  document.getElementById('moveBg').style.display='flex';
+  document.getElementById('moveBg').style.display = 'flex';
 }
 function updateMoveRack() {
-  const zid=document.getElementById('moveZone').value;
-  const z=ZONES.find(z=>z.id===zid);
-  document.getElementById('moveRack').innerHTML=(z?.racks||[]).map(r=>`<option value="${r.id}">${escH(r.name)}</option>`).join('');
+  const zid = document.getElementById('moveZone').value;
+  const z = ZONES.find(z => z.id === zid);
+  let opts = '';
+  if (z) for (const r of z.racks) opts += '<option value="' + r.id + '">' + escH(r.name) + '</option>';
+  document.getElementById('moveRack').innerHTML = opts;
   updateMoveShelf();
 }
 function updateMoveShelf() {
-  const rid=document.getElementById('moveRack').value;
-  const found=findRackById(rid);
-  document.getElementById('moveShelf').innerHTML=(found?.r.shelves||[]).map(s=>`<option value="${s.id}">${escH(s.name)}</option>`).join('');
+  const rid = document.getElementById('moveRack').value;
+  const found = findRackById(rid);
+  let opts = '';
+  if (found) for (const s of found.r.shelves) opts += '<option value="' + s.id + '">' + escH(s.name) + '</option>';
+  document.getElementById('moveShelf').innerHTML = opts;
 }
-function confirmMove() {
-  if(!moveState)return;
-  const{fromShelfId,code,maxQty}=moveState;
-  const toShelfId=document.getElementById('moveShelf').value;
-  const qty=parseInt(document.getElementById('moveQtyInput').value)||1;
-  if(toShelfId===fromShelfId){alert('Same shelf. Choose a different one.');return;}
-  if(qty>maxQty){alert('Only '+maxQty+' available.');return;}
-  const srcEntry=assignments[fromShelfId]?.find(i=>i.code===code);
-  if(!srcEntry)return;
-  const sorted=[...srcEntry.batches].sort((a,b)=>a.arrival.localeCompare(b.arrival));
-  let remaining=qty;
-  for(const b of sorted){
-    if(remaining<=0)break;
-    const take=Math.min(remaining,b.qty);
-    if(!assignments[toShelfId])assignments[toShelfId]=[];
-    let destEntry=assignments[toShelfId].find(i=>i.code===code);
-    if(!destEntry){destEntry={code,batches:[]};assignments[toShelfId].push(destEntry);}
-    destEntry.batches.push({batchId:'b'+Date.now()+Math.random().toString(36).slice(2),arrival:b.arrival,qty:take});
-    b.qty-=take; remaining-=take;
+async function confirmMove() {
+  if (!moveState) return;
+  const fromShelfId = moveState.fromShelfId;
+  const code = moveState.code;
+  const maxQty = moveState.maxQty;
+  const toShelfId = document.getElementById('moveShelf').value;
+  const qty = parseInt(document.getElementById('moveQtyInput').value) || 1;
+  if (toShelfId === fromShelfId) { alert('Same shelf. Choose a different one.'); return; }
+  if (qty > maxQty) { alert('Only ' + maxQty + ' available.'); return; }
+  const srcEntry = assignments[fromShelfId] ? assignments[fromShelfId].find(i => i.code === code) : null;
+  if (!srcEntry) return;
+  const sorted = [...srcEntry.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
+  let remaining = qty;
+  for (const b of sorted) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, b.qty);
+    const newBatchId = 'b' + Date.now() + Math.random().toString(36).slice(2);
+    await sb.from('assignments').insert({shelf_id: toShelfId, sku_code: code, batch_id: newBatchId, arrival: b.arrival, qty: take});
+    if (b.qty - take === 0) {
+      await sb.from('assignments').delete().eq('batch_id', b.batchId);
+    } else {
+      await sb.from('assignments').update({qty: b.qty - take}).eq('batch_id', b.batchId);
+    }
+    remaining -= take;
   }
-  srcEntry.batches=srcEntry.batches.filter(b=>b.qty>0);
-  if(!srcEntry.batches.length)assignments[fromShelfId]=assignments[fromShelfId].filter(i=>i.code!==code);
-  if(!assignments[fromShelfId]?.length)delete assignments[fromShelfId];
-  saveData(); closeMove(); render(); toast('✅ Moved '+qty+' units');
+  await loadAssignments();
+  closeMove();
+  render();
+  toast('✅ Moved ' + qty + ' units');
 }
-function closeMove() { document.getElementById('moveBg').style.display='none'; moveState=null; }
+function closeMove() { document.getElementById('moveBg').style.display = 'none'; moveState = null; }
 
+// ── SEARCH ──
 function doSearch() {
-  const q=document.getElementById('searchInput').value.trim().toUpperCase();
-  if(!q)return;
-  const matches=SKUS.filter(s=>s.code.includes(q)||s.name.toUpperCase().includes(q));
-  document.getElementById('spTitle').textContent='SEARCH: "'+q+'" — '+matches.length+' result'+(matches.length!==1?'s':'');
-  if(!matches.length){document.getElementById('spBody').innerHTML='<div class="no-result">No SKU found.</div>';document.getElementById('searchPanel').style.display='flex';return;}
-  let html='';
-  for(const s of matches){
-    const total=getTotalQty(s.code);
-    const isLow=total<s.minQty&&total>0;
-    html+=`<div class="sp-sku-block"><div class="sp-sku-title"><div class="sp-dot" style="background:${s.color}"></div><div class="sp-code">${s.code}</div><div class="sp-name">${s.name}</div><div class="sp-total" style="color:${isLow?'#e74c3c':'#2ecc71'}">${total} units${isLow?' ⚠ LOW':''}</div></div>`;
-    let hasAny=false;
-    for(const z of ZONES)for(const r of z.racks)for(const sh of r.shelves){
-      const entry=(assignments[sh.id]||[]).find(i=>i.code===s.code);
-      if(!entry||!entry.batches.length)continue;
-      hasAny=true;
-      const sorted=[...entry.batches].sort((a,b)=>a.arrival.localeCompare(b.arrival));
-      const shelfTotal=sorted.reduce((a,b)=>a+b.qty,0);
-      html+=`<div class="sp-location-block"><div class="sp-loc-label">📍 ${escH(r.name)} – ${escH(sh.name)} (${shelfTotal} units, ${sorted.length} batch${sorted.length>1?'es':''})</div>
-        <table class="sp-batch-table"><thead><tr><th>#</th><th>Arrival Date</th><th>Qty</th></tr></thead><tbody>`;
-      sorted.forEach((b,idx)=>{
-        html+=`<tr><td style="color:var(--muted)">${idx+1}${idx===0?'<span class="fifo-tag">FIFO</span>':''}</td><td style="color:var(--accent2)">${fmtDate(b.arrival)}</td><td style="color:var(--text);font-weight:600">${b.qty}</td></tr>`;
+  const q = document.getElementById('searchInput').value.trim().toUpperCase();
+  if (!q) return;
+  const matches = SKUS.filter(s => s.code.includes(q) || s.name.toUpperCase().includes(q));
+  document.getElementById('spTitle').textContent = 'SEARCH: "' + q + '" — ' + matches.length + ' result' + (matches.length !== 1 ? 's' : '');
+  if (!matches.length) {
+    document.getElementById('spBody').innerHTML = '<div class="no-result">No SKU found.</div>';
+    document.getElementById('searchPanel').style.display = 'flex';
+    return;
+  }
+  let html = '';
+  for (const s of matches) {
+    const total = getTotalQty(s.code);
+    const isLow = total < s.minQty && total > 0;
+    html += '<div class="sp-sku-block"><div class="sp-sku-title"><div class="sp-dot" style="background:' + s.color + '"></div><div class="sp-code">' + escH(s.code) + '</div><div class="sp-name">' + escH(s.name) + '</div><div class="sp-total" style="color:' + (isLow ? '#e74c3c' : '#2ecc71') + '">' + total + ' units' + (isLow ? ' ⚠ LOW' : '') + '</div></div>';
+    let hasAny = false;
+    for (const z of ZONES) for (const r of z.racks) for (const sh of r.shelves) {
+      const entry = (assignments[sh.id] || []).find(i => i.code === s.code);
+      if (!entry || !entry.batches.length) continue;
+      hasAny = true;
+      const sorted = [...entry.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
+      const shelfTotal = sorted.reduce((a,b) => a + b.qty, 0);
+      html += '<div class="sp-location-block"><div class="sp-loc-label">📍 ' + escH(r.name) + ' – ' + escH(sh.name) + ' (' + shelfTotal + ' units, ' + sorted.length + ' batch' + (sorted.length > 1 ? 'es' : '') + ')</div><table class="sp-batch-table"><thead><tr><th>#</th><th>Arrival Date</th><th>Qty</th></tr></thead><tbody>';
+      sorted.forEach(function(b, idx) {
+        html += '<tr><td style="color:var(--muted)">' + (idx+1) + (idx === 0 ? '<span class="fifo-tag">FIFO</span>' : '') + '</td><td style="color:var(--accent2)">' + fmtDate(b.arrival) + '</td><td style="color:var(--text);font-weight:600">' + b.qty + '</td></tr>';
       });
-      html+=`</tbody></table></div>`;
+      html += '</tbody></table></div>';
     }
-    if(!hasAny)html+=`<div style="padding:8px 0 4px;font-size:.75rem;color:var(--muted);">Not placed on any shelf yet.</div>`;
-    html+=`</div>`;
+    if (!hasAny) html += '<div style="padding:8px 0 4px;font-size:.75rem;color:var(--muted);">Not placed on any shelf yet.</div>';
+    html += '</div>';
   }
-  document.getElementById('spBody').innerHTML=html;
-  document.getElementById('searchPanel').style.display='flex';
+  document.getElementById('spBody').innerHTML = html;
+  document.getElementById('searchPanel').style.display = 'flex';
 }
-function closeSearchPanel() { document.getElementById('searchPanel').style.display='none'; }
-function clearSearch() { document.getElementById('searchInput').value=''; selectedSKU=null; closeSearchPanel(); render(); }
-document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+function closeSearchPanel() { document.getElementById('searchPanel').style.display = 'none'; }
+function clearSearch() { document.getElementById('searchInput').value = ''; selectedSKU = null; closeSearchPanel(); render(); }
 
-function itemDragStart(e,fromShelfId,code,qty) {
-  dragState={fromShelfId,code,qty,fromSidebar:false};
-  e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',code);
+// ── DRAG AND DROP ──
+function itemDragStart(e, fromShelfId, code, qty) {
+  dragState = {fromShelfId: fromShelfId, code: code, qty: qty, fromSidebar: false};
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', code);
 }
-function sidebarDragStart(e,code) {
-  dragState={fromShelfId:null,code,qty:null,fromSidebar:true};
-  e.dataTransfer.effectAllowed='copy'; e.dataTransfer.setData('text/plain',code);
+function sidebarDragStart(e, code) {
+  dragState = {fromShelfId: null, code: code, qty: null, fromSidebar: true};
+  e.dataTransfer.effectAllowed = 'copy';
+  e.dataTransfer.setData('text/plain', code);
 }
-document.addEventListener('dragend',()=>{
-  dragState=null;
-  document.querySelectorAll('.dragging').forEach(el=>el.classList.remove('dragging'));
-  document.querySelectorAll('.drag-over,.drag-over-shelf').forEach(el=>{el.classList.remove('drag-over');el.classList.remove('drag-over-shelf');});
+document.addEventListener('dragend', function() {
+  dragState = null;
+  document.querySelectorAll('.dragging').forEach(function(el) { el.classList.remove('dragging'); });
+  document.querySelectorAll('.drag-over,.drag-over-shelf').forEach(function(el) { el.classList.remove('drag-over'); el.classList.remove('drag-over-shelf'); });
 });
-function shelfOver(e,id) { e.preventDefault(); e.stopPropagation(); document.getElementById('sh-'+id)?.classList.add('drag-over-shelf'); }
-function shelfLeave(e,id) { document.getElementById('sh-'+id)?.classList.remove('drag-over-shelf'); }
-function shelfDrop(e,toShelfId) {
+function shelfOver(e, id) { e.preventDefault(); e.stopPropagation(); var el = document.getElementById('sh-' + id); if (el) el.classList.add('drag-over-shelf'); }
+function shelfLeave(e, id) { var el = document.getElementById('sh-' + id); if (el) el.classList.remove('drag-over-shelf'); }
+async function shelfDrop(e, toShelfId) {
   e.preventDefault(); e.stopPropagation();
-  document.getElementById('sh-'+toShelfId)?.classList.remove('drag-over-shelf');
-  if(!dragState)return;
-  const{fromShelfId,code,fromSidebar}=dragState;
-  if(fromSidebar){openAssign(toShelfId);const sel=document.getElementById('assignSku');for(const opt of sel.options)if(opt.value===code){opt.selected=true;break;}dragState=null;return;}
-  if(fromShelfId===toShelfId){dragState=null;return;}
-  const srcEntry=assignments[fromShelfId]?.find(i=>i.code===code);
-  if(!srcEntry){dragState=null;return;}
-  if(!assignments[toShelfId])assignments[toShelfId]=[];
-  let destEntry=assignments[toShelfId].find(i=>i.code===code);
-  if(!destEntry){destEntry={code,batches:[]};assignments[toShelfId].push(destEntry);}
-  destEntry.batches.push(...srcEntry.batches);
-  assignments[fromShelfId]=assignments[fromShelfId].filter(i=>i.code!==code);
-  if(!assignments[fromShelfId].length)delete assignments[fromShelfId];
-  saveData(); dragState=null; render(); toast('✅ Moved to new shelf');
+  var el = document.getElementById('sh-' + toShelfId); if (el) el.classList.remove('drag-over-shelf');
+  if (!dragState) return;
+  const fromShelfId = dragState.fromShelfId;
+  const code = dragState.code;
+  const fromSidebar = dragState.fromSidebar;
+  if (fromSidebar) {
+    openAssign(toShelfId);
+    const sel = document.getElementById('assignSku');
+    for (const opt of sel.options) { if (opt.value === code) { opt.selected = true; break; } }
+    dragState = null; return;
+  }
+  if (fromShelfId === toShelfId) { dragState = null; return; }
+  const srcEntry = assignments[fromShelfId] ? assignments[fromShelfId].find(i => i.code === code) : null;
+  if (!srcEntry) { dragState = null; return; }
+  for (const b of srcEntry.batches) {
+    const newId = 'b' + Date.now() + Math.random().toString(36).slice(2);
+    await sb.from('assignments').insert({shelf_id: toShelfId, sku_code: code, batch_id: newId, arrival: b.arrival, qty: b.qty});
+    await sb.from('assignments').delete().eq('batch_id', b.batchId);
+  }
+  await loadAssignments();
+  dragState = null; render(); toast('✅ Moved to new shelf');
 }
-function rackOver(e,id) { e.preventDefault(); document.getElementById('rk-'+id)?.classList.add('drag-over'); }
-function rackLeave(id) { document.getElementById('rk-'+id)?.classList.remove('drag-over'); }
-function rackDrop(e,id) { document.getElementById('rk-'+id)?.classList.remove('drag-over'); }
+function rackOver(e, id) { e.preventDefault(); var el = document.getElementById('rk-' + id); if (el) el.classList.add('drag-over'); }
+function rackLeave(id) { var el = document.getElementById('rk-' + id); if (el) el.classList.remove('drag-over'); }
+function rackDrop(e, id) { var el = document.getElementById('rk-' + id); if (el) el.classList.remove('drag-over'); }
 
+// ── EXCEL EXPORT ──
 function exportToExcel() {
-  const wb=XLSX.utils.book_new();
-  const sum=[['SKU Code','Item Name','Total Units','Min Stock','Status','Locations']];
-  for(const s of SKUS){
-    const total=getTotalQty(s.code);
-    const locs=getShelfLocations(s.code);
-    if(total>0)sum.push([s.code,s.name,total,s.minQty,total<s.minQty?'LOW STOCK':'OK',locs.join(', ')]);
+  const wb = XLSX.utils.book_new();
+  const sum = [['SKU Code','Item Name','Total Units','Min Stock','Status','Locations']];
+  for (const s of SKUS) {
+    const total = getTotalQty(s.code);
+    const locs = getShelfLocations(s.code);
+    if (total > 0) sum.push([s.code, s.name, total, s.minQty, total < s.minQty ? 'LOW STOCK' : 'OK', locs.join(', ')]);
   }
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(sum),'Stock Summary');
-  const det=[['Zone','Rack','Shelf','SKU Code','Item Name','Batch #','Arrival Date','Qty','FIFO']];
-  for(const z of ZONES)for(const r of z.racks)for(const sh of r.shelves){
-    for(const item of (assignments[sh.id]||[])){
-      const sku=SKUS.find(s=>s.code===item.code);
-      const sorted=[...item.batches].sort((a,b)=>a.arrival.localeCompare(b.arrival));
-      sorted.forEach((b,idx)=>det.push([z.name,r.name,sh.name,item.code,sku?sku.name:'',idx+1,b.arrival,b.qty,idx===0?'FIFO FIRST ★':'']));
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sum), 'Stock Summary');
+  const det = [['Zone','Rack','Shelf','SKU Code','Item Name','Batch #','Arrival Date','Qty','FIFO']];
+  for (const z of ZONES) for (const r of z.racks) for (const sh of r.shelves) {
+    for (const item of (assignments[sh.id] || [])) {
+      const sku = SKUS.find(s => s.code === item.code);
+      const sorted = [...item.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
+      sorted.forEach(function(b, idx) { det.push([z.name, r.name, sh.name, item.code, sku ? sku.name : '', idx+1, b.arrival, b.qty, idx === 0 ? 'FIFO FIRST ★' : '']); });
     }
   }
-  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(det),'Batch Detail (FIFO)');
-  XLSX.writeFile(wb,'RackMap_Export_'+todayStr()+'.xlsx');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(det), 'Batch Detail (FIFO)');
+  XLSX.writeFile(wb, 'RackMap_Export_' + todayStr() + '.xlsx');
 }
 
+// ── FULL REPORT ──
 function showFullReport() {
-  let msg='══ WAREHOUSE STOCK REPORT ══\n\n';
-  for(const s of SKUS){
-    const total=getTotalQty(s.code);
-    if(!total)continue;
-    msg+=`[${total<s.minQty?'⚠ LOW':'✓ OK '}]  ${s.code}  |  ${s.name}\n`;
-    msg+=`        Total: ${total} units\n`;
-    for(const z of ZONES)for(const r of z.racks)for(const sh of r.shelves){
-      const entry=(assignments[sh.id]||[]).find(i=>i.code===s.code);
-      if(!entry||!entry.batches.length)continue;
-      const sorted=[...entry.batches].sort((a,b)=>a.arrival.localeCompare(b.arrival));
-      msg+=`        📍 ${r.name}-${sh.name}:\n`;
-      sorted.forEach((b,i)=>msg+=`           Batch ${i+1}: ${fmtDate(b.arrival)} × ${b.qty}${i===0?' [FIFO]':''}\n`);
+  let msg = '══ WAREHOUSE STOCK REPORT ══\n\n';
+  for (const s of SKUS) {
+    const total = getTotalQty(s.code);
+    if (!total) continue;
+    msg += '[' + (total < s.minQty ? '⚠ LOW' : '✓ OK ') + ']  ' + s.code + '  |  ' + s.name + '\n';
+    msg += '        Total: ' + total + ' units\n';
+    for (const z of ZONES) for (const r of z.racks) for (const sh of r.shelves) {
+      const entry = (assignments[sh.id] || []).find(i => i.code === s.code);
+      if (!entry || !entry.batches.length) continue;
+      const sorted = [...entry.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
+      msg += '        📍 ' + r.name + '-' + sh.name + ':\n';
+      sorted.forEach(function(b, i) { msg += '           Batch ' + (i+1) + ': ' + fmtDate(b.arrival) + ' × ' + b.qty + (i === 0 ? ' [FIFO]' : '') + '\n'; });
     }
-    msg+='\n';
+    msg += '\n';
   }
   alert(msg);
 }
 
-// Init
-loadData();
-render();
 </script>
 </body>
 </html>
