@@ -1669,30 +1669,10 @@ CODE2 (qty)"
 
   const ws3 = XLSX.utils.aoa_to_sheet(gridData);
 
-  // Style: set column widths - label col wide, rack cols medium
+  // Column widths
   const cols = [{wch: 18}];
   for (let i = 0; i < RACK_COUNT; i++) cols.push({wch: 22});
   ws3['!cols'] = cols;
-
-  // Set row heights and enable wrap text for all cells
-  const range = XLSX.utils.decode_range(ws3['!ref']);
-  for (let R = range.s.r; R <= range.e.r; R++) {
-    for (let C = range.s.c; C <= range.e.c; C++) {
-      const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
-      if (!ws3[cellAddr]) continue;
-      if (!ws3[cellAddr].s) ws3[cellAddr].s = {};
-      ws3[cellAddr].s.alignment = {wrapText: true, vertical: 'top'};
-      // Header row bold
-      if (R === 0) {
-        ws3[cellAddr].s.font = {bold: true};
-        ws3[cellAddr].s.fill = {fgColor: {rgb: 'FFD700'}};
-      }
-      // Zone-shelf label col
-      if (C === 0 && R > 0) {
-        ws3[cellAddr].s.font = {bold: true};
-      }
-    }
-  }
 
   XLSX.utils.book_append_sheet(wb, ws3, 'Warehouse Grid Map');
 
