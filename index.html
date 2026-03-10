@@ -1598,13 +1598,19 @@ function rackDrop(e, id) { var el = document.getElementById('rk-' + id); if (el)
 // ── EXCEL EXPORT ──
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
+
+  // ── SHEET 1: Stock Summary ──
   const sum = [['SKU Code','Item Name','Total Units','Min Stock','Status','Locations']];
   for (const s of SKUS) {
     const total = getTotalQty(s.code);
     const locs = getShelfLocations(s.code);
     if (total > 0) sum.push([s.code, s.name, total, s.minQty, total < s.minQty ? 'LOW STOCK' : 'OK', locs.join(', ')]);
   }
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sum), 'Stock Summary');
+  const ws1 = XLSX.utils.aoa_to_sheet(sum);
+  ws1['!cols'] = [{wch:18},{wch:45},{wch:12},{wch:10},{wch:12},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Stock Summary');
+
+  // ── SHEET 2: Batch Detail FIFO ──
   const det = [['Zone','Rack','Shelf','SKU Code','Item Name','Batch #','Arrival Date','Qty','FIFO']];
   for (const z of ZONES) for (const r of z.racks) for (const sh of r.shelves) {
     for (const item of (assignments[sh.id] || [])) {
@@ -1613,7 +1619,83 @@ function exportToExcel() {
       sorted.forEach(function(b, idx) { det.push([z.name, r.name, sh.name, item.code, sku ? sku.name : '', idx+1, b.arrival, b.qty, idx === 0 ? 'FIFO FIRST ★' : '']); });
     }
   }
-  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(det), 'Batch Detail (FIFO)');
+  const ws2 = XLSX.utils.aoa_to_sheet(det);
+  ws2['!cols'] = [{wch:8},{wch:8},{wch:8},{wch:18},{wch:40},{wch:8},{wch:14},{wch:8},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Batch Detail (FIFO)');
+
+  // ── SHEET 3: Warehouse Grid Map ──
+  // Rows: zones (L1-L4 top, then R8 down to R1), sub-rows: Top / Mid / Bot
+  // Columns: Rack 1 to 20
+  const RACK_COUNT = 20;
+
+  // Build zone order to match hand-drawn layout: L1,L2,L3,L4 then R8,R7,...R1
+  const zoneOrder = ['zL1','zL2','zL3','zL4','zR8','zR7','zR6','zR5','zR4','zR3','zR2','zR1'];
+  const shelfOrder = ['Top','Middle','Bottom'];
+
+  // Header row: blank label col, then rack numbers 1-20
+  const headerRow = ['Zone / Shelf'];
+  for (let i = 1; i <= RACK_COUNT; i++) headerRow.push('Rack ' + i);
+  const gridData = [headerRow];
+
+  for (const zid of zoneOrder) {
+    const zone = ZONES.find(z => z.id === zid);
+    if (!zone) continue;
+    for (const shelfName of shelfOrder) {
+      const row = [zone.name + ' – ' + shelfName];
+      for (let rNum = 1; rNum <= RACK_COUNT; rNum++) {
+        // Find rack by number
+        const rack = zone.racks.find(r => r.name === zone.name + '.' + rNum);
+        if (!rack) { row.push(''); continue; }
+        // Find shelf
+        const shelf = rack.shelves.find(s => s.name === shelfName);
+        if (!shelf) { row.push(''); continue; }
+        // Get assignments for this shelf
+        const items = assignments[shelf.id] || [];
+        if (!items.length) { row.push(''); continue; }
+        // Build cell content: "CODE1 (qty)
+CODE2 (qty)"
+        const parts = items.map(function(item) {
+          const total = item.batches.reduce((a,b) => a + b.qty, 0);
+          return item.code + ' (' + total + ')';
+        });
+        row.push(parts.join('
+'));
+      }
+      gridData.push(row);
+    }
+    // Blank separator row between zones
+    gridData.push(new Array(RACK_COUNT + 1).fill(''));
+  }
+
+  const ws3 = XLSX.utils.aoa_to_sheet(gridData);
+
+  // Style: set column widths - label col wide, rack cols medium
+  const cols = [{wch: 18}];
+  for (let i = 0; i < RACK_COUNT; i++) cols.push({wch: 22});
+  ws3['!cols'] = cols;
+
+  // Set row heights and enable wrap text for all cells
+  const range = XLSX.utils.decode_range(ws3['!ref']);
+  for (let R = range.s.r; R <= range.e.r; R++) {
+    for (let C = range.s.c; C <= range.e.c; C++) {
+      const cellAddr = XLSX.utils.encode_cell({r: R, c: C});
+      if (!ws3[cellAddr]) continue;
+      if (!ws3[cellAddr].s) ws3[cellAddr].s = {};
+      ws3[cellAddr].s.alignment = {wrapText: true, vertical: 'top'};
+      // Header row bold
+      if (R === 0) {
+        ws3[cellAddr].s.font = {bold: true};
+        ws3[cellAddr].s.fill = {fgColor: {rgb: 'FFD700'}};
+      }
+      // Zone-shelf label col
+      if (C === 0 && R > 0) {
+        ws3[cellAddr].s.font = {bold: true};
+      }
+    }
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws3, 'Warehouse Grid Map');
+
   XLSX.writeFile(wb, 'RackMap_Export_' + todayStr() + '.xlsx');
 }
 
