@@ -11,6 +11,8 @@
 :root{--bg:#0f1117;--panel:#1a1d27;--border:#2a2e3e;--accent:#f5a623;--accent2:#4ecdc4;--accent3:#e74c3c;--green:#2ecc71;--text:#e8eaf0;--muted:#6b7280;--card:#22263a;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow:hidden;}
+
+/* LOGIN SCREEN */
 .login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
 .login-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:36px;width:min(400px,92vw);box-shadow:0 32px 80px rgba(0,0,0,.6);}
 .login-logo{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:3px;color:var(--accent);text-align:center;margin-bottom:4px;}
@@ -23,7 +25,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .login-btn{width:100%;background:var(--accent);color:#000;border:none;padding:11px;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:6px;transition:opacity .2s;}
 .login-btn:hover{opacity:.85;}
 .login-err{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:#ff6b6b;border-radius:6px;padding:8px 12px;font-size:.76rem;margin-top:10px;display:none;}
+.login-mode{text-align:center;font-size:.72rem;color:var(--muted);margin-top:14px;cursor:pointer;}
+.login-mode span{color:var(--accent2);text-decoration:underline;}
 .login-loading{text-align:center;color:var(--muted);font-size:.8rem;padding:10px;display:none;}
+
+/* HEADER */
 header{background:var(--panel);border-bottom:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:2px;color:var(--accent);line-height:1;}
 .logo span{color:var(--accent2);}
@@ -42,10 +48,17 @@ button{background:var(--accent);color:#000;border:none;padding:6px 13px;border-r
 button:hover{opacity:.84;transform:translateY(-1px);}
 button.sec{background:transparent;border:1px solid var(--border);color:var(--text);}
 button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
+button.sm{padding:2px 8px;font-size:.68rem;}
 .search-wrap{position:relative;display:flex;align-items:center;gap:6px;}
 .search-wrap input{width:200px;}
+
+/* HINT BAR */
 .hint-bar{background:rgba(78,205,196,.05);border-bottom:1px solid rgba(78,205,196,.1);padding:3px 20px;font-size:.6rem;color:#3a5050;display:flex;align-items:center;gap:6px;}
+
+/* LAYOUT */
 .main{display:flex;height:calc(100vh - 62px);}
+
+/* SIDEBAR */
 .sidebar{width:290px;min-width:250px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .sidebar-header{padding:10px 13px;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:.92rem;letter-spacing:1px;color:var(--accent2);display:flex;align-items:center;justify-content:space-between;}
 .sku-list{flex:1;overflow-y:auto;padding:5px;}
@@ -54,6 +67,7 @@ button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
 .sku-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:4px;cursor:grab;transition:border-color .2s;display:flex;align-items:flex-start;gap:8px;user-select:none;}
 .sku-item:hover{border-color:var(--accent);}
 .sku-item.selected{border-color:var(--accent);background:#2a2217;}
+.sku-item.dragging{opacity:.3;}
 .sku-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px;}
 .sku-info{flex:1;min-width:0;}
 .sku-code{font-family:'DM Mono',monospace;font-size:.76rem;font-weight:500;color:var(--accent);}
@@ -61,19 +75,27 @@ button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
 .sku-total{font-size:.64rem;margin-top:2px;}
 .sku-locs{font-size:.6rem;color:var(--accent2);margin-top:1px;}
 .low-badge{display:inline-block;background:rgba(231,76,60,.2);color:#e74c3c;border-radius:3px;font-size:.54rem;padding:1px 4px;font-weight:700;margin-left:3px;}
+
+/* WAREHOUSE */
 .warehouse-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .warehouse{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
 .warehouse::-webkit-scrollbar{width:5px;height:5px;}
 .warehouse::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+/* ZONE */
 .zone-block{display:flex;flex-direction:column;}
 .zone-header{display:flex;align-items:center;gap:7px;padding-bottom:4px;border-bottom:1px solid var(--border);margin-bottom:7px;}
 .zone-accent{color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:.88rem;}
 .zone-name{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:2px;color:var(--muted);}
 .rack-row{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;}
+
+/* RACK */
 .rack{background:var(--card);border:1px solid var(--border);border-radius:9px;min-width:150px;max-width:185px;transition:border-color .2s;}
 .rack.drag-over{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(78,205,196,.3);}
 .rack-header{background:var(--panel);padding:4px 8px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);border-radius:9px 9px 0 0;}
 .rack-name{font-family:'Bebas Neue',sans-serif;font-size:.86rem;letter-spacing:1px;color:var(--accent2);text-align:center;}
+
+/* SHELF */
 .shelf{border-bottom:1px solid var(--border);padding:3px 5px;min-height:42px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:2px;}
 .shelf:last-child{border-bottom:none;}
 .shelf:hover{background:rgba(245,166,35,.05);}
@@ -106,11 +128,15 @@ button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
 .add-batch-link{font-size:.52rem;color:#3a3f52;cursor:pointer;padding-left:9px;margin-top:1px;}
 .add-batch-link:hover{color:var(--accent2);}
 .empty-shelf{font-size:.54rem;color:#2a2e40;font-style:italic;padding:1px 0;}
+
+/* STATS */
 .stats-bar{background:var(--panel);border-top:1px solid var(--border);padding:5px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:.68rem;color:var(--muted);}
 .stat{display:flex;align-items:center;gap:4px;}
 .stat strong{color:var(--text);font-size:.8rem;}
 .stat-link{color:var(--accent);cursor:pointer;font-size:.68rem;}
 .stat-link:hover{text-decoration:underline;}
+
+/* MODALS */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.76);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
 .modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;min-width:300px;max-width:480px;width:92vw;box-shadow:0 24px 64px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;}
 .modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:1px;color:var(--accent);margin-bottom:12px;}
@@ -123,8 +149,10 @@ button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
 .modal-section{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
 .move-info{background:rgba(78,205,196,.07);border:1px solid rgba(78,205,196,.18);border-radius:7px;padding:8px 11px;font-size:.76rem;margin-bottom:10px;line-height:1.7;}
 .move-info strong{color:var(--accent2);}
+
+/* SEARCH PANEL */
 .search-panel{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
-.search-panel-inner{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;width:min(680px,94vw);max-height:86vh;overflow-y:auto;}
+.search-panel-inner{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;width:min(680px,94vw);max-height:86vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.7);}
 .sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
 .sp-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:var(--accent);}
 .sp-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:3px 8px;border-radius:6px;}
@@ -138,41 +166,55 @@ button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
 .sp-location-block{border-left:2px solid var(--border);padding-left:10px;margin-bottom:8px;}
 .sp-loc-label{font-size:.68rem;color:var(--accent2);font-family:'DM Mono',monospace;margin-bottom:4px;font-weight:600;}
 .sp-batch-table{width:100%;border-collapse:collapse;}
-.sp-batch-table th{font-size:.62rem;color:var(--muted);text-transform:uppercase;padding:3px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.sp-batch-table th{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;text-align:left;border-bottom:1px solid var(--border);}
 .sp-batch-table td{font-size:.68rem;font-family:'DM Mono',monospace;padding:4px 8px;border-bottom:1px solid rgba(42,46,62,.5);}
 .sp-batch-table tr:last-child td{border-bottom:none;}
 .no-result{text-align:center;padding:30px;color:var(--muted);font-size:.85rem;}
+
+/* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:.76rem;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.ok{border-color:#2ecc71;color:#2ecc71;}
 .toast.err{border-color:#e74c3c;color:#e74c3c;}
+
+/* LOADING OVERLAY */
 .loading-overlay{position:fixed;inset:0;background:rgba(15,17,23,.85);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:14px;}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-txt{font-size:.8rem;color:var(--muted);}
-@media print{.login-screen,.toolbar,.sidebar,.stats-bar,.hint-bar,.toast,.modal-bg,.search-panel{display:none!important;}.main{height:auto;}body{background:#fff;color:#000;}}
+
+@media print{
+  .login-screen,.toolbar,.sidebar,.stats-bar,.hint-bar,.toast,.modal-bg,.search-panel{display:none!important;}
+  .main{height:auto;}body{background:#fff;color:#000;}
+}
 </style>
 </head>
 <body>
 
+<!-- LOGIN SCREEN -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="login-logo">RACK<span>MAP</span></div>
     <div class="login-tag">Lee Huat Frozen Warehouse System</div>
-    <div class="login-field"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email"/></div>
-    <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/></div>
-    <button class="login-btn" onclick="doLogin()">Sign In</button>
-    <div class="login-err" id="loginErr"></div>
-    <div class="login-loading" id="loginLoading">Signing in…</div>
+    <div id="loginForm">
+      <div class="login-field"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email"/></div>
+      <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="login-btn" onclick="doLogin()">Sign In</button>
+      <div class="login-err" id="loginErr"></div>
+      <div class="login-loading" id="loginLoading">Signing in…</div>
+    </div>
   </div>
 </div>
 
+<!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay" style="display:none;">
   <div class="spinner"></div>
   <div class="loading-txt" id="loadingTxt">Loading warehouse data…</div>
 </div>
 
+<!-- MAIN APP (hidden until logged in) -->
 <div id="appShell" style="display:none;">
+
 <header>
   <div>
     <div class="logo">RACK<span>MAP</span></div>
@@ -189,15 +231,26 @@ button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
     <div class="user-badge">
       <div class="sync-dot" id="syncDot"></div>
       <span id="userEmail">—</span>
-      <button onclick="doLogout()" style="background:transparent;border:none;color:var(--muted);font-size:.7rem;padding:0 0 0 6px;cursor:pointer;transform:none;">Sign out</button>
+      <button onclick="doLogout()" style="background:transparent;border:none;color:var(--muted);font-size:.7rem;padding:0 0 0 4px;cursor:pointer;transform:none;">Sign out</button>
     </div>
   </div>
 </header>
-<div class="hint-bar">📦 Click any shelf to assign a SKU batch &nbsp;|&nbsp; 🔍 Search to see all batches &amp; FIFO order &nbsp;|&nbsp; 🟢 Live sync — all users see changes instantly</div>
+
+<div class="hint-bar">
+  📦 Click any shelf to assign a SKU batch &nbsp;|&nbsp;
+  🔍 Search to see all batches &amp; FIFO order &nbsp;|&nbsp;
+  🟢 Live sync — all users see changes instantly
+</div>
+
 <div class="main">
   <div class="sidebar">
-    <div class="sidebar-header">SKU REGISTRY <span style="font-size:.64rem;color:var(--muted);font-family:'DM Sans',sans-serif;" id="skuCount"></span></div>
-    <div style="padding:6px 8px;border-bottom:1px solid var(--border);"><input type="text" id="skuFilter" placeholder="Filter SKUs…" style="width:100%;font-size:.74rem;" oninput="renderSKUList()"/></div>
+    <div class="sidebar-header">
+      SKU REGISTRY
+      <span style="font-size:.64rem;color:var(--muted);font-family:'DM Sans',sans-serif;" id="skuCount"></span>
+    </div>
+    <div style="padding:6px 8px;border-bottom:1px solid var(--border);">
+      <input type="text" id="skuFilter" placeholder="Filter SKUs…" style="width:100%;font-size:.74rem;" oninput="renderSKUList()"/>
+    </div>
     <div class="sku-list" id="skuList"></div>
   </div>
   <div class="warehouse-wrap">
@@ -205,20 +258,69 @@ button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
     <div class="stats-bar" id="statsBar"></div>
   </div>
 </div>
+
+</div><!-- end appShell -->
+
+<!-- ASSIGN MODAL -->
+<div class="modal-bg" id="assignBg" style="display:none;">
+  <div class="modal">
+    <h3>ASSIGN SKU BATCH TO SHELF</h3>
+    <div class="modal-loc" id="assignLoc"></div>
+    <div class="modal-section">Select SKU</div>
+    <select id="assignSku"></select>
+    <div class="modal-section">Batch Details</div>
+    <div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div>
+    <div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1" style="width:75px;"/></div>
+    <div class="modal-btns">
+      <button class="sec" onclick="closeAssign()">Cancel</button>
+      <button onclick="doAssign()">Add Batch</button>
+    </div>
+  </div>
 </div>
 
-<div class="modal-bg" id="assignBg" style="display:none;">
-  <div class="modal"><h3>ASSIGN SKU BATCH TO SHELF</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">Select SKU</div><select id="assignSku"></select><div class="modal-section">Batch Details</div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1" style="width:75px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">Cancel</button><button onclick="doAssign()">Add Batch</button></div></div>
-</div>
+<!-- ADD BATCH MODAL -->
 <div class="modal-bg" id="addBatchBg" style="display:none;">
-  <div class="modal"><h3>ADD NEW BATCH</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1" style="width:75px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">Cancel</button><button onclick="doAddBatch()">Add Batch</button></div></div>
+  <div class="modal">
+    <h3>ADD NEW BATCH</h3>
+    <div class="modal-loc" id="addBatchLoc"></div>
+    <div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div>
+    <div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1" style="width:75px;"/></div>
+    <div class="modal-btns">
+      <button class="sec" onclick="closeAddBatch()">Cancel</button>
+      <button onclick="doAddBatch()">Add Batch</button>
+    </div>
+  </div>
 </div>
+
+<!-- MOVE MODAL -->
 <div class="modal-bg" id="moveBg" style="display:none;">
-  <div class="modal"><h3>MOVE BATCH TO ANOTHER SHELF</h3><div class="move-info" id="moveInfo"></div><div style="font-size:.72rem;color:var(--muted);margin-bottom:5px;">Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select><select id="moveShelf" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select><div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1" style="width:75px;"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">Cancel</button><button onclick="confirmMove()">Move</button></div></div>
+  <div class="modal">
+    <h3>MOVE BATCH TO ANOTHER SHELF</h3>
+    <div class="move-info" id="moveInfo"></div>
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:5px;">Move to:</div>
+    <select id="moveZone" onchange="updateMoveRack()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
+    <select id="moveRack" onchange="updateMoveShelf()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
+    <select id="moveShelf" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
+    <div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1" style="width:75px;"/></div>
+    <div class="modal-btns">
+      <button class="sec" onclick="closeMove()">Cancel</button>
+      <button onclick="confirmMove()">Move</button>
+    </div>
+  </div>
 </div>
+
+<!-- SEARCH PANEL -->
 <div class="search-panel" id="searchPanel" style="display:none;">
-  <div class="search-panel-inner"><div class="sp-header"><div class="sp-title" id="spTitle">SEARCH RESULTS</div><button class="sp-close" onclick="closeSearchPanel()">✕</button></div><div id="spBody"></div></div>
+  <div class="search-panel-inner">
+    <div class="sp-header">
+      <div class="sp-title" id="spTitle">SEARCH RESULTS</div>
+      <button class="sp-close" onclick="closeSearchPanel()">✕</button>
+    </div>
+    <div id="spBody"></div>
+  </div>
 </div>
+
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1597,83 +1699,96 @@ function rackDrop(e, id) { var el = document.getElementById('rk-' + id); if (el)
 
 // ── EXCEL EXPORT ──
 function exportToExcel() {
-  const wb = XLSX.utils.book_new();
+  var wb = XLSX.utils.book_new();
 
-  // ── SHEET 1: Stock Summary ──
-  const sum = [['SKU Code','Item Name','Total Units','Min Stock','Status','Locations']];
-  for (const s of SKUS) {
-    const total = getTotalQty(s.code);
-    const locs = getShelfLocations(s.code);
+  // Sheet 1: Stock Summary
+  var sum = [['SKU Code','Item Name','Total Units','Min Stock','Status','Locations']];
+  for (var si = 0; si < SKUS.length; si++) {
+    var s = SKUS[si];
+    var total = getTotalQty(s.code);
+    var locs = getShelfLocations(s.code);
     if (total > 0) sum.push([s.code, s.name, total, s.minQty, total < s.minQty ? 'LOW STOCK' : 'OK', locs.join(', ')]);
   }
-  const ws1 = XLSX.utils.aoa_to_sheet(sum);
+  var ws1 = XLSX.utils.aoa_to_sheet(sum);
   ws1['!cols'] = [{wch:18},{wch:45},{wch:12},{wch:10},{wch:12},{wch:40}];
   XLSX.utils.book_append_sheet(wb, ws1, 'Stock Summary');
 
-  // ── SHEET 2: Batch Detail FIFO ──
-  const det = [['Zone','Rack','Shelf','SKU Code','Item Name','Batch #','Arrival Date','Qty','FIFO']];
-  for (const z of ZONES) for (const r of z.racks) for (const sh of r.shelves) {
-    for (const item of (assignments[sh.id] || [])) {
-      const sku = SKUS.find(s => s.code === item.code);
-      const sorted = [...item.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
-      sorted.forEach(function(b, idx) { det.push([z.name, r.name, sh.name, item.code, sku ? sku.name : '', idx+1, b.arrival, b.qty, idx === 0 ? 'FIFO FIRST ★' : '']); });
+  // Sheet 2: Batch Detail FIFO
+  var det = [['Zone','Rack','Shelf','SKU Code','Item Name','Batch #','Arrival Date','Qty','FIFO']];
+  for (var zi = 0; zi < ZONES.length; zi++) {
+    var z = ZONES[zi];
+    for (var ri = 0; ri < z.racks.length; ri++) {
+      var r = z.racks[ri];
+      for (var shi = 0; shi < r.shelves.length; shi++) {
+        var sh = r.shelves[shi];
+        var items = assignments[sh.id] || [];
+        for (var ii = 0; ii < items.length; ii++) {
+          var item = items[ii];
+          var sku = SKUS.find(function(sk) { return sk.code === item.code; });
+          var sorted = item.batches.slice().sort(function(a,b) { return a.arrival.localeCompare(b.arrival); });
+          for (var bi = 0; bi < sorted.length; bi++) {
+            var b = sorted[bi];
+            det.push([z.name, r.name, sh.name, item.code, sku ? sku.name : '', bi+1, b.arrival, b.qty, bi === 0 ? 'FIFO FIRST' : '']);
+          }
+        }
+      }
     }
   }
-  const ws2 = XLSX.utils.aoa_to_sheet(det);
+  var ws2 = XLSX.utils.aoa_to_sheet(det);
   ws2['!cols'] = [{wch:8},{wch:8},{wch:8},{wch:18},{wch:40},{wch:8},{wch:14},{wch:8},{wch:12}];
   XLSX.utils.book_append_sheet(wb, ws2, 'Batch Detail (FIFO)');
 
-  // ── SHEET 3: Warehouse Grid Map ──
-  // Rows: zones (L1-L4 top, then R8 down to R1), sub-rows: Top / Mid / Bot
-  // Columns: Rack 1 to 20
-  const RACK_COUNT = 20;
+  // Sheet 3: Warehouse Grid Map
+  // Zone order: L1,L2,L3,L4 then R8 down to R1
+  var zoneOrder = ['zL1','zL2','zL3','zL4','zR8','zR7','zR6','zR5','zR4','zR3','zR2','zR1'];
+  var shelfNames = ['Top','Middle','Bottom'];
+  var RACK_COUNT = 20;
 
-  // Build zone order to match hand-drawn layout: L1,L2,L3,L4 then R8,R7,...R1
-  const zoneOrder = ['zL1','zL2','zL3','zL4','zR8','zR7','zR6','zR5','zR4','zR3','zR2','zR1'];
-  const shelfOrder = ['Top','Middle','Bottom'];
+  var headerRow = ['Zone / Shelf'];
+  for (var n = 1; n <= RACK_COUNT; n++) headerRow.push('Rack ' + n);
+  var gridData = [headerRow];
 
-  // Header row: blank label col, then rack numbers 1-20
-  const headerRow = ['Zone / Shelf'];
-  for (let i = 1; i <= RACK_COUNT; i++) headerRow.push('Rack ' + i);
-  const gridData = [headerRow];
-
-  for (const zid of zoneOrder) {
-    const zone = ZONES.find(z => z.id === zid);
+  for (var zoi = 0; zoi < zoneOrder.length; zoi++) {
+    var zid = zoneOrder[zoi];
+    var zone = null;
+    for (var zz = 0; zz < ZONES.length; zz++) { if (ZONES[zz].id === zid) { zone = ZONES[zz]; break; } }
     if (!zone) continue;
-    for (const shelfName of shelfOrder) {
-      const row = [zone.name + ' – ' + shelfName];
-      for (let rNum = 1; rNum <= RACK_COUNT; rNum++) {
-        // Find rack by number
-        const rack = zone.racks.find(r => r.name === zone.name + '.' + rNum);
+    for (var sni = 0; sni < shelfNames.length; sni++) {
+      var shelfName = shelfNames[sni];
+      var row = [zone.name + ' - ' + shelfName];
+      for (var rn = 1; rn <= RACK_COUNT; rn++) {
+        var rack = null;
+        for (var rr = 0; rr < zone.racks.length; rr++) {
+          if (zone.racks[rr].name === zone.name + '.' + rn) { rack = zone.racks[rr]; break; }
+        }
         if (!rack) { row.push(''); continue; }
-        // Find shelf
-        const shelf = rack.shelves.find(s => s.name === shelfName);
+        var shelf = null;
+        for (var ss = 0; ss < rack.shelves.length; ss++) {
+          if (rack.shelves[ss].name === shelfName) { shelf = rack.shelves[ss]; break; }
+        }
         if (!shelf) { row.push(''); continue; }
-        // Get assignments for this shelf
-        const items = assignments[shelf.id] || [];
-        if (!items.length) { row.push(''); continue; }
-        // Build cell content: "CODE1 (qty)
-CODE2 (qty)"
-        const parts = items.map(function(item) {
-          const total = item.batches.reduce((a,b) => a + b.qty, 0);
-          return item.code + ' (' + total + ')';
-        });
-        row.push(parts.join('
-'));
+        var shelfItems = assignments[shelf.id] || [];
+        if (!shelfItems.length) { row.push(''); continue; }
+        var parts = [];
+        for (var pi = 0; pi < shelfItems.length; pi++) {
+          var it = shelfItems[pi];
+          var qty = it.batches.reduce(function(a,b) { return a + b.qty; }, 0);
+          parts.push(it.code + ' (' + qty + ')');
+        }
+        row.push(parts.join(', '));
       }
       gridData.push(row);
     }
-    // Blank separator row between zones
-    gridData.push(new Array(RACK_COUNT + 1).fill(''));
+    // blank row between zones
+    var blankRow = [];
+    for (var bc = 0; bc <= RACK_COUNT; bc++) blankRow.push('');
+    gridData.push(blankRow);
   }
 
-  const ws3 = XLSX.utils.aoa_to_sheet(gridData);
-
-  // Column widths
-  const cols = [{wch: 18}];
-  for (let i = 0; i < RACK_COUNT; i++) cols.push({wch: 22});
-  ws3['!cols'] = cols;
-
+  var ws3 = XLSX.utils.aoa_to_sheet(gridData);
+  var gridCols = [{wch:20}];
+  for (var gc = 0; gc < RACK_COUNT; gc++) gridCols.push({wch:24});
+  ws3['!cols'] = gridCols;
   XLSX.utils.book_append_sheet(wb, ws3, 'Warehouse Grid Map');
 
   XLSX.writeFile(wb, 'RackMap_Export_' + todayStr() + '.xlsx');
