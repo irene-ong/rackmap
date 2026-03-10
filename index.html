@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>RackMap – Lee Huat Frozen Warehouse</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -1261,28 +1262,21 @@ async function doLogout() {
   currentUser = null;
 }
 
+// Enter key support
+document.getElementById('loginPass').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+document.getElementById('loginEmail').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('loginPass').focus(); });
+document.getElementById('searchInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') doSearch(); });
+
 // Check existing session on page load
-window.addEventListener('load', async function() {
+(async function() {
   try {
-    const result = await sb.auth.getSession();
+    var result = await sb.auth.getSession();
     if (result.data && result.data.session) {
       currentUser = result.data.session.user;
       bootApp();
     }
-  } catch(e) {
-    console.log('Session check failed:', e);
-  }
-});
-
-// Enter key support for login
-document.addEventListener('DOMContentLoaded', function() {
-  const passEl = document.getElementById('loginPass');
-  const emailEl = document.getElementById('loginEmail');
-  if (passEl) passEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
-  if (emailEl) emailEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') passEl.focus(); });
-  const searchEl = document.getElementById('searchInput');
-  if (searchEl) searchEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') doSearch(); });
-});
+  } catch(e) {}
+})();
 
 // ── BOOT ──
 async function bootApp() {
