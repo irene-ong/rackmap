@@ -152,6 +152,9 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .hist-table th{font-size:.65rem;color:var(--muted);text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:2px solid var(--border);background:#f9fafb;font-weight:600;}
 .hist-table td{padding:6px 8px;border-bottom:1px solid #f0f0f0;font-family:'DM Mono',monospace;}
 .hist-table tr:hover td{background:#f9fafb;}
+.sku-unplaced{color:#e67e00;cursor:pointer;font-weight:600;}
+.sku-unplaced:hover{text-decoration:underline;}
+.unplaced-panel{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .no-result{text-align:center;padding:30px;color:var(--muted);font-size:.9rem;}
 .toast{position:fixed;bottom:24px;right:24px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:.8rem;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
@@ -215,6 +218,7 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 <div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveShelf" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">Cancel</button><button onclick="confirmMove()">Move</button></div></div></div>
 <div class="search-panel" id="searchPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title" id="spTitle">Search Results</div><button class="sp-close" onclick="closeSearchPanel()">✕</button></div><div id="spBody"></div></div></div>
 <div class="history-panel" id="historyPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title">📋 Change History</div><button class="sp-close" onclick="closeHistory()">✕</button></div><div id="historyBody"></div></div></div>
+<div class="unplaced-panel" id="unplacedPanel" style="display:none;"><div class="panel-inner" style="max-width:480px;"><div class="sp-header"><div class="sp-title">⚠️ Unplaced Batches</div><button class="sp-close" onclick="closeUnplaced()">✕</button></div><div id="unplacedBody"></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
 const SUPABASE_URL='https://xndxogfqaddzzyegtmzl.supabase.co';
@@ -1244,6 +1248,30 @@ function setupRealtime() {
     .subscribe();
 }
 
+// ── UNPLACED BATCHES POPUP ──
+function showUnplacedBatches(code) {
+  const sku = getSKU(code);
+  let allBatches = [];
+  for (const [shelfId, items] of Object.entries(assignments)) {
+    const entry = items.find(i => i.code === code);
+    if (entry) {
+      entry.batches.forEach(b => allBatches.push({...b, shelfId}));
+    }
+  }
+  if (!allBatches.length) { toast('No batch data found for '+code,'err'); return; }
+  let html = '<div class="sp-code" style="margin-bottom:6px;">'+escH(code)+'</div>';
+  html += '<div class="sp-name" style="margin-bottom:10px;">'+escH(sku?sku.name:'')+'</div>';
+  html += '<table class="hist-table"><thead><tr><th>Shelf ID</th><th>Arrival</th><th>Qty</th></tr></thead><tbody>';
+  allBatches.forEach(b => {
+    html += '<tr><td style="color:#d93025;font-size:.65rem">'+escH(b.shelfId)+'</td><td>'+fmtDate(b.arrival)+'</td><td><strong>'+b.qty+'</strong></td></tr>';
+  });
+  html += '</tbody></table>';
+  html += '<div style="font-size:.7rem;color:#aaa;margin-top:10px;">These batches are in the database but not assigned to a visible rack slot. Use Search to locate or reassign.</div>';
+  document.getElementById('unplacedBody').innerHTML = html;
+  document.getElementById('unplacedPanel').style.display = 'flex';
+}
+function closeUnplaced() { document.getElementById('unplacedPanel').style.display = 'none'; }
+
 // ── RENDER ──
 function render() { renderSKUList(); renderWarehouse(); renderStats(); }
 
@@ -1263,7 +1291,14 @@ function renderSKUList() {
     html += '<div class="sku-code">'+escH(s.code)+'</div>';
     html += '<div class="sku-name">'+escH(s.name)+'</div>';
     html += '<div class="sku-total">Stock: <strong>'+total+'</strong>'+(bcount?' · <strong style="color:#0077cc">'+bcount+'</strong> batch'+(bcount!==1?'es':''):'')+'</div>';
-    html += locs.length?'<div class="sku-locs">📍 '+locs.slice(0,3).join(' · ')+(locs.length>3?' +'+(locs.length-3)+' more':'')+'</div>':'<div class="sku-locs" style="color:#aaa">Not placed</div>';
+    const totalBatches = getBatchCount(s.code);
+    if (locs.length) {
+      html += '<div class="sku-locs">📍 '+locs.slice(0,3).join(' · ')+(locs.length>3?' +'+(locs.length-3)+' more':'')+'</div>';
+    } else if (totalBatches > 0) {
+      html += '<div class="sku-locs sku-unplaced" data-code="'+escH(s.code)+'" onclick="event.stopPropagation();showUnplacedBatches(this.dataset.code)">⚠️ Not placed — tap to see batches</div>';
+    } else {
+      html += '<div class="sku-locs" style="color:#ccc">Not placed</div>';
+    }
     html += '</div></div>';
   }
   document.getElementById('skuList').innerHTML = html;
