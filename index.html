@@ -2,256 +2,227 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
 <title>RackMap – Lee Huat Frozen Warehouse</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--bg:#0f1117;--panel:#1a1d27;--border:#2a2e3e;--accent:#f5a623;--accent2:#4ecdc4;--accent3:#e74c3c;--green:#2ecc71;--text:#e8eaf0;--muted:#6b7280;--card:#22263a;}
+:root{--bg:#f5f6fa;--panel:#ffffff;--border:#e2e4ed;--accent:#1a6fc4;--accent2:#0a9e8a;--red:#d93025;--green:#1a7a3c;--text:#1a1d2e;--muted:#6b7280;--card:#ffffff;--shadow:0 1px 4px rgba(0,0,0,.08);}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow:hidden;}
-
-/* LOGIN SCREEN */
-.login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
-.login-box{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:36px;width:min(400px,92vw);box-shadow:0 32px 80px rgba(0,0,0,.6);}
-.login-logo{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;letter-spacing:3px;color:var(--accent);text-align:center;margin-bottom:4px;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px;}
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:#eef1f8;display:flex;align-items:center;justify-content:center;z-index:1000;}
+.login-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:40px;width:min(420px,92vw);box-shadow:0 8px 40px rgba(0,0,0,.12);}
+.login-logo{font-size:2rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:4px;letter-spacing:1px;}
 .login-logo span{color:var(--accent2);}
-.login-tag{text-align:center;font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:28px;}
+.login-tag{text-align:center;font-size:.75rem;color:var(--muted);margin-bottom:28px;}
 .login-field{margin-bottom:14px;}
-.login-field label{display:block;font-size:.72rem;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
-.login-field input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:.9rem;font-family:'DM Sans',sans-serif;transition:border-color .2s;}
-.login-field input:focus{outline:none;border-color:var(--accent);}
-.login-btn{width:100%;background:var(--accent);color:#000;border:none;padding:11px;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:6px;transition:opacity .2s;}
-.login-btn:hover{opacity:.85;}
-.login-err{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.3);color:#ff6b6b;border-radius:6px;padding:8px 12px;font-size:.76rem;margin-top:10px;display:none;}
-.login-mode{text-align:center;font-size:.72rem;color:var(--muted);margin-top:14px;cursor:pointer;}
-.login-mode span{color:var(--accent2);text-decoration:underline;}
+.login-field label{display:block;font-size:.75rem;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.login-field input{width:100%;background:#f9fafb;border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:8px;font-size:.95rem;font-family:'Inter',sans-serif;transition:border-color .2s;}
+.login-field input:focus{outline:none;border-color:var(--accent);background:#fff;}
+.login-btn{width:100%;background:var(--accent);color:#fff;border:none;padding:12px;border-radius:8px;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:6px;transition:background .2s;}
+.login-btn:hover{background:#155fa0;}
+.login-err{background:#fdf2f2;border:1px solid #f5c6c6;color:var(--red);border-radius:6px;padding:8px 12px;font-size:.78rem;margin-top:10px;display:none;}
 .login-loading{text-align:center;color:var(--muted);font-size:.8rem;padding:10px;display:none;}
-
 /* HEADER */
-header{background:var(--panel);border-bottom:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:2px;color:var(--accent);line-height:1;}
+header{background:#fff;border-bottom:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow);}
+.logo{font-size:1.5rem;font-weight:800;color:var(--accent);line-height:1;}
 .logo span{color:var(--accent2);}
-.tagline{font-size:.66rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.tagline{font-size:.65rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
 .toolbar{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
-.user-badge{background:rgba(78,205,196,.1);border:1px solid rgba(78,205,196,.2);border-radius:20px;padding:4px 12px;font-size:.7rem;color:var(--accent2);display:flex;align-items:center;gap:6px;}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:#2ecc71;animation:pulse 2s infinite;flex-shrink:0;}
-.sync-dot.syncing{background:var(--accent);}
-.sync-dot.error{background:var(--accent3);animation:none;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-input[type="text"],input[type="number"],input[type="date"]{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:.78rem;transition:border-color .2s;}
-input[type="text"]:focus,input[type="number"]:focus,input[type="date"]:focus{outline:none;border-color:var(--accent);}
-input[type="date"]{color-scheme:dark;width:138px;}
-input[type="text"]{width:175px;}input[type="number"]{width:64px;}
-button{background:var(--accent);color:#000;border:none;padding:6px 13px;border-radius:6px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;transition:opacity .2s,transform .1s;white-space:nowrap;}
-button:hover{opacity:.84;transform:translateY(-1px);}
-button.sec{background:transparent;border:1px solid var(--border);color:var(--text);}
-button.sec:hover{border-color:var(--accent2);color:var(--accent2);}
-button.sm{padding:2px 8px;font-size:.68rem;}
-.search-wrap{position:relative;display:flex;align-items:center;gap:6px;}
-.search-wrap input{width:200px;}
-
+.user-badge{background:#eef6ff;border:1px solid #c7dff7;border-radius:20px;padding:5px 12px;font-size:.72rem;color:var(--accent);display:flex;align-items:center;gap:6px;font-weight:500;}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.sync-dot.syncing{background:orange;animation:pulse 1s infinite;}
+.sync-dot.error{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+/* INPUTS / BUTTONS */
+input[type="text"],input[type="number"],input[type="date"]{background:#f9fafb;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:.8rem;transition:border-color .2s;}
+input[type="text"]:focus,input[type="number"]:focus,input[type="date"]:focus{outline:none;border-color:var(--accent);background:#fff;}
+input[type="date"]{width:140px;}
+input[type="text"]{width:180px;}input[type="number"]{width:70px;}
+button{background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-family:'Inter',sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;transition:background .15s;white-space:nowrap;}
+button:hover{background:#155fa0;}
+button.sec{background:#fff;border:1px solid var(--border);color:var(--text);}
+button.sec:hover{border-color:var(--accent);color:var(--accent);background:#fff;}
+button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 /* HINT BAR */
-.hint-bar{background:rgba(78,205,196,.05);border-bottom:1px solid rgba(78,205,196,.1);padding:3px 20px;font-size:.6rem;color:#3a5050;display:flex;align-items:center;gap:6px;}
-
+.hint-bar{background:#f0f7ff;border-bottom:1px solid #d0e8ff;padding:4px 20px;font-size:.68rem;color:#5580aa;display:flex;gap:8px;align-items:center;}
 /* LAYOUT */
-.main{display:flex;height:calc(100vh - 62px);}
-
+.main{display:flex;height:calc(100vh - 70px);}
 /* SIDEBAR */
-.sidebar{width:290px;min-width:250px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
-.sidebar-header{padding:10px 13px;border-bottom:1px solid var(--border);font-family:'Bebas Neue',sans-serif;font-size:.92rem;letter-spacing:1px;color:var(--accent2);display:flex;align-items:center;justify-content:space-between;}
+.sidebar{width:280px;min-width:240px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);}
+.sidebar-header{padding:10px 13px;border-bottom:1px solid var(--border);font-size:.78rem;font-weight:700;color:var(--accent2);display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;letter-spacing:.5px;}
 .sku-list{flex:1;overflow-y:auto;padding:5px;}
 .sku-list::-webkit-scrollbar{width:3px;}
 .sku-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-.sku-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:4px;cursor:grab;transition:border-color .2s;display:flex;align-items:flex-start;gap:8px;user-select:none;}
-.sku-item:hover{border-color:var(--accent);}
-.sku-item.selected{border-color:var(--accent);background:#2a2217;}
-.sku-item.dragging{opacity:.3;}
-.sku-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:2px;}
+.sku-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:4px;cursor:grab;transition:border-color .2s,box-shadow .2s;display:flex;align-items:flex-start;gap:8px;user-select:none;}
+.sku-item:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(26,111,196,.1);}
+.sku-item.selected{border-color:var(--accent);background:#eef6ff;}
+.sku-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px;}
 .sku-info{flex:1;min-width:0;}
-.sku-code{font-family:'DM Mono',monospace;font-size:.76rem;font-weight:500;color:var(--accent);}
+.sku-code{font-family:'DM Mono',monospace;font-size:.75rem;font-weight:600;color:var(--accent);}
 .sku-name{font-size:.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.sku-total{font-size:.64rem;margin-top:2px;}
-.sku-locs{font-size:.6rem;color:var(--accent2);margin-top:1px;}
-.low-badge{display:inline-block;background:rgba(231,76,60,.2);color:#e74c3c;border-radius:3px;font-size:.54rem;padding:1px 4px;font-weight:700;margin-left:3px;}
-
+.sku-total{font-size:.65rem;margin-top:2px;color:var(--text);}
+.sku-locs{font-size:.62rem;color:var(--accent2);margin-top:1px;}
 /* WAREHOUSE */
 .warehouse-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.warehouse{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px;}
-.warehouse::-webkit-scrollbar{width:5px;height:5px;}
+.warehouse{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}
+.warehouse::-webkit-scrollbar{width:5px;}
 .warehouse::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-
-/* ZONE */
-.zone-block{display:flex;flex-direction:column;}
-.zone-header{display:flex;align-items:center;gap:7px;padding-bottom:4px;border-bottom:1px solid var(--border);margin-bottom:7px;}
-.zone-accent{color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:.88rem;}
-.zone-name{font-family:'Bebas Neue',sans-serif;font-size:.82rem;letter-spacing:2px;color:var(--muted);}
-.rack-row{display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;}
-
+.zone-block{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;box-shadow:var(--shadow);}
+.zone-header{display:flex;align-items:center;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:10px;}
+.zone-accent{color:var(--accent);font-size:1rem;font-weight:800;}
+.zone-name{font-size:.85rem;font-weight:700;letter-spacing:.5px;color:var(--text);}
+.zone-del-btn{background:transparent;border:none;color:#ccc;font-size:.7rem;cursor:pointer;padding:2px 5px;margin-left:auto;border-radius:4px;}
+.zone-del-btn:hover{color:var(--red);background:#fdf2f2;}
+.rack-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;}
 /* RACK */
-.rack{background:var(--card);border:1px solid var(--border);border-radius:9px;min-width:150px;max-width:185px;transition:border-color .2s;}
-.rack.drag-over{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(78,205,196,.3);}
-.rack-header{background:var(--panel);padding:4px 8px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);border-radius:9px 9px 0 0;}
-.rack-name{font-family:'Bebas Neue',sans-serif;font-size:.86rem;letter-spacing:1px;color:var(--accent2);text-align:center;}
-
+.rack{background:#fafbfc;border:1px solid var(--border);border-radius:8px;min-width:148px;max-width:180px;transition:border-color .2s;}
+.rack.drag-over{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(10,158,138,.2);}
+.rack-header{background:#f0f4ff;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0;}
+.rack-name{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:700;color:var(--accent);}
+.rack-del-btn{background:transparent;border:none;color:#ccc;font-size:.62rem;cursor:pointer;padding:1px 4px;border-radius:3px;}
+.rack-del-btn:hover{color:var(--red);background:#fdf2f2;}
 /* SHELF */
-.shelf{border-bottom:1px solid var(--border);padding:3px 5px;min-height:42px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:2px;}
+.shelf{border-bottom:1px solid var(--border);padding:4px 6px;min-height:44px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:2px;}
 .shelf:last-child{border-bottom:none;}
-.shelf:hover{background:rgba(245,166,35,.05);}
-.shelf.highlight{background:rgba(78,205,196,.08);}
-.shelf.drag-over-shelf{background:rgba(78,205,196,.13);outline:1px dashed var(--accent2);}
-.shelf-top{display:flex;align-items:center;gap:3px;margin-bottom:1px;}
-.shelf-label{font-size:.54rem;color:var(--muted);font-family:'DM Mono',monospace;}
-.shelf-items{display:flex;flex-direction:column;gap:1px;}
+.shelf:hover{background:#f0f7ff;}
+.shelf.highlight{background:#e6f7f5;}
+.shelf.drag-over-shelf{background:#d4f0ed;outline:1px dashed var(--accent2);}
+.shelf-top{display:flex;align-items:center;gap:3px;}
+.shelf-label{font-size:.56rem;color:#aaa;font-family:'DM Mono',monospace;font-weight:500;}
+.shelf-items{display:flex;flex-direction:column;gap:2px;}
 .shelf-sku-block{border-radius:4px;padding:2px 3px;}
 .shelf-sku-header{display:flex;align-items:center;gap:3px;}
-.row-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.row-code{font-family:'DM Mono',monospace;font-size:.6rem;font-weight:600;flex:1;cursor:grab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.row-total{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);}
-.row-act{background:transparent;border:none;color:#3a3f52;font-size:.54rem;padding:1px 2px;cursor:pointer;border-radius:3px;flex-shrink:0;}
-.row-act:hover{color:var(--accent2);background:transparent;transform:none;}
-.row-act.del:hover{color:var(--accent3);}
-.batch-list{padding-left:9px;display:flex;flex-direction:column;gap:1px;margin-top:1px;}
+.row-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.row-code{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;flex:1;cursor:grab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-total{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--green);font-weight:700;}
+.row-act{background:transparent;border:none;color:#ccc;font-size:.56rem;padding:1px 3px;cursor:pointer;border-radius:3px;}
+.row-act:hover{color:var(--accent);background:#eef6ff;}
+.row-act.del:hover{color:var(--red);background:#fdf2f2;}
+.batch-list{padding-left:10px;display:flex;flex-direction:column;gap:1px;margin-top:1px;}
 .batch-row{display:flex;align-items:center;gap:3px;padding:1px 2px;border-radius:3px;}
-.batch-row:hover{background:rgba(255,255,255,.04);}
-.batch-arr{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--accent2);}
-.fifo-tag{font-size:.5rem;background:rgba(245,166,35,.2);color:var(--accent);border-radius:3px;padding:1px 4px;margin-left:3px;}
+.batch-row:hover{background:#f0f4ff;}
+.batch-arr{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--accent2);}
 .batch-qty-ctrl{display:flex;align-items:center;gap:2px;margin-left:auto;}
-.bqty-btn{width:14px;height:14px;border-radius:2px;border:none;font-size:.65rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;}
-.bqty-btn.m{background:rgba(231,76,60,.18);color:#e74c3c;}
-.bqty-btn.p{background:rgba(46,204,113,.18);color:#2ecc71;}
-.bqty-val{font-family:'DM Mono',monospace;font-size:.6rem;font-weight:700;min-width:18px;text-align:center;}
-.qty-low{color:#e74c3c!important;}.qty-ok{color:#f5a623!important;}.qty-good{color:#2ecc71!important;}
-.batch-del{background:transparent;border:none;color:#2e3347;font-size:.5rem;padding:1px 2px;cursor:pointer;border-radius:2px;flex-shrink:0;}
-.batch-del:hover{color:var(--accent3);background:transparent;transform:none;}
-.add-batch-link{font-size:.52rem;color:#3a3f52;cursor:pointer;padding-left:9px;margin-top:1px;}
+.bqty-btn{width:16px;height:16px;border-radius:3px;border:none;font-size:.7rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;}
+.bqty-btn.m{background:#fde8e8;color:var(--red);}
+.bqty-btn.p{background:#e8f7ee;color:var(--green);}
+.bqty-val{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;min-width:20px;text-align:center;color:var(--text);}
+.batch-del{background:transparent;border:none;color:#ddd;font-size:.52rem;padding:1px 2px;cursor:pointer;}
+.batch-del:hover{color:var(--red);}
+.add-batch-link{font-size:.58rem;color:#aaa;cursor:pointer;padding-left:10px;margin-top:1px;}
 .add-batch-link:hover{color:var(--accent2);}
-.empty-shelf{font-size:.54rem;color:#2a2e40;font-style:italic;padding:1px 0;}
-
+.empty-shelf{font-size:.6rem;color:#bbb;font-style:italic;padding:2px 0;}
+/* ZONE Z */
+.zone-z-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:560px;}
+.z-slot{background:#fafbfc;border:2px solid var(--border);border-radius:8px;padding:7px 5px;min-height:70px;cursor:pointer;transition:border-color .2s,background .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.z-slot:hover{border-color:var(--accent);background:#f0f7ff;}
+.z-slot.highlight{border-color:var(--accent2);background:#e6f7f5;}
+.z-slot.drag-over-shelf{background:#d4f0ed;border-color:var(--accent2);}
+.z-slot-label{font-family:'DM Mono',monospace;font-size:.68rem;font-weight:700;color:var(--muted);}
+.z-slot-used{border-color:#b8ddb8;background:#f4faf4;}
+.z-slot-content{display:flex;align-items:center;gap:3px;border-left:3px solid;padding-left:4px;width:100%;}
+/* ADD BUTTONS */
+.add-struct-btn{background:transparent;border:1px dashed var(--border);color:var(--muted);font-size:.72rem;padding:4px 10px;border-radius:6px;cursor:pointer;margin-top:8px;}
+.add-struct-btn:hover{border-color:var(--accent2);color:var(--accent2);background:#e6f7f5;}
+.add-zone-row{display:flex;gap:10px;padding:8px 0;}
+.add-zone-btn{background:#fff;border:1px dashed var(--accent);color:var(--accent);font-size:.78rem;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;}
+.add-zone-btn:hover{background:#eef6ff;}
 /* STATS */
-.stats-bar{background:var(--panel);border-top:1px solid var(--border);padding:5px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:.68rem;color:var(--muted);}
-.stat{display:flex;align-items:center;gap:4px;}
-.stat strong{color:var(--text);font-size:.8rem;}
-.stat-link{color:var(--accent);cursor:pointer;font-size:.68rem;}
-.stat-link:hover{text-decoration:underline;}
-
+.stats-bar{background:#fff;border-top:1px solid var(--border);padding:6px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:.72rem;color:var(--muted);}
+.stat strong{color:var(--text);font-size:.82rem;}
+.stat-link{color:var(--accent);cursor:pointer;font-size:.72rem;font-weight:600;padding:3px 8px;border-radius:5px;background:#eef6ff;}
+.stat-link:hover{background:#d0e8ff;}
 /* MODALS */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.76);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);}
-.modal{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px;min-width:300px;max-width:480px;width:92vw;box-shadow:0 24px 64px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto;}
-.modal h3{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:1px;color:var(--accent);margin-bottom:12px;}
-.modal-loc{background:var(--bg);border-radius:6px;padding:7px 11px;font-family:'DM Mono',monospace;font-size:.76rem;color:var(--accent2);margin-bottom:10px;}
-.modal select{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:.82rem;margin-bottom:9px;cursor:pointer;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(3px);}
+.modal{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;min-width:320px;max-width:500px;width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;}
+.modal-loc{background:#f0f7ff;border-radius:6px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:.78rem;color:var(--accent);margin-bottom:12px;font-weight:600;}
+.modal select{width:100%;background:#f9fafb;border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-family:'Inter',sans-serif;font-size:.85rem;margin-bottom:10px;cursor:pointer;}
 .modal select:focus{outline:none;border-color:var(--accent);}
-.modal-row{display:flex;gap:7px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
-.modal-row label{font-size:.74rem;color:var(--muted);white-space:nowrap;}
-.modal-btns{display:flex;gap:6px;justify-content:flex-end;margin-top:4px;}
-.modal-section{font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;}
-.move-info{background:rgba(78,205,196,.07);border:1px solid rgba(78,205,196,.18);border-radius:7px;padding:8px 11px;font-size:.76rem;margin-bottom:10px;line-height:1.7;}
-.move-info strong{color:var(--accent2);}
-
-/* SEARCH PANEL */
-.search-panel{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
-.search-panel-inner{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;width:min(680px,94vw);max-height:86vh;overflow-y:auto;box-shadow:0 32px 80px rgba(0,0,0,.7);}
-.sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.sp-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:var(--accent);}
+.modal-row{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
+.modal-row label{font-size:.75rem;color:var(--muted);font-weight:600;white-space:nowrap;}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px;}
+.modal-section{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:6px;}
+.move-info{background:#f0f7ff;border:1px solid #c7dff7;border-radius:8px;padding:10px 12px;font-size:.8rem;margin-bottom:12px;line-height:1.8;}
+/* PANELS */
+.search-panel,.history-panel{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.panel-inner{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;width:min(760px,94vw);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15);}
+.sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;}
+.sp-title{font-size:1.1rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;}
 .sp-close{background:transparent;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:3px 8px;border-radius:6px;}
-.sp-close:hover{color:var(--text);transform:none;}
-.sp-sku-block{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.sp-close:hover{background:#f0f0f0;color:var(--text);}
+.sp-sku-block{border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
 .sp-sku-title{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
 .sp-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
-.sp-code{font-family:'DM Mono',monospace;font-size:.9rem;font-weight:600;color:var(--accent);}
+.sp-code{font-family:'DM Mono',monospace;font-size:.9rem;font-weight:700;color:var(--accent);}
 .sp-name{font-size:.8rem;color:var(--muted);}
-.sp-total{font-size:.75rem;color:var(--accent2);margin-left:auto;}
-.sp-location-block{border-left:2px solid var(--border);padding-left:10px;margin-bottom:8px;}
-.sp-loc-label{font-size:.68rem;color:var(--accent2);font-family:'DM Mono',monospace;margin-bottom:4px;font-weight:600;}
-.sp-batch-table{width:100%;border-collapse:collapse;}
-.sp-batch-table th{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;text-align:left;border-bottom:1px solid var(--border);}
-.sp-batch-table td{font-size:.68rem;font-family:'DM Mono',monospace;padding:4px 8px;border-bottom:1px solid rgba(42,46,62,.5);}
-.sp-batch-table tr:last-child td{border-bottom:none;}
-.no-result{text-align:center;padding:30px;color:var(--muted);font-size:.85rem;}
-
+.sp-total{font-size:.8rem;color:var(--green);font-weight:700;margin-left:auto;}
+.sp-location-block{border-left:3px solid var(--accent2);padding-left:10px;margin-bottom:10px;}
+.sp-loc-label{font-size:.72rem;color:var(--accent2);font-family:'DM Mono',monospace;margin-bottom:4px;font-weight:600;}
+.hist-table{width:100%;border-collapse:collapse;font-size:.76rem;}
+.hist-table th{font-size:.65rem;color:var(--muted);text-transform:uppercase;padding:6px 8px;text-align:left;border-bottom:2px solid var(--border);background:#f9fafb;font-weight:600;}
+.hist-table td{padding:6px 8px;border-bottom:1px solid #f0f0f0;font-family:'DM Mono',monospace;}
+.hist-table tr:hover td{background:#f9fafb;}
+.no-result{text-align:center;padding:30px;color:var(--muted);font-size:.9rem;}
 /* TOAST */
-.toast{position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:.76rem;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
+.toast{position:fixed;bottom:24px;right:24px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:.8rem;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
-.toast.ok{border-color:#2ecc71;color:#2ecc71;}
-.toast.err{border-color:#e74c3c;color:#e74c3c;}
-
-/* LOADING OVERLAY */
-.loading-overlay{position:fixed;inset:0;background:rgba(15,17,23,.85);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:14px;}
+.toast.ok{border-color:var(--green);color:var(--green);}
+.toast.err{border-color:var(--red);color:var(--red);}
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:14px;}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.loading-txt{font-size:.8rem;color:var(--muted);}
-
-@media print{
-  .login-screen,.toolbar,.sidebar,.stats-bar,.hint-bar,.toast,.modal-bg,.search-panel{display:none!important;}
-  .main{height:auto;}body{background:#fff;color:#000;}
-}
+.loading-txt{font-size:.85rem;color:var(--muted);}
+@media print{.login-screen,.toolbar,.sidebar,.stats-bar,.hint-bar,.toast,.modal-bg,.search-panel,.history-panel{display:none!important;}.main{height:auto;}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="login-logo">RACK<span>MAP</span></div>
     <div class="login-tag">Lee Huat Frozen Warehouse System</div>
-    <div id="loginForm">
-      <div class="login-field"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email"/></div>
-      <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/></div>
-      <button class="login-btn" onclick="doLogin()">Sign In</button>
-      <div class="login-err" id="loginErr"></div>
-      <div class="login-loading" id="loginLoading">Signing in…</div>
-    </div>
+    <div class="login-field"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email"/></div>
+    <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/></div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="loginErr"></div>
+    <div class="login-loading" id="loginLoading">Signing in…</div>
   </div>
 </div>
 
-<!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay" style="display:none;">
   <div class="spinner"></div>
-  <div class="loading-txt" id="loadingTxt">Loading warehouse data…</div>
+  <div class="loading-txt">Loading warehouse data…</div>
 </div>
 
-<!-- MAIN APP (hidden until logged in) -->
 <div id="appShell" style="display:none;">
-
 <header>
-  <div>
-    <div class="logo">RACK<span>MAP</span></div>
-    <div class="tagline">Lee Huat · Frozen Goods · FIFO Batch Tracking</div>
-  </div>
+  <div><div class="logo">RACK<span>MAP</span></div><div class="tagline">Lee Huat · Frozen Goods · Live Sync</div></div>
   <div class="toolbar">
-    <div class="search-wrap">
-      <input type="text" id="searchInput" placeholder="Search SKU or name…"/>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <input type="text" id="searchInput" placeholder="Search SKU or name…" style="width:200px;"/>
       <button onclick="doSearch()">🔍 Search</button>
+      <button class="sec" onclick="clearSearch()">Clear</button>
     </div>
-    <button class="sec" onclick="clearSearch()">Clear</button>
-    <button onclick="window.print()">🖨 Print</button>
-    <button class="sec" onclick="exportToExcel()" style="border-color:#1d6f42;color:#1d6f42;">📊 Excel</button>
+    <button class="sec" onclick="window.print()">🖨 Print</button>
+    <button class="grn" onclick="exportToExcel()">📊 Excel</button>
     <div class="user-badge">
       <div class="sync-dot" id="syncDot"></div>
       <span id="userEmail">—</span>
-      <button onclick="doLogout()" style="background:transparent;border:none;color:var(--muted);font-size:.7rem;padding:0 0 0 4px;cursor:pointer;transform:none;">Sign out</button>
+      <button onclick="doLogout()" style="background:transparent;border:none;color:var(--muted);font-size:.7rem;padding:0 0 0 6px;cursor:pointer;">Sign out</button>
     </div>
   </div>
 </header>
-
-<div class="hint-bar">
-  📦 Click any shelf to assign a SKU batch &nbsp;|&nbsp;
-  🔍 Search to see all batches &amp; FIFO order &nbsp;|&nbsp;
-  🟢 Live sync — all users see changes instantly
-</div>
-
+<div class="hint-bar">📦 Click any shelf to assign &nbsp;|&nbsp; 🔍 Search for batch details &nbsp;|&nbsp; 🟢 Live sync — all users see changes instantly &nbsp;|&nbsp; ＋ Add zones/racks at bottom of page</div>
 <div class="main">
   <div class="sidebar">
-    <div class="sidebar-header">
-      SKU REGISTRY
-      <span style="font-size:.64rem;color:var(--muted);font-family:'DM Sans',sans-serif;" id="skuCount"></span>
-    </div>
-    <div style="padding:6px 8px;border-bottom:1px solid var(--border);">
-      <input type="text" id="skuFilter" placeholder="Filter SKUs…" style="width:100%;font-size:.74rem;" oninput="renderSKUList()"/>
-    </div>
+    <div class="sidebar-header">SKU REGISTRY <span style="font-size:.65rem;color:var(--muted);font-weight:400" id="skuCount"></span></div>
+    <div style="padding:7px 8px;border-bottom:1px solid var(--border);"><input type="text" id="skuFilter" placeholder="Filter SKUs…" style="width:100%;font-size:.76rem;" oninput="renderSKUList()"/></div>
     <div class="sku-list" id="skuList"></div>
   </div>
   <div class="warehouse-wrap">
@@ -259,339 +230,294 @@ button.sm{padding:2px 8px;font-size:.68rem;}
     <div class="stats-bar" id="statsBar"></div>
   </div>
 </div>
-
-</div><!-- end appShell -->
-
-<!-- ASSIGN MODAL -->
-<div class="modal-bg" id="assignBg" style="display:none;">
-  <div class="modal">
-    <h3>ASSIGN SKU BATCH TO SHELF</h3>
-    <div class="modal-loc" id="assignLoc"></div>
-    <div class="modal-section">Select SKU</div>
-    <select id="assignSku"></select>
-    <div class="modal-section">Batch Details</div>
-    <div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div>
-    <div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1" style="width:75px;"/></div>
-    <div class="modal-btns">
-      <button class="sec" onclick="closeAssign()">Cancel</button>
-      <button onclick="doAssign()">Add Batch</button>
-    </div>
-  </div>
 </div>
 
-<!-- ADD BATCH MODAL -->
-<div class="modal-bg" id="addBatchBg" style="display:none;">
-  <div class="modal">
-    <h3>ADD NEW BATCH</h3>
-    <div class="modal-loc" id="addBatchLoc"></div>
-    <div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div>
-    <div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1" style="width:75px;"/></div>
-    <div class="modal-btns">
-      <button class="sec" onclick="closeAddBatch()">Cancel</button>
-      <button onclick="doAddBatch()">Add Batch</button>
-    </div>
-  </div>
-</div>
+<!-- Assign -->
+<div class="modal-bg" id="assignBg" style="display:none;"><div class="modal"><h3>Assign SKU to Slot</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">Select SKU</div><select id="assignSku"></select><div class="modal-section">Batch Details</div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">Cancel</button><button onclick="doAssign()">Add</button></div></div></div>
+<!-- Add Batch -->
+<div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">Cancel</button><button onclick="doAddBatch()">Add Batch</button></div></div></div>
+<!-- Move -->
+<div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveShelf" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">Cancel</button><button onclick="confirmMove()">Move</button></div></div></div>
+<!-- Search -->
+<div class="search-panel" id="searchPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title" id="spTitle">Search Results</div><button class="sp-close" onclick="closeSearchPanel()">✕</button></div><div id="spBody"></div></div></div>
+<!-- History -->
+<div class="history-panel" id="historyPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title">📋 Change History</div><button class="sp-close" onclick="closeHistory()">✕</button></div><div id="historyBody"></div></div></div>
 
-<!-- MOVE MODAL -->
-<div class="modal-bg" id="moveBg" style="display:none;">
-  <div class="modal">
-    <h3>MOVE BATCH TO ANOTHER SHELF</h3>
-    <div class="move-info" id="moveInfo"></div>
-    <div style="font-size:.72rem;color:var(--muted);margin-bottom:5px;">Move to:</div>
-    <select id="moveZone" onchange="updateMoveRack()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
-    <select id="moveRack" onchange="updateMoveShelf()" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
-    <select id="moveShelf" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:7px;border-radius:6px;margin-bottom:6px;font-size:.82rem;cursor:pointer;"></select>
-    <div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1" style="width:75px;"/></div>
-    <div class="modal-btns">
-      <button class="sec" onclick="closeMove()">Cancel</button>
-      <button onclick="confirmMove()">Move</button>
-    </div>
-  </div>
-</div>
-
-<!-- SEARCH PANEL -->
-<div class="search-panel" id="searchPanel" style="display:none;">
-  <div class="search-panel-inner">
-    <div class="sp-header">
-      <div class="sp-title" id="spTitle">SEARCH RESULTS</div>
-      <button class="sp-close" onclick="closeSearchPanel()">✕</button>
-    </div>
-    <div id="spBody"></div>
-  </div>
-</div>
-
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
-
 <script>
+const SUPABASE_URL='https://xndxogfqaddzzyegtmzl.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuZHhvZ2ZxYWRkenp5ZWd0bXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMDM4NDYsImV4cCI6MjA4ODU3OTg0Nn0.S0fhpOQwvaAtZKovi1dcTgJ72mOenzX86lTFbWABoL4';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const ZONES = [
   {id:'zR1',name:'R1',racks:[
-    {id:'rR1_1',name:'R1.1',shelves:[{id:'sR1_1_1',name:'Top'},{id:'sR1_1_2',name:'Middle'},{id:'sR1_1_3',name:'Bottom'}]},
-    {id:'rR1_2',name:'R1.2',shelves:[{id:'sR1_2_1',name:'Top'},{id:'sR1_2_2',name:'Middle'},{id:'sR1_2_3',name:'Bottom'}]},
-    {id:'rR1_3',name:'R1.3',shelves:[{id:'sR1_3_1',name:'Top'},{id:'sR1_3_2',name:'Middle'},{id:'sR1_3_3',name:'Bottom'}]},
-    {id:'rR1_4',name:'R1.4',shelves:[{id:'sR1_4_1',name:'Top'},{id:'sR1_4_2',name:'Middle'},{id:'sR1_4_3',name:'Bottom'}]},
-    {id:'rR1_5',name:'R1.5',shelves:[{id:'sR1_5_1',name:'Top'},{id:'sR1_5_2',name:'Middle'},{id:'sR1_5_3',name:'Bottom'}]},
-    {id:'rR1_6',name:'R1.6',shelves:[{id:'sR1_6_1',name:'Top'},{id:'sR1_6_2',name:'Middle'},{id:'sR1_6_3',name:'Bottom'}]},
-    {id:'rR1_7',name:'R1.7',shelves:[{id:'sR1_7_1',name:'Top'},{id:'sR1_7_2',name:'Middle'},{id:'sR1_7_3',name:'Bottom'}]},
-    {id:'rR1_8',name:'R1.8',shelves:[{id:'sR1_8_1',name:'Top'},{id:'sR1_8_2',name:'Middle'},{id:'sR1_8_3',name:'Bottom'}]},
-    {id:'rR1_9',name:'R1.9',shelves:[{id:'sR1_9_1',name:'Top'},{id:'sR1_9_2',name:'Middle'},{id:'sR1_9_3',name:'Bottom'}]},
-    {id:'rR1_10',name:'R1.10',shelves:[{id:'sR1_10_1',name:'Top'},{id:'sR1_10_2',name:'Middle'},{id:'sR1_10_3',name:'Bottom'}]},
-    {id:'rR1_11',name:'R1.11',shelves:[{id:'sR1_11_1',name:'Top'},{id:'sR1_11_2',name:'Middle'},{id:'sR1_11_3',name:'Bottom'}]},
-    {id:'rR1_12',name:'R1.12',shelves:[{id:'sR1_12_1',name:'Top'},{id:'sR1_12_2',name:'Middle'},{id:'sR1_12_3',name:'Bottom'}]},
-    {id:'rR1_13',name:'R1.13',shelves:[{id:'sR1_13_1',name:'Top'},{id:'sR1_13_2',name:'Middle'},{id:'sR1_13_3',name:'Bottom'}]},
-    {id:'rR1_14',name:'R1.14',shelves:[{id:'sR1_14_1',name:'Top'},{id:'sR1_14_2',name:'Middle'},{id:'sR1_14_3',name:'Bottom'}]},
-    {id:'rR1_15',name:'R1.15',shelves:[{id:'sR1_15_1',name:'Top'},{id:'sR1_15_2',name:'Middle'},{id:'sR1_15_3',name:'Bottom'}]},
-    {id:'rR1_16',name:'R1.16',shelves:[{id:'sR1_16_1',name:'Top'},{id:'sR1_16_2',name:'Middle'},{id:'sR1_16_3',name:'Bottom'}]},
-    {id:'rR1_17',name:'R1.17',shelves:[{id:'sR1_17_1',name:'Top'},{id:'sR1_17_2',name:'Middle'},{id:'sR1_17_3',name:'Bottom'}]},
-    {id:'rR1_18',name:'R1.18',shelves:[{id:'sR1_18_1',name:'Top'},{id:'sR1_18_2',name:'Middle'},{id:'sR1_18_3',name:'Bottom'}]},
-    {id:'rR1_19',name:'R1.19',shelves:[{id:'sR1_19_1',name:'Top'},{id:'sR1_19_2',name:'Middle'},{id:'sR1_19_3',name:'Bottom'}]},
-    {id:'rR1_20',name:'R1.20',shelves:[{id:'sR1_20_1',name:'Top'},{id:'sR1_20_2',name:'Middle'},{id:'sR1_20_3',name:'Bottom'}]}
+    {id:'rR1A',name:'R1A',shelves:[{id:'sR1A_1',name:'Top'},{id:'sR1A_2',name:'Middle'},{id:'sR1A_3',name:'Bottom'}]},
+    {id:'rR1B',name:'R1B',shelves:[{id:'sR1B_1',name:'Top'},{id:'sR1B_2',name:'Middle'},{id:'sR1B_3',name:'Bottom'}]},
+    {id:'rR1C',name:'R1C',shelves:[{id:'sR1C_1',name:'Top'},{id:'sR1C_2',name:'Middle'},{id:'sR1C_3',name:'Bottom'}]},
+    {id:'rR1D',name:'R1D',shelves:[{id:'sR1D_1',name:'Top'},{id:'sR1D_2',name:'Middle'},{id:'sR1D_3',name:'Bottom'}]},
+    {id:'rR1E',name:'R1E',shelves:[{id:'sR1E_1',name:'Top'},{id:'sR1E_2',name:'Middle'},{id:'sR1E_3',name:'Bottom'}]},
+    {id:'rR1F',name:'R1F',shelves:[{id:'sR1F_1',name:'Top'},{id:'sR1F_2',name:'Middle'},{id:'sR1F_3',name:'Bottom'}]}
   ]},
   {id:'zR2',name:'R2',racks:[
-    {id:'rR2_1',name:'R2.1',shelves:[{id:'sR2_1_1',name:'Top'},{id:'sR2_1_2',name:'Middle'},{id:'sR2_1_3',name:'Bottom'}]},
-    {id:'rR2_2',name:'R2.2',shelves:[{id:'sR2_2_1',name:'Top'},{id:'sR2_2_2',name:'Middle'},{id:'sR2_2_3',name:'Bottom'}]},
-    {id:'rR2_3',name:'R2.3',shelves:[{id:'sR2_3_1',name:'Top'},{id:'sR2_3_2',name:'Middle'},{id:'sR2_3_3',name:'Bottom'}]},
-    {id:'rR2_4',name:'R2.4',shelves:[{id:'sR2_4_1',name:'Top'},{id:'sR2_4_2',name:'Middle'},{id:'sR2_4_3',name:'Bottom'}]},
-    {id:'rR2_5',name:'R2.5',shelves:[{id:'sR2_5_1',name:'Top'},{id:'sR2_5_2',name:'Middle'},{id:'sR2_5_3',name:'Bottom'}]},
-    {id:'rR2_6',name:'R2.6',shelves:[{id:'sR2_6_1',name:'Top'},{id:'sR2_6_2',name:'Middle'},{id:'sR2_6_3',name:'Bottom'}]},
-    {id:'rR2_7',name:'R2.7',shelves:[{id:'sR2_7_1',name:'Top'},{id:'sR2_7_2',name:'Middle'},{id:'sR2_7_3',name:'Bottom'}]},
-    {id:'rR2_8',name:'R2.8',shelves:[{id:'sR2_8_1',name:'Top'},{id:'sR2_8_2',name:'Middle'},{id:'sR2_8_3',name:'Bottom'}]},
-    {id:'rR2_9',name:'R2.9',shelves:[{id:'sR2_9_1',name:'Top'},{id:'sR2_9_2',name:'Middle'},{id:'sR2_9_3',name:'Bottom'}]},
-    {id:'rR2_10',name:'R2.10',shelves:[{id:'sR2_10_1',name:'Top'},{id:'sR2_10_2',name:'Middle'},{id:'sR2_10_3',name:'Bottom'}]},
-    {id:'rR2_11',name:'R2.11',shelves:[{id:'sR2_11_1',name:'Top'},{id:'sR2_11_2',name:'Middle'},{id:'sR2_11_3',name:'Bottom'}]},
-    {id:'rR2_12',name:'R2.12',shelves:[{id:'sR2_12_1',name:'Top'},{id:'sR2_12_2',name:'Middle'},{id:'sR2_12_3',name:'Bottom'}]},
-    {id:'rR2_13',name:'R2.13',shelves:[{id:'sR2_13_1',name:'Top'},{id:'sR2_13_2',name:'Middle'},{id:'sR2_13_3',name:'Bottom'}]},
-    {id:'rR2_14',name:'R2.14',shelves:[{id:'sR2_14_1',name:'Top'},{id:'sR2_14_2',name:'Middle'},{id:'sR2_14_3',name:'Bottom'}]},
-    {id:'rR2_15',name:'R2.15',shelves:[{id:'sR2_15_1',name:'Top'},{id:'sR2_15_2',name:'Middle'},{id:'sR2_15_3',name:'Bottom'}]},
-    {id:'rR2_16',name:'R2.16',shelves:[{id:'sR2_16_1',name:'Top'},{id:'sR2_16_2',name:'Middle'},{id:'sR2_16_3',name:'Bottom'}]},
-    {id:'rR2_17',name:'R2.17',shelves:[{id:'sR2_17_1',name:'Top'},{id:'sR2_17_2',name:'Middle'},{id:'sR2_17_3',name:'Bottom'}]},
-    {id:'rR2_18',name:'R2.18',shelves:[{id:'sR2_18_1',name:'Top'},{id:'sR2_18_2',name:'Middle'},{id:'sR2_18_3',name:'Bottom'}]},
-    {id:'rR2_19',name:'R2.19',shelves:[{id:'sR2_19_1',name:'Top'},{id:'sR2_19_2',name:'Middle'},{id:'sR2_19_3',name:'Bottom'}]},
-    {id:'rR2_20',name:'R2.20',shelves:[{id:'sR2_20_1',name:'Top'},{id:'sR2_20_2',name:'Middle'},{id:'sR2_20_3',name:'Bottom'}]}
+    {id:'rR2A',name:'R2A',shelves:[{id:'sR2A_1',name:'Top'},{id:'sR2A_2',name:'Middle'},{id:'sR2A_3',name:'Bottom'}]},
+    {id:'rR2B',name:'R2B',shelves:[{id:'sR2B_1',name:'Top'},{id:'sR2B_2',name:'Middle'},{id:'sR2B_3',name:'Bottom'}]},
+    {id:'rR2C',name:'R2C',shelves:[{id:'sR2C_1',name:'Top'},{id:'sR2C_2',name:'Middle'},{id:'sR2C_3',name:'Bottom'}]},
+    {id:'rR2D',name:'R2D',shelves:[{id:'sR2D_1',name:'Top'},{id:'sR2D_2',name:'Middle'},{id:'sR2D_3',name:'Bottom'}]},
+    {id:'rR2E',name:'R2E',shelves:[{id:'sR2E_1',name:'Top'},{id:'sR2E_2',name:'Middle'},{id:'sR2E_3',name:'Bottom'}]},
+    {id:'rR2F',name:'R2F',shelves:[{id:'sR2F_1',name:'Top'},{id:'sR2F_2',name:'Middle'},{id:'sR2F_3',name:'Bottom'}]}
   ]},
   {id:'zR3',name:'R3',racks:[
-    {id:'rR3_1',name:'R3.1',shelves:[{id:'sR3_1_1',name:'Top'},{id:'sR3_1_2',name:'Middle'},{id:'sR3_1_3',name:'Bottom'}]},
-    {id:'rR3_2',name:'R3.2',shelves:[{id:'sR3_2_1',name:'Top'},{id:'sR3_2_2',name:'Middle'},{id:'sR3_2_3',name:'Bottom'}]},
-    {id:'rR3_3',name:'R3.3',shelves:[{id:'sR3_3_1',name:'Top'},{id:'sR3_3_2',name:'Middle'},{id:'sR3_3_3',name:'Bottom'}]},
-    {id:'rR3_4',name:'R3.4',shelves:[{id:'sR3_4_1',name:'Top'},{id:'sR3_4_2',name:'Middle'},{id:'sR3_4_3',name:'Bottom'}]},
-    {id:'rR3_5',name:'R3.5',shelves:[{id:'sR3_5_1',name:'Top'},{id:'sR3_5_2',name:'Middle'},{id:'sR3_5_3',name:'Bottom'}]},
-    {id:'rR3_6',name:'R3.6',shelves:[{id:'sR3_6_1',name:'Top'},{id:'sR3_6_2',name:'Middle'},{id:'sR3_6_3',name:'Bottom'}]},
-    {id:'rR3_7',name:'R3.7',shelves:[{id:'sR3_7_1',name:'Top'},{id:'sR3_7_2',name:'Middle'},{id:'sR3_7_3',name:'Bottom'}]},
-    {id:'rR3_8',name:'R3.8',shelves:[{id:'sR3_8_1',name:'Top'},{id:'sR3_8_2',name:'Middle'},{id:'sR3_8_3',name:'Bottom'}]},
-    {id:'rR3_9',name:'R3.9',shelves:[{id:'sR3_9_1',name:'Top'},{id:'sR3_9_2',name:'Middle'},{id:'sR3_9_3',name:'Bottom'}]},
-    {id:'rR3_10',name:'R3.10',shelves:[{id:'sR3_10_1',name:'Top'},{id:'sR3_10_2',name:'Middle'},{id:'sR3_10_3',name:'Bottom'}]},
-    {id:'rR3_11',name:'R3.11',shelves:[{id:'sR3_11_1',name:'Top'},{id:'sR3_11_2',name:'Middle'},{id:'sR3_11_3',name:'Bottom'}]},
-    {id:'rR3_12',name:'R3.12',shelves:[{id:'sR3_12_1',name:'Top'},{id:'sR3_12_2',name:'Middle'},{id:'sR3_12_3',name:'Bottom'}]},
-    {id:'rR3_13',name:'R3.13',shelves:[{id:'sR3_13_1',name:'Top'},{id:'sR3_13_2',name:'Middle'},{id:'sR3_13_3',name:'Bottom'}]},
-    {id:'rR3_14',name:'R3.14',shelves:[{id:'sR3_14_1',name:'Top'},{id:'sR3_14_2',name:'Middle'},{id:'sR3_14_3',name:'Bottom'}]},
-    {id:'rR3_15',name:'R3.15',shelves:[{id:'sR3_15_1',name:'Top'},{id:'sR3_15_2',name:'Middle'},{id:'sR3_15_3',name:'Bottom'}]},
-    {id:'rR3_16',name:'R3.16',shelves:[{id:'sR3_16_1',name:'Top'},{id:'sR3_16_2',name:'Middle'},{id:'sR3_16_3',name:'Bottom'}]},
-    {id:'rR3_17',name:'R3.17',shelves:[{id:'sR3_17_1',name:'Top'},{id:'sR3_17_2',name:'Middle'},{id:'sR3_17_3',name:'Bottom'}]},
-    {id:'rR3_18',name:'R3.18',shelves:[{id:'sR3_18_1',name:'Top'},{id:'sR3_18_2',name:'Middle'},{id:'sR3_18_3',name:'Bottom'}]},
-    {id:'rR3_19',name:'R3.19',shelves:[{id:'sR3_19_1',name:'Top'},{id:'sR3_19_2',name:'Middle'},{id:'sR3_19_3',name:'Bottom'}]},
-    {id:'rR3_20',name:'R3.20',shelves:[{id:'sR3_20_1',name:'Top'},{id:'sR3_20_2',name:'Middle'},{id:'sR3_20_3',name:'Bottom'}]}
+    {id:'rR3A',name:'R3A',shelves:[{id:'sR3A_1',name:'Top'},{id:'sR3A_2',name:'Middle'},{id:'sR3A_3',name:'Bottom'}]},
+    {id:'rR3B',name:'R3B',shelves:[{id:'sR3B_1',name:'Top'},{id:'sR3B_2',name:'Middle'},{id:'sR3B_3',name:'Bottom'}]},
+    {id:'rR3C',name:'R3C',shelves:[{id:'sR3C_1',name:'Top'},{id:'sR3C_2',name:'Middle'},{id:'sR3C_3',name:'Bottom'}]},
+    {id:'rR3D',name:'R3D',shelves:[{id:'sR3D_1',name:'Top'},{id:'sR3D_2',name:'Middle'},{id:'sR3D_3',name:'Bottom'}]},
+    {id:'rR3E',name:'R3E',shelves:[{id:'sR3E_1',name:'Top'},{id:'sR3E_2',name:'Middle'},{id:'sR3E_3',name:'Bottom'}]},
+    {id:'rR3F',name:'R3F',shelves:[{id:'sR3F_1',name:'Top'},{id:'sR3F_2',name:'Middle'},{id:'sR3F_3',name:'Bottom'}]}
   ]},
   {id:'zR4',name:'R4',racks:[
-    {id:'rR4_1',name:'R4.1',shelves:[{id:'sR4_1_1',name:'Top'},{id:'sR4_1_2',name:'Middle'},{id:'sR4_1_3',name:'Bottom'}]},
-    {id:'rR4_2',name:'R4.2',shelves:[{id:'sR4_2_1',name:'Top'},{id:'sR4_2_2',name:'Middle'},{id:'sR4_2_3',name:'Bottom'}]},
-    {id:'rR4_3',name:'R4.3',shelves:[{id:'sR4_3_1',name:'Top'},{id:'sR4_3_2',name:'Middle'},{id:'sR4_3_3',name:'Bottom'}]},
-    {id:'rR4_4',name:'R4.4',shelves:[{id:'sR4_4_1',name:'Top'},{id:'sR4_4_2',name:'Middle'},{id:'sR4_4_3',name:'Bottom'}]},
-    {id:'rR4_5',name:'R4.5',shelves:[{id:'sR4_5_1',name:'Top'},{id:'sR4_5_2',name:'Middle'},{id:'sR4_5_3',name:'Bottom'}]},
-    {id:'rR4_6',name:'R4.6',shelves:[{id:'sR4_6_1',name:'Top'},{id:'sR4_6_2',name:'Middle'},{id:'sR4_6_3',name:'Bottom'}]},
-    {id:'rR4_7',name:'R4.7',shelves:[{id:'sR4_7_1',name:'Top'},{id:'sR4_7_2',name:'Middle'},{id:'sR4_7_3',name:'Bottom'}]},
-    {id:'rR4_8',name:'R4.8',shelves:[{id:'sR4_8_1',name:'Top'},{id:'sR4_8_2',name:'Middle'},{id:'sR4_8_3',name:'Bottom'}]},
-    {id:'rR4_9',name:'R4.9',shelves:[{id:'sR4_9_1',name:'Top'},{id:'sR4_9_2',name:'Middle'},{id:'sR4_9_3',name:'Bottom'}]},
-    {id:'rR4_10',name:'R4.10',shelves:[{id:'sR4_10_1',name:'Top'},{id:'sR4_10_2',name:'Middle'},{id:'sR4_10_3',name:'Bottom'}]},
-    {id:'rR4_11',name:'R4.11',shelves:[{id:'sR4_11_1',name:'Top'},{id:'sR4_11_2',name:'Middle'},{id:'sR4_11_3',name:'Bottom'}]},
-    {id:'rR4_12',name:'R4.12',shelves:[{id:'sR4_12_1',name:'Top'},{id:'sR4_12_2',name:'Middle'},{id:'sR4_12_3',name:'Bottom'}]},
-    {id:'rR4_13',name:'R4.13',shelves:[{id:'sR4_13_1',name:'Top'},{id:'sR4_13_2',name:'Middle'},{id:'sR4_13_3',name:'Bottom'}]},
-    {id:'rR4_14',name:'R4.14',shelves:[{id:'sR4_14_1',name:'Top'},{id:'sR4_14_2',name:'Middle'},{id:'sR4_14_3',name:'Bottom'}]},
-    {id:'rR4_15',name:'R4.15',shelves:[{id:'sR4_15_1',name:'Top'},{id:'sR4_15_2',name:'Middle'},{id:'sR4_15_3',name:'Bottom'}]},
-    {id:'rR4_16',name:'R4.16',shelves:[{id:'sR4_16_1',name:'Top'},{id:'sR4_16_2',name:'Middle'},{id:'sR4_16_3',name:'Bottom'}]},
-    {id:'rR4_17',name:'R4.17',shelves:[{id:'sR4_17_1',name:'Top'},{id:'sR4_17_2',name:'Middle'},{id:'sR4_17_3',name:'Bottom'}]},
-    {id:'rR4_18',name:'R4.18',shelves:[{id:'sR4_18_1',name:'Top'},{id:'sR4_18_2',name:'Middle'},{id:'sR4_18_3',name:'Bottom'}]},
-    {id:'rR4_19',name:'R4.19',shelves:[{id:'sR4_19_1',name:'Top'},{id:'sR4_19_2',name:'Middle'},{id:'sR4_19_3',name:'Bottom'}]},
-    {id:'rR4_20',name:'R4.20',shelves:[{id:'sR4_20_1',name:'Top'},{id:'sR4_20_2',name:'Middle'},{id:'sR4_20_3',name:'Bottom'}]}
+    {id:'rR4A',name:'R4A',shelves:[{id:'sR4A_1',name:'Top'},{id:'sR4A_2',name:'Middle'},{id:'sR4A_3',name:'Bottom'}]},
+    {id:'rR4B',name:'R4B',shelves:[{id:'sR4B_1',name:'Top'},{id:'sR4B_2',name:'Middle'},{id:'sR4B_3',name:'Bottom'}]},
+    {id:'rR4C',name:'R4C',shelves:[{id:'sR4C_1',name:'Top'},{id:'sR4C_2',name:'Middle'},{id:'sR4C_3',name:'Bottom'}]},
+    {id:'rR4D',name:'R4D',shelves:[{id:'sR4D_1',name:'Top'},{id:'sR4D_2',name:'Middle'},{id:'sR4D_3',name:'Bottom'}]},
+    {id:'rR4E',name:'R4E',shelves:[{id:'sR4E_1',name:'Top'},{id:'sR4E_2',name:'Middle'},{id:'sR4E_3',name:'Bottom'}]},
+    {id:'rR4F',name:'R4F',shelves:[{id:'sR4F_1',name:'Top'},{id:'sR4F_2',name:'Middle'},{id:'sR4F_3',name:'Bottom'}]}
   ]},
   {id:'zR5',name:'R5',racks:[
-    {id:'rR5_1',name:'R5.1',shelves:[{id:'sR5_1_1',name:'Top'},{id:'sR5_1_2',name:'Middle'},{id:'sR5_1_3',name:'Bottom'}]},
-    {id:'rR5_2',name:'R5.2',shelves:[{id:'sR5_2_1',name:'Top'},{id:'sR5_2_2',name:'Middle'},{id:'sR5_2_3',name:'Bottom'}]},
-    {id:'rR5_3',name:'R5.3',shelves:[{id:'sR5_3_1',name:'Top'},{id:'sR5_3_2',name:'Middle'},{id:'sR5_3_3',name:'Bottom'}]},
-    {id:'rR5_4',name:'R5.4',shelves:[{id:'sR5_4_1',name:'Top'},{id:'sR5_4_2',name:'Middle'},{id:'sR5_4_3',name:'Bottom'}]},
-    {id:'rR5_5',name:'R5.5',shelves:[{id:'sR5_5_1',name:'Top'},{id:'sR5_5_2',name:'Middle'},{id:'sR5_5_3',name:'Bottom'}]},
-    {id:'rR5_6',name:'R5.6',shelves:[{id:'sR5_6_1',name:'Top'},{id:'sR5_6_2',name:'Middle'},{id:'sR5_6_3',name:'Bottom'}]},
-    {id:'rR5_7',name:'R5.7',shelves:[{id:'sR5_7_1',name:'Top'},{id:'sR5_7_2',name:'Middle'},{id:'sR5_7_3',name:'Bottom'}]},
-    {id:'rR5_8',name:'R5.8',shelves:[{id:'sR5_8_1',name:'Top'},{id:'sR5_8_2',name:'Middle'},{id:'sR5_8_3',name:'Bottom'}]},
-    {id:'rR5_9',name:'R5.9',shelves:[{id:'sR5_9_1',name:'Top'},{id:'sR5_9_2',name:'Middle'},{id:'sR5_9_3',name:'Bottom'}]},
-    {id:'rR5_10',name:'R5.10',shelves:[{id:'sR5_10_1',name:'Top'},{id:'sR5_10_2',name:'Middle'},{id:'sR5_10_3',name:'Bottom'}]},
-    {id:'rR5_11',name:'R5.11',shelves:[{id:'sR5_11_1',name:'Top'},{id:'sR5_11_2',name:'Middle'},{id:'sR5_11_3',name:'Bottom'}]},
-    {id:'rR5_12',name:'R5.12',shelves:[{id:'sR5_12_1',name:'Top'},{id:'sR5_12_2',name:'Middle'},{id:'sR5_12_3',name:'Bottom'}]},
-    {id:'rR5_13',name:'R5.13',shelves:[{id:'sR5_13_1',name:'Top'},{id:'sR5_13_2',name:'Middle'},{id:'sR5_13_3',name:'Bottom'}]},
-    {id:'rR5_14',name:'R5.14',shelves:[{id:'sR5_14_1',name:'Top'},{id:'sR5_14_2',name:'Middle'},{id:'sR5_14_3',name:'Bottom'}]},
-    {id:'rR5_15',name:'R5.15',shelves:[{id:'sR5_15_1',name:'Top'},{id:'sR5_15_2',name:'Middle'},{id:'sR5_15_3',name:'Bottom'}]},
-    {id:'rR5_16',name:'R5.16',shelves:[{id:'sR5_16_1',name:'Top'},{id:'sR5_16_2',name:'Middle'},{id:'sR5_16_3',name:'Bottom'}]},
-    {id:'rR5_17',name:'R5.17',shelves:[{id:'sR5_17_1',name:'Top'},{id:'sR5_17_2',name:'Middle'},{id:'sR5_17_3',name:'Bottom'}]},
-    {id:'rR5_18',name:'R5.18',shelves:[{id:'sR5_18_1',name:'Top'},{id:'sR5_18_2',name:'Middle'},{id:'sR5_18_3',name:'Bottom'}]},
-    {id:'rR5_19',name:'R5.19',shelves:[{id:'sR5_19_1',name:'Top'},{id:'sR5_19_2',name:'Middle'},{id:'sR5_19_3',name:'Bottom'}]},
-    {id:'rR5_20',name:'R5.20',shelves:[{id:'sR5_20_1',name:'Top'},{id:'sR5_20_2',name:'Middle'},{id:'sR5_20_3',name:'Bottom'}]}
+    {id:'rR5A',name:'R5A',shelves:[{id:'sR5A_1',name:'Top'},{id:'sR5A_2',name:'Middle'},{id:'sR5A_3',name:'Bottom'}]},
+    {id:'rR5B',name:'R5B',shelves:[{id:'sR5B_1',name:'Top'},{id:'sR5B_2',name:'Middle'},{id:'sR5B_3',name:'Bottom'}]},
+    {id:'rR5C',name:'R5C',shelves:[{id:'sR5C_1',name:'Top'},{id:'sR5C_2',name:'Middle'},{id:'sR5C_3',name:'Bottom'}]},
+    {id:'rR5D',name:'R5D',shelves:[{id:'sR5D_1',name:'Top'},{id:'sR5D_2',name:'Middle'},{id:'sR5D_3',name:'Bottom'}]},
+    {id:'rR5E',name:'R5E',shelves:[{id:'sR5E_1',name:'Top'},{id:'sR5E_2',name:'Middle'},{id:'sR5E_3',name:'Bottom'}]},
+    {id:'rR5F',name:'R5F',shelves:[{id:'sR5F_1',name:'Top'},{id:'sR5F_2',name:'Middle'},{id:'sR5F_3',name:'Bottom'}]}
   ]},
   {id:'zR6',name:'R6',racks:[
-    {id:'rR6_1',name:'R6.1',shelves:[{id:'sR6_1_1',name:'Top'},{id:'sR6_1_2',name:'Middle'},{id:'sR6_1_3',name:'Bottom'}]},
-    {id:'rR6_2',name:'R6.2',shelves:[{id:'sR6_2_1',name:'Top'},{id:'sR6_2_2',name:'Middle'},{id:'sR6_2_3',name:'Bottom'}]},
-    {id:'rR6_3',name:'R6.3',shelves:[{id:'sR6_3_1',name:'Top'},{id:'sR6_3_2',name:'Middle'},{id:'sR6_3_3',name:'Bottom'}]},
-    {id:'rR6_4',name:'R6.4',shelves:[{id:'sR6_4_1',name:'Top'},{id:'sR6_4_2',name:'Middle'},{id:'sR6_4_3',name:'Bottom'}]},
-    {id:'rR6_5',name:'R6.5',shelves:[{id:'sR6_5_1',name:'Top'},{id:'sR6_5_2',name:'Middle'},{id:'sR6_5_3',name:'Bottom'}]},
-    {id:'rR6_6',name:'R6.6',shelves:[{id:'sR6_6_1',name:'Top'},{id:'sR6_6_2',name:'Middle'},{id:'sR6_6_3',name:'Bottom'}]},
-    {id:'rR6_7',name:'R6.7',shelves:[{id:'sR6_7_1',name:'Top'},{id:'sR6_7_2',name:'Middle'},{id:'sR6_7_3',name:'Bottom'}]},
-    {id:'rR6_8',name:'R6.8',shelves:[{id:'sR6_8_1',name:'Top'},{id:'sR6_8_2',name:'Middle'},{id:'sR6_8_3',name:'Bottom'}]},
-    {id:'rR6_9',name:'R6.9',shelves:[{id:'sR6_9_1',name:'Top'},{id:'sR6_9_2',name:'Middle'},{id:'sR6_9_3',name:'Bottom'}]},
-    {id:'rR6_10',name:'R6.10',shelves:[{id:'sR6_10_1',name:'Top'},{id:'sR6_10_2',name:'Middle'},{id:'sR6_10_3',name:'Bottom'}]},
-    {id:'rR6_11',name:'R6.11',shelves:[{id:'sR6_11_1',name:'Top'},{id:'sR6_11_2',name:'Middle'},{id:'sR6_11_3',name:'Bottom'}]},
-    {id:'rR6_12',name:'R6.12',shelves:[{id:'sR6_12_1',name:'Top'},{id:'sR6_12_2',name:'Middle'},{id:'sR6_12_3',name:'Bottom'}]},
-    {id:'rR6_13',name:'R6.13',shelves:[{id:'sR6_13_1',name:'Top'},{id:'sR6_13_2',name:'Middle'},{id:'sR6_13_3',name:'Bottom'}]},
-    {id:'rR6_14',name:'R6.14',shelves:[{id:'sR6_14_1',name:'Top'},{id:'sR6_14_2',name:'Middle'},{id:'sR6_14_3',name:'Bottom'}]},
-    {id:'rR6_15',name:'R6.15',shelves:[{id:'sR6_15_1',name:'Top'},{id:'sR6_15_2',name:'Middle'},{id:'sR6_15_3',name:'Bottom'}]},
-    {id:'rR6_16',name:'R6.16',shelves:[{id:'sR6_16_1',name:'Top'},{id:'sR6_16_2',name:'Middle'},{id:'sR6_16_3',name:'Bottom'}]},
-    {id:'rR6_17',name:'R6.17',shelves:[{id:'sR6_17_1',name:'Top'},{id:'sR6_17_2',name:'Middle'},{id:'sR6_17_3',name:'Bottom'}]},
-    {id:'rR6_18',name:'R6.18',shelves:[{id:'sR6_18_1',name:'Top'},{id:'sR6_18_2',name:'Middle'},{id:'sR6_18_3',name:'Bottom'}]},
-    {id:'rR6_19',name:'R6.19',shelves:[{id:'sR6_19_1',name:'Top'},{id:'sR6_19_2',name:'Middle'},{id:'sR6_19_3',name:'Bottom'}]},
-    {id:'rR6_20',name:'R6.20',shelves:[{id:'sR6_20_1',name:'Top'},{id:'sR6_20_2',name:'Middle'},{id:'sR6_20_3',name:'Bottom'}]}
+    {id:'rR6A',name:'R6A',shelves:[{id:'sR6A_1',name:'Top'},{id:'sR6A_2',name:'Middle'},{id:'sR6A_3',name:'Bottom'}]},
+    {id:'rR6B',name:'R6B',shelves:[{id:'sR6B_1',name:'Top'},{id:'sR6B_2',name:'Middle'},{id:'sR6B_3',name:'Bottom'}]},
+    {id:'rR6C',name:'R6C',shelves:[{id:'sR6C_1',name:'Top'},{id:'sR6C_2',name:'Middle'},{id:'sR6C_3',name:'Bottom'}]},
+    {id:'rR6D',name:'R6D',shelves:[{id:'sR6D_1',name:'Top'},{id:'sR6D_2',name:'Middle'},{id:'sR6D_3',name:'Bottom'}]},
+    {id:'rR6E',name:'R6E',shelves:[{id:'sR6E_1',name:'Top'},{id:'sR6E_2',name:'Middle'},{id:'sR6E_3',name:'Bottom'}]},
+    {id:'rR6F',name:'R6F',shelves:[{id:'sR6F_1',name:'Top'},{id:'sR6F_2',name:'Middle'},{id:'sR6F_3',name:'Bottom'}]}
   ]},
   {id:'zR7',name:'R7',racks:[
-    {id:'rR7_1',name:'R7.1',shelves:[{id:'sR7_1_1',name:'Top'},{id:'sR7_1_2',name:'Middle'},{id:'sR7_1_3',name:'Bottom'}]},
-    {id:'rR7_2',name:'R7.2',shelves:[{id:'sR7_2_1',name:'Top'},{id:'sR7_2_2',name:'Middle'},{id:'sR7_2_3',name:'Bottom'}]},
-    {id:'rR7_3',name:'R7.3',shelves:[{id:'sR7_3_1',name:'Top'},{id:'sR7_3_2',name:'Middle'},{id:'sR7_3_3',name:'Bottom'}]},
-    {id:'rR7_4',name:'R7.4',shelves:[{id:'sR7_4_1',name:'Top'},{id:'sR7_4_2',name:'Middle'},{id:'sR7_4_3',name:'Bottom'}]},
-    {id:'rR7_5',name:'R7.5',shelves:[{id:'sR7_5_1',name:'Top'},{id:'sR7_5_2',name:'Middle'},{id:'sR7_5_3',name:'Bottom'}]},
-    {id:'rR7_6',name:'R7.6',shelves:[{id:'sR7_6_1',name:'Top'},{id:'sR7_6_2',name:'Middle'},{id:'sR7_6_3',name:'Bottom'}]},
-    {id:'rR7_7',name:'R7.7',shelves:[{id:'sR7_7_1',name:'Top'},{id:'sR7_7_2',name:'Middle'},{id:'sR7_7_3',name:'Bottom'}]},
-    {id:'rR7_8',name:'R7.8',shelves:[{id:'sR7_8_1',name:'Top'},{id:'sR7_8_2',name:'Middle'},{id:'sR7_8_3',name:'Bottom'}]},
-    {id:'rR7_9',name:'R7.9',shelves:[{id:'sR7_9_1',name:'Top'},{id:'sR7_9_2',name:'Middle'},{id:'sR7_9_3',name:'Bottom'}]},
-    {id:'rR7_10',name:'R7.10',shelves:[{id:'sR7_10_1',name:'Top'},{id:'sR7_10_2',name:'Middle'},{id:'sR7_10_3',name:'Bottom'}]},
-    {id:'rR7_11',name:'R7.11',shelves:[{id:'sR7_11_1',name:'Top'},{id:'sR7_11_2',name:'Middle'},{id:'sR7_11_3',name:'Bottom'}]},
-    {id:'rR7_12',name:'R7.12',shelves:[{id:'sR7_12_1',name:'Top'},{id:'sR7_12_2',name:'Middle'},{id:'sR7_12_3',name:'Bottom'}]},
-    {id:'rR7_13',name:'R7.13',shelves:[{id:'sR7_13_1',name:'Top'},{id:'sR7_13_2',name:'Middle'},{id:'sR7_13_3',name:'Bottom'}]},
-    {id:'rR7_14',name:'R7.14',shelves:[{id:'sR7_14_1',name:'Top'},{id:'sR7_14_2',name:'Middle'},{id:'sR7_14_3',name:'Bottom'}]},
-    {id:'rR7_15',name:'R7.15',shelves:[{id:'sR7_15_1',name:'Top'},{id:'sR7_15_2',name:'Middle'},{id:'sR7_15_3',name:'Bottom'}]},
-    {id:'rR7_16',name:'R7.16',shelves:[{id:'sR7_16_1',name:'Top'},{id:'sR7_16_2',name:'Middle'},{id:'sR7_16_3',name:'Bottom'}]},
-    {id:'rR7_17',name:'R7.17',shelves:[{id:'sR7_17_1',name:'Top'},{id:'sR7_17_2',name:'Middle'},{id:'sR7_17_3',name:'Bottom'}]},
-    {id:'rR7_18',name:'R7.18',shelves:[{id:'sR7_18_1',name:'Top'},{id:'sR7_18_2',name:'Middle'},{id:'sR7_18_3',name:'Bottom'}]},
-    {id:'rR7_19',name:'R7.19',shelves:[{id:'sR7_19_1',name:'Top'},{id:'sR7_19_2',name:'Middle'},{id:'sR7_19_3',name:'Bottom'}]},
-    {id:'rR7_20',name:'R7.20',shelves:[{id:'sR7_20_1',name:'Top'},{id:'sR7_20_2',name:'Middle'},{id:'sR7_20_3',name:'Bottom'}]}
+    {id:'rR7A',name:'R7A',shelves:[{id:'sR7A_1',name:'Top'},{id:'sR7A_2',name:'Middle'},{id:'sR7A_3',name:'Bottom'}]},
+    {id:'rR7B',name:'R7B',shelves:[{id:'sR7B_1',name:'Top'},{id:'sR7B_2',name:'Middle'},{id:'sR7B_3',name:'Bottom'}]},
+    {id:'rR7C',name:'R7C',shelves:[{id:'sR7C_1',name:'Top'},{id:'sR7C_2',name:'Middle'},{id:'sR7C_3',name:'Bottom'}]},
+    {id:'rR7D',name:'R7D',shelves:[{id:'sR7D_1',name:'Top'},{id:'sR7D_2',name:'Middle'},{id:'sR7D_3',name:'Bottom'}]},
+    {id:'rR7E',name:'R7E',shelves:[{id:'sR7E_1',name:'Top'},{id:'sR7E_2',name:'Middle'},{id:'sR7E_3',name:'Bottom'}]},
+    {id:'rR7F',name:'R7F',shelves:[{id:'sR7F_1',name:'Top'},{id:'sR7F_2',name:'Middle'},{id:'sR7F_3',name:'Bottom'}]}
   ]},
   {id:'zR8',name:'R8',racks:[
-    {id:'rR8_1',name:'R8.1',shelves:[{id:'sR8_1_1',name:'Top'},{id:'sR8_1_2',name:'Middle'},{id:'sR8_1_3',name:'Bottom'}]},
-    {id:'rR8_2',name:'R8.2',shelves:[{id:'sR8_2_1',name:'Top'},{id:'sR8_2_2',name:'Middle'},{id:'sR8_2_3',name:'Bottom'}]},
-    {id:'rR8_3',name:'R8.3',shelves:[{id:'sR8_3_1',name:'Top'},{id:'sR8_3_2',name:'Middle'},{id:'sR8_3_3',name:'Bottom'}]},
-    {id:'rR8_4',name:'R8.4',shelves:[{id:'sR8_4_1',name:'Top'},{id:'sR8_4_2',name:'Middle'},{id:'sR8_4_3',name:'Bottom'}]},
-    {id:'rR8_5',name:'R8.5',shelves:[{id:'sR8_5_1',name:'Top'},{id:'sR8_5_2',name:'Middle'},{id:'sR8_5_3',name:'Bottom'}]},
-    {id:'rR8_6',name:'R8.6',shelves:[{id:'sR8_6_1',name:'Top'},{id:'sR8_6_2',name:'Middle'},{id:'sR8_6_3',name:'Bottom'}]},
-    {id:'rR8_7',name:'R8.7',shelves:[{id:'sR8_7_1',name:'Top'},{id:'sR8_7_2',name:'Middle'},{id:'sR8_7_3',name:'Bottom'}]},
-    {id:'rR8_8',name:'R8.8',shelves:[{id:'sR8_8_1',name:'Top'},{id:'sR8_8_2',name:'Middle'},{id:'sR8_8_3',name:'Bottom'}]},
-    {id:'rR8_9',name:'R8.9',shelves:[{id:'sR8_9_1',name:'Top'},{id:'sR8_9_2',name:'Middle'},{id:'sR8_9_3',name:'Bottom'}]},
-    {id:'rR8_10',name:'R8.10',shelves:[{id:'sR8_10_1',name:'Top'},{id:'sR8_10_2',name:'Middle'},{id:'sR8_10_3',name:'Bottom'}]},
-    {id:'rR8_11',name:'R8.11',shelves:[{id:'sR8_11_1',name:'Top'},{id:'sR8_11_2',name:'Middle'},{id:'sR8_11_3',name:'Bottom'}]},
-    {id:'rR8_12',name:'R8.12',shelves:[{id:'sR8_12_1',name:'Top'},{id:'sR8_12_2',name:'Middle'},{id:'sR8_12_3',name:'Bottom'}]},
-    {id:'rR8_13',name:'R8.13',shelves:[{id:'sR8_13_1',name:'Top'},{id:'sR8_13_2',name:'Middle'},{id:'sR8_13_3',name:'Bottom'}]},
-    {id:'rR8_14',name:'R8.14',shelves:[{id:'sR8_14_1',name:'Top'},{id:'sR8_14_2',name:'Middle'},{id:'sR8_14_3',name:'Bottom'}]},
-    {id:'rR8_15',name:'R8.15',shelves:[{id:'sR8_15_1',name:'Top'},{id:'sR8_15_2',name:'Middle'},{id:'sR8_15_3',name:'Bottom'}]},
-    {id:'rR8_16',name:'R8.16',shelves:[{id:'sR8_16_1',name:'Top'},{id:'sR8_16_2',name:'Middle'},{id:'sR8_16_3',name:'Bottom'}]},
-    {id:'rR8_17',name:'R8.17',shelves:[{id:'sR8_17_1',name:'Top'},{id:'sR8_17_2',name:'Middle'},{id:'sR8_17_3',name:'Bottom'}]},
-    {id:'rR8_18',name:'R8.18',shelves:[{id:'sR8_18_1',name:'Top'},{id:'sR8_18_2',name:'Middle'},{id:'sR8_18_3',name:'Bottom'}]},
-    {id:'rR8_19',name:'R8.19',shelves:[{id:'sR8_19_1',name:'Top'},{id:'sR8_19_2',name:'Middle'},{id:'sR8_19_3',name:'Bottom'}]},
-    {id:'rR8_20',name:'R8.20',shelves:[{id:'sR8_20_1',name:'Top'},{id:'sR8_20_2',name:'Middle'},{id:'sR8_20_3',name:'Bottom'}]}
+    {id:'rR8A',name:'R8A',shelves:[{id:'sR8A_1',name:'Top'},{id:'sR8A_2',name:'Middle'},{id:'sR8A_3',name:'Bottom'}]},
+    {id:'rR8B',name:'R8B',shelves:[{id:'sR8B_1',name:'Top'},{id:'sR8B_2',name:'Middle'},{id:'sR8B_3',name:'Bottom'}]},
+    {id:'rR8C',name:'R8C',shelves:[{id:'sR8C_1',name:'Top'},{id:'sR8C_2',name:'Middle'},{id:'sR8C_3',name:'Bottom'}]},
+    {id:'rR8D',name:'R8D',shelves:[{id:'sR8D_1',name:'Top'},{id:'sR8D_2',name:'Middle'},{id:'sR8D_3',name:'Bottom'}]},
+    {id:'rR8E',name:'R8E',shelves:[{id:'sR8E_1',name:'Top'},{id:'sR8E_2',name:'Middle'},{id:'sR8E_3',name:'Bottom'}]},
+    {id:'rR8F',name:'R8F',shelves:[{id:'sR8F_1',name:'Top'},{id:'sR8F_2',name:'Middle'},{id:'sR8F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR9',name:'R9',racks:[
+    {id:'rR9A',name:'R9A',shelves:[{id:'sR9A_1',name:'Top'},{id:'sR9A_2',name:'Middle'},{id:'sR9A_3',name:'Bottom'}]},
+    {id:'rR9B',name:'R9B',shelves:[{id:'sR9B_1',name:'Top'},{id:'sR9B_2',name:'Middle'},{id:'sR9B_3',name:'Bottom'}]},
+    {id:'rR9C',name:'R9C',shelves:[{id:'sR9C_1',name:'Top'},{id:'sR9C_2',name:'Middle'},{id:'sR9C_3',name:'Bottom'}]},
+    {id:'rR9D',name:'R9D',shelves:[{id:'sR9D_1',name:'Top'},{id:'sR9D_2',name:'Middle'},{id:'sR9D_3',name:'Bottom'}]},
+    {id:'rR9E',name:'R9E',shelves:[{id:'sR9E_1',name:'Top'},{id:'sR9E_2',name:'Middle'},{id:'sR9E_3',name:'Bottom'}]},
+    {id:'rR9F',name:'R9F',shelves:[{id:'sR9F_1',name:'Top'},{id:'sR9F_2',name:'Middle'},{id:'sR9F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR10',name:'R10',racks:[
+    {id:'rR10A',name:'R10A',shelves:[{id:'sR10A_1',name:'Top'},{id:'sR10A_2',name:'Middle'},{id:'sR10A_3',name:'Bottom'}]},
+    {id:'rR10B',name:'R10B',shelves:[{id:'sR10B_1',name:'Top'},{id:'sR10B_2',name:'Middle'},{id:'sR10B_3',name:'Bottom'}]},
+    {id:'rR10C',name:'R10C',shelves:[{id:'sR10C_1',name:'Top'},{id:'sR10C_2',name:'Middle'},{id:'sR10C_3',name:'Bottom'}]},
+    {id:'rR10D',name:'R10D',shelves:[{id:'sR10D_1',name:'Top'},{id:'sR10D_2',name:'Middle'},{id:'sR10D_3',name:'Bottom'}]},
+    {id:'rR10E',name:'R10E',shelves:[{id:'sR10E_1',name:'Top'},{id:'sR10E_2',name:'Middle'},{id:'sR10E_3',name:'Bottom'}]},
+    {id:'rR10F',name:'R10F',shelves:[{id:'sR10F_1',name:'Top'},{id:'sR10F_2',name:'Middle'},{id:'sR10F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR11',name:'R11',racks:[
+    {id:'rR11A',name:'R11A',shelves:[{id:'sR11A_1',name:'Top'},{id:'sR11A_2',name:'Middle'},{id:'sR11A_3',name:'Bottom'}]},
+    {id:'rR11B',name:'R11B',shelves:[{id:'sR11B_1',name:'Top'},{id:'sR11B_2',name:'Middle'},{id:'sR11B_3',name:'Bottom'}]},
+    {id:'rR11C',name:'R11C',shelves:[{id:'sR11C_1',name:'Top'},{id:'sR11C_2',name:'Middle'},{id:'sR11C_3',name:'Bottom'}]},
+    {id:'rR11D',name:'R11D',shelves:[{id:'sR11D_1',name:'Top'},{id:'sR11D_2',name:'Middle'},{id:'sR11D_3',name:'Bottom'}]},
+    {id:'rR11E',name:'R11E',shelves:[{id:'sR11E_1',name:'Top'},{id:'sR11E_2',name:'Middle'},{id:'sR11E_3',name:'Bottom'}]},
+    {id:'rR11F',name:'R11F',shelves:[{id:'sR11F_1',name:'Top'},{id:'sR11F_2',name:'Middle'},{id:'sR11F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR12',name:'R12',racks:[
+    {id:'rR12A',name:'R12A',shelves:[{id:'sR12A_1',name:'Top'},{id:'sR12A_2',name:'Middle'},{id:'sR12A_3',name:'Bottom'}]},
+    {id:'rR12B',name:'R12B',shelves:[{id:'sR12B_1',name:'Top'},{id:'sR12B_2',name:'Middle'},{id:'sR12B_3',name:'Bottom'}]},
+    {id:'rR12C',name:'R12C',shelves:[{id:'sR12C_1',name:'Top'},{id:'sR12C_2',name:'Middle'},{id:'sR12C_3',name:'Bottom'}]},
+    {id:'rR12D',name:'R12D',shelves:[{id:'sR12D_1',name:'Top'},{id:'sR12D_2',name:'Middle'},{id:'sR12D_3',name:'Bottom'}]},
+    {id:'rR12E',name:'R12E',shelves:[{id:'sR12E_1',name:'Top'},{id:'sR12E_2',name:'Middle'},{id:'sR12E_3',name:'Bottom'}]},
+    {id:'rR12F',name:'R12F',shelves:[{id:'sR12F_1',name:'Top'},{id:'sR12F_2',name:'Middle'},{id:'sR12F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR13',name:'R13',racks:[
+    {id:'rR13A',name:'R13A',shelves:[{id:'sR13A_1',name:'Top'},{id:'sR13A_2',name:'Middle'},{id:'sR13A_3',name:'Bottom'}]},
+    {id:'rR13B',name:'R13B',shelves:[{id:'sR13B_1',name:'Top'},{id:'sR13B_2',name:'Middle'},{id:'sR13B_3',name:'Bottom'}]},
+    {id:'rR13C',name:'R13C',shelves:[{id:'sR13C_1',name:'Top'},{id:'sR13C_2',name:'Middle'},{id:'sR13C_3',name:'Bottom'}]},
+    {id:'rR13D',name:'R13D',shelves:[{id:'sR13D_1',name:'Top'},{id:'sR13D_2',name:'Middle'},{id:'sR13D_3',name:'Bottom'}]},
+    {id:'rR13E',name:'R13E',shelves:[{id:'sR13E_1',name:'Top'},{id:'sR13E_2',name:'Middle'},{id:'sR13E_3',name:'Bottom'}]},
+    {id:'rR13F',name:'R13F',shelves:[{id:'sR13F_1',name:'Top'},{id:'sR13F_2',name:'Middle'},{id:'sR13F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR14',name:'R14',racks:[
+    {id:'rR14A',name:'R14A',shelves:[{id:'sR14A_1',name:'Top'},{id:'sR14A_2',name:'Middle'},{id:'sR14A_3',name:'Bottom'}]},
+    {id:'rR14B',name:'R14B',shelves:[{id:'sR14B_1',name:'Top'},{id:'sR14B_2',name:'Middle'},{id:'sR14B_3',name:'Bottom'}]},
+    {id:'rR14C',name:'R14C',shelves:[{id:'sR14C_1',name:'Top'},{id:'sR14C_2',name:'Middle'},{id:'sR14C_3',name:'Bottom'}]},
+    {id:'rR14D',name:'R14D',shelves:[{id:'sR14D_1',name:'Top'},{id:'sR14D_2',name:'Middle'},{id:'sR14D_3',name:'Bottom'}]},
+    {id:'rR14E',name:'R14E',shelves:[{id:'sR14E_1',name:'Top'},{id:'sR14E_2',name:'Middle'},{id:'sR14E_3',name:'Bottom'}]},
+    {id:'rR14F',name:'R14F',shelves:[{id:'sR14F_1',name:'Top'},{id:'sR14F_2',name:'Middle'},{id:'sR14F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR15',name:'R15',racks:[
+    {id:'rR15A',name:'R15A',shelves:[{id:'sR15A_1',name:'Top'},{id:'sR15A_2',name:'Middle'},{id:'sR15A_3',name:'Bottom'}]},
+    {id:'rR15B',name:'R15B',shelves:[{id:'sR15B_1',name:'Top'},{id:'sR15B_2',name:'Middle'},{id:'sR15B_3',name:'Bottom'}]},
+    {id:'rR15C',name:'R15C',shelves:[{id:'sR15C_1',name:'Top'},{id:'sR15C_2',name:'Middle'},{id:'sR15C_3',name:'Bottom'}]},
+    {id:'rR15D',name:'R15D',shelves:[{id:'sR15D_1',name:'Top'},{id:'sR15D_2',name:'Middle'},{id:'sR15D_3',name:'Bottom'}]},
+    {id:'rR15E',name:'R15E',shelves:[{id:'sR15E_1',name:'Top'},{id:'sR15E_2',name:'Middle'},{id:'sR15E_3',name:'Bottom'}]},
+    {id:'rR15F',name:'R15F',shelves:[{id:'sR15F_1',name:'Top'},{id:'sR15F_2',name:'Middle'},{id:'sR15F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR16',name:'R16',racks:[
+    {id:'rR16A',name:'R16A',shelves:[{id:'sR16A_1',name:'Top'},{id:'sR16A_2',name:'Middle'},{id:'sR16A_3',name:'Bottom'}]},
+    {id:'rR16B',name:'R16B',shelves:[{id:'sR16B_1',name:'Top'},{id:'sR16B_2',name:'Middle'},{id:'sR16B_3',name:'Bottom'}]},
+    {id:'rR16C',name:'R16C',shelves:[{id:'sR16C_1',name:'Top'},{id:'sR16C_2',name:'Middle'},{id:'sR16C_3',name:'Bottom'}]},
+    {id:'rR16D',name:'R16D',shelves:[{id:'sR16D_1',name:'Top'},{id:'sR16D_2',name:'Middle'},{id:'sR16D_3',name:'Bottom'}]},
+    {id:'rR16E',name:'R16E',shelves:[{id:'sR16E_1',name:'Top'},{id:'sR16E_2',name:'Middle'},{id:'sR16E_3',name:'Bottom'}]},
+    {id:'rR16F',name:'R16F',shelves:[{id:'sR16F_1',name:'Top'},{id:'sR16F_2',name:'Middle'},{id:'sR16F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR17',name:'R17',racks:[
+    {id:'rR17A',name:'R17A',shelves:[{id:'sR17A_1',name:'Top'},{id:'sR17A_2',name:'Middle'},{id:'sR17A_3',name:'Bottom'}]},
+    {id:'rR17B',name:'R17B',shelves:[{id:'sR17B_1',name:'Top'},{id:'sR17B_2',name:'Middle'},{id:'sR17B_3',name:'Bottom'}]},
+    {id:'rR17C',name:'R17C',shelves:[{id:'sR17C_1',name:'Top'},{id:'sR17C_2',name:'Middle'},{id:'sR17C_3',name:'Bottom'}]},
+    {id:'rR17D',name:'R17D',shelves:[{id:'sR17D_1',name:'Top'},{id:'sR17D_2',name:'Middle'},{id:'sR17D_3',name:'Bottom'}]},
+    {id:'rR17E',name:'R17E',shelves:[{id:'sR17E_1',name:'Top'},{id:'sR17E_2',name:'Middle'},{id:'sR17E_3',name:'Bottom'}]},
+    {id:'rR17F',name:'R17F',shelves:[{id:'sR17F_1',name:'Top'},{id:'sR17F_2',name:'Middle'},{id:'sR17F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR18',name:'R18',racks:[
+    {id:'rR18A',name:'R18A',shelves:[{id:'sR18A_1',name:'Top'},{id:'sR18A_2',name:'Middle'},{id:'sR18A_3',name:'Bottom'}]},
+    {id:'rR18B',name:'R18B',shelves:[{id:'sR18B_1',name:'Top'},{id:'sR18B_2',name:'Middle'},{id:'sR18B_3',name:'Bottom'}]},
+    {id:'rR18C',name:'R18C',shelves:[{id:'sR18C_1',name:'Top'},{id:'sR18C_2',name:'Middle'},{id:'sR18C_3',name:'Bottom'}]},
+    {id:'rR18D',name:'R18D',shelves:[{id:'sR18D_1',name:'Top'},{id:'sR18D_2',name:'Middle'},{id:'sR18D_3',name:'Bottom'}]},
+    {id:'rR18E',name:'R18E',shelves:[{id:'sR18E_1',name:'Top'},{id:'sR18E_2',name:'Middle'},{id:'sR18E_3',name:'Bottom'}]},
+    {id:'rR18F',name:'R18F',shelves:[{id:'sR18F_1',name:'Top'},{id:'sR18F_2',name:'Middle'},{id:'sR18F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR19',name:'R19',racks:[
+    {id:'rR19A',name:'R19A',shelves:[{id:'sR19A_1',name:'Top'},{id:'sR19A_2',name:'Middle'},{id:'sR19A_3',name:'Bottom'}]},
+    {id:'rR19B',name:'R19B',shelves:[{id:'sR19B_1',name:'Top'},{id:'sR19B_2',name:'Middle'},{id:'sR19B_3',name:'Bottom'}]},
+    {id:'rR19C',name:'R19C',shelves:[{id:'sR19C_1',name:'Top'},{id:'sR19C_2',name:'Middle'},{id:'sR19C_3',name:'Bottom'}]},
+    {id:'rR19D',name:'R19D',shelves:[{id:'sR19D_1',name:'Top'},{id:'sR19D_2',name:'Middle'},{id:'sR19D_3',name:'Bottom'}]},
+    {id:'rR19E',name:'R19E',shelves:[{id:'sR19E_1',name:'Top'},{id:'sR19E_2',name:'Middle'},{id:'sR19E_3',name:'Bottom'}]},
+    {id:'rR19F',name:'R19F',shelves:[{id:'sR19F_1',name:'Top'},{id:'sR19F_2',name:'Middle'},{id:'sR19F_3',name:'Bottom'}]}
+  ]},
+  {id:'zR20',name:'R20',racks:[
+    {id:'rR20A',name:'R20A',shelves:[{id:'sR20A_1',name:'Top'},{id:'sR20A_2',name:'Middle'},{id:'sR20A_3',name:'Bottom'}]},
+    {id:'rR20B',name:'R20B',shelves:[{id:'sR20B_1',name:'Top'},{id:'sR20B_2',name:'Middle'},{id:'sR20B_3',name:'Bottom'}]},
+    {id:'rR20C',name:'R20C',shelves:[{id:'sR20C_1',name:'Top'},{id:'sR20C_2',name:'Middle'},{id:'sR20C_3',name:'Bottom'}]},
+    {id:'rR20D',name:'R20D',shelves:[{id:'sR20D_1',name:'Top'},{id:'sR20D_2',name:'Middle'},{id:'sR20D_3',name:'Bottom'}]},
+    {id:'rR20E',name:'R20E',shelves:[{id:'sR20E_1',name:'Top'},{id:'sR20E_2',name:'Middle'},{id:'sR20E_3',name:'Bottom'}]},
+    {id:'rR20F',name:'R20F',shelves:[{id:'sR20F_1',name:'Top'},{id:'sR20F_2',name:'Middle'},{id:'sR20F_3',name:'Bottom'}]}
   ]},
   {id:'zL1',name:'L1',racks:[
-    {id:'rL1_1',name:'L1.1',shelves:[{id:'sL1_1_1',name:'Top'},{id:'sL1_1_2',name:'Middle'},{id:'sL1_1_3',name:'Bottom'}]},
-    {id:'rL1_2',name:'L1.2',shelves:[{id:'sL1_2_1',name:'Top'},{id:'sL1_2_2',name:'Middle'},{id:'sL1_2_3',name:'Bottom'}]},
-    {id:'rL1_3',name:'L1.3',shelves:[{id:'sL1_3_1',name:'Top'},{id:'sL1_3_2',name:'Middle'},{id:'sL1_3_3',name:'Bottom'}]},
-    {id:'rL1_4',name:'L1.4',shelves:[{id:'sL1_4_1',name:'Top'},{id:'sL1_4_2',name:'Middle'},{id:'sL1_4_3',name:'Bottom'}]},
-    {id:'rL1_5',name:'L1.5',shelves:[{id:'sL1_5_1',name:'Top'},{id:'sL1_5_2',name:'Middle'},{id:'sL1_5_3',name:'Bottom'}]},
-    {id:'rL1_6',name:'L1.6',shelves:[{id:'sL1_6_1',name:'Top'},{id:'sL1_6_2',name:'Middle'},{id:'sL1_6_3',name:'Bottom'}]},
-    {id:'rL1_7',name:'L1.7',shelves:[{id:'sL1_7_1',name:'Top'},{id:'sL1_7_2',name:'Middle'},{id:'sL1_7_3',name:'Bottom'}]},
-    {id:'rL1_8',name:'L1.8',shelves:[{id:'sL1_8_1',name:'Top'},{id:'sL1_8_2',name:'Middle'},{id:'sL1_8_3',name:'Bottom'}]},
-    {id:'rL1_9',name:'L1.9',shelves:[{id:'sL1_9_1',name:'Top'},{id:'sL1_9_2',name:'Middle'},{id:'sL1_9_3',name:'Bottom'}]},
-    {id:'rL1_10',name:'L1.10',shelves:[{id:'sL1_10_1',name:'Top'},{id:'sL1_10_2',name:'Middle'},{id:'sL1_10_3',name:'Bottom'}]},
-    {id:'rL1_11',name:'L1.11',shelves:[{id:'sL1_11_1',name:'Top'},{id:'sL1_11_2',name:'Middle'},{id:'sL1_11_3',name:'Bottom'}]},
-    {id:'rL1_12',name:'L1.12',shelves:[{id:'sL1_12_1',name:'Top'},{id:'sL1_12_2',name:'Middle'},{id:'sL1_12_3',name:'Bottom'}]},
-    {id:'rL1_13',name:'L1.13',shelves:[{id:'sL1_13_1',name:'Top'},{id:'sL1_13_2',name:'Middle'},{id:'sL1_13_3',name:'Bottom'}]},
-    {id:'rL1_14',name:'L1.14',shelves:[{id:'sL1_14_1',name:'Top'},{id:'sL1_14_2',name:'Middle'},{id:'sL1_14_3',name:'Bottom'}]},
-    {id:'rL1_15',name:'L1.15',shelves:[{id:'sL1_15_1',name:'Top'},{id:'sL1_15_2',name:'Middle'},{id:'sL1_15_3',name:'Bottom'}]},
-    {id:'rL1_16',name:'L1.16',shelves:[{id:'sL1_16_1',name:'Top'},{id:'sL1_16_2',name:'Middle'},{id:'sL1_16_3',name:'Bottom'}]},
-    {id:'rL1_17',name:'L1.17',shelves:[{id:'sL1_17_1',name:'Top'},{id:'sL1_17_2',name:'Middle'},{id:'sL1_17_3',name:'Bottom'}]},
-    {id:'rL1_18',name:'L1.18',shelves:[{id:'sL1_18_1',name:'Top'},{id:'sL1_18_2',name:'Middle'},{id:'sL1_18_3',name:'Bottom'}]},
-    {id:'rL1_19',name:'L1.19',shelves:[{id:'sL1_19_1',name:'Top'},{id:'sL1_19_2',name:'Middle'},{id:'sL1_19_3',name:'Bottom'}]},
-    {id:'rL1_20',name:'L1.20',shelves:[{id:'sL1_20_1',name:'Top'},{id:'sL1_20_2',name:'Middle'},{id:'sL1_20_3',name:'Bottom'}]}
+    {id:'rL1A',name:'L1A',shelves:[{id:'sL1A_1',name:'Top'},{id:'sL1A_2',name:'Middle'},{id:'sL1A_3',name:'Bottom'}]},
+    {id:'rL1B',name:'L1B',shelves:[{id:'sL1B_1',name:'Top'},{id:'sL1B_2',name:'Middle'},{id:'sL1B_3',name:'Bottom'}]}
   ]},
   {id:'zL2',name:'L2',racks:[
-    {id:'rL2_1',name:'L2.1',shelves:[{id:'sL2_1_1',name:'Top'},{id:'sL2_1_2',name:'Middle'},{id:'sL2_1_3',name:'Bottom'}]},
-    {id:'rL2_2',name:'L2.2',shelves:[{id:'sL2_2_1',name:'Top'},{id:'sL2_2_2',name:'Middle'},{id:'sL2_2_3',name:'Bottom'}]},
-    {id:'rL2_3',name:'L2.3',shelves:[{id:'sL2_3_1',name:'Top'},{id:'sL2_3_2',name:'Middle'},{id:'sL2_3_3',name:'Bottom'}]},
-    {id:'rL2_4',name:'L2.4',shelves:[{id:'sL2_4_1',name:'Top'},{id:'sL2_4_2',name:'Middle'},{id:'sL2_4_3',name:'Bottom'}]},
-    {id:'rL2_5',name:'L2.5',shelves:[{id:'sL2_5_1',name:'Top'},{id:'sL2_5_2',name:'Middle'},{id:'sL2_5_3',name:'Bottom'}]},
-    {id:'rL2_6',name:'L2.6',shelves:[{id:'sL2_6_1',name:'Top'},{id:'sL2_6_2',name:'Middle'},{id:'sL2_6_3',name:'Bottom'}]},
-    {id:'rL2_7',name:'L2.7',shelves:[{id:'sL2_7_1',name:'Top'},{id:'sL2_7_2',name:'Middle'},{id:'sL2_7_3',name:'Bottom'}]},
-    {id:'rL2_8',name:'L2.8',shelves:[{id:'sL2_8_1',name:'Top'},{id:'sL2_8_2',name:'Middle'},{id:'sL2_8_3',name:'Bottom'}]},
-    {id:'rL2_9',name:'L2.9',shelves:[{id:'sL2_9_1',name:'Top'},{id:'sL2_9_2',name:'Middle'},{id:'sL2_9_3',name:'Bottom'}]},
-    {id:'rL2_10',name:'L2.10',shelves:[{id:'sL2_10_1',name:'Top'},{id:'sL2_10_2',name:'Middle'},{id:'sL2_10_3',name:'Bottom'}]},
-    {id:'rL2_11',name:'L2.11',shelves:[{id:'sL2_11_1',name:'Top'},{id:'sL2_11_2',name:'Middle'},{id:'sL2_11_3',name:'Bottom'}]},
-    {id:'rL2_12',name:'L2.12',shelves:[{id:'sL2_12_1',name:'Top'},{id:'sL2_12_2',name:'Middle'},{id:'sL2_12_3',name:'Bottom'}]},
-    {id:'rL2_13',name:'L2.13',shelves:[{id:'sL2_13_1',name:'Top'},{id:'sL2_13_2',name:'Middle'},{id:'sL2_13_3',name:'Bottom'}]},
-    {id:'rL2_14',name:'L2.14',shelves:[{id:'sL2_14_1',name:'Top'},{id:'sL2_14_2',name:'Middle'},{id:'sL2_14_3',name:'Bottom'}]},
-    {id:'rL2_15',name:'L2.15',shelves:[{id:'sL2_15_1',name:'Top'},{id:'sL2_15_2',name:'Middle'},{id:'sL2_15_3',name:'Bottom'}]},
-    {id:'rL2_16',name:'L2.16',shelves:[{id:'sL2_16_1',name:'Top'},{id:'sL2_16_2',name:'Middle'},{id:'sL2_16_3',name:'Bottom'}]},
-    {id:'rL2_17',name:'L2.17',shelves:[{id:'sL2_17_1',name:'Top'},{id:'sL2_17_2',name:'Middle'},{id:'sL2_17_3',name:'Bottom'}]},
-    {id:'rL2_18',name:'L2.18',shelves:[{id:'sL2_18_1',name:'Top'},{id:'sL2_18_2',name:'Middle'},{id:'sL2_18_3',name:'Bottom'}]},
-    {id:'rL2_19',name:'L2.19',shelves:[{id:'sL2_19_1',name:'Top'},{id:'sL2_19_2',name:'Middle'},{id:'sL2_19_3',name:'Bottom'}]},
-    {id:'rL2_20',name:'L2.20',shelves:[{id:'sL2_20_1',name:'Top'},{id:'sL2_20_2',name:'Middle'},{id:'sL2_20_3',name:'Bottom'}]}
+    {id:'rL2A',name:'L2A',shelves:[{id:'sL2A_1',name:'Top'},{id:'sL2A_2',name:'Middle'},{id:'sL2A_3',name:'Bottom'}]},
+    {id:'rL2B',name:'L2B',shelves:[{id:'sL2B_1',name:'Top'},{id:'sL2B_2',name:'Middle'},{id:'sL2B_3',name:'Bottom'}]}
   ]},
   {id:'zL3',name:'L3',racks:[
-    {id:'rL3_1',name:'L3.1',shelves:[{id:'sL3_1_1',name:'Top'},{id:'sL3_1_2',name:'Middle'},{id:'sL3_1_3',name:'Bottom'}]},
-    {id:'rL3_2',name:'L3.2',shelves:[{id:'sL3_2_1',name:'Top'},{id:'sL3_2_2',name:'Middle'},{id:'sL3_2_3',name:'Bottom'}]},
-    {id:'rL3_3',name:'L3.3',shelves:[{id:'sL3_3_1',name:'Top'},{id:'sL3_3_2',name:'Middle'},{id:'sL3_3_3',name:'Bottom'}]},
-    {id:'rL3_4',name:'L3.4',shelves:[{id:'sL3_4_1',name:'Top'},{id:'sL3_4_2',name:'Middle'},{id:'sL3_4_3',name:'Bottom'}]},
-    {id:'rL3_5',name:'L3.5',shelves:[{id:'sL3_5_1',name:'Top'},{id:'sL3_5_2',name:'Middle'},{id:'sL3_5_3',name:'Bottom'}]},
-    {id:'rL3_6',name:'L3.6',shelves:[{id:'sL3_6_1',name:'Top'},{id:'sL3_6_2',name:'Middle'},{id:'sL3_6_3',name:'Bottom'}]},
-    {id:'rL3_7',name:'L3.7',shelves:[{id:'sL3_7_1',name:'Top'},{id:'sL3_7_2',name:'Middle'},{id:'sL3_7_3',name:'Bottom'}]},
-    {id:'rL3_8',name:'L3.8',shelves:[{id:'sL3_8_1',name:'Top'},{id:'sL3_8_2',name:'Middle'},{id:'sL3_8_3',name:'Bottom'}]},
-    {id:'rL3_9',name:'L3.9',shelves:[{id:'sL3_9_1',name:'Top'},{id:'sL3_9_2',name:'Middle'},{id:'sL3_9_3',name:'Bottom'}]},
-    {id:'rL3_10',name:'L3.10',shelves:[{id:'sL3_10_1',name:'Top'},{id:'sL3_10_2',name:'Middle'},{id:'sL3_10_3',name:'Bottom'}]},
-    {id:'rL3_11',name:'L3.11',shelves:[{id:'sL3_11_1',name:'Top'},{id:'sL3_11_2',name:'Middle'},{id:'sL3_11_3',name:'Bottom'}]},
-    {id:'rL3_12',name:'L3.12',shelves:[{id:'sL3_12_1',name:'Top'},{id:'sL3_12_2',name:'Middle'},{id:'sL3_12_3',name:'Bottom'}]},
-    {id:'rL3_13',name:'L3.13',shelves:[{id:'sL3_13_1',name:'Top'},{id:'sL3_13_2',name:'Middle'},{id:'sL3_13_3',name:'Bottom'}]},
-    {id:'rL3_14',name:'L3.14',shelves:[{id:'sL3_14_1',name:'Top'},{id:'sL3_14_2',name:'Middle'},{id:'sL3_14_3',name:'Bottom'}]},
-    {id:'rL3_15',name:'L3.15',shelves:[{id:'sL3_15_1',name:'Top'},{id:'sL3_15_2',name:'Middle'},{id:'sL3_15_3',name:'Bottom'}]},
-    {id:'rL3_16',name:'L3.16',shelves:[{id:'sL3_16_1',name:'Top'},{id:'sL3_16_2',name:'Middle'},{id:'sL3_16_3',name:'Bottom'}]},
-    {id:'rL3_17',name:'L3.17',shelves:[{id:'sL3_17_1',name:'Top'},{id:'sL3_17_2',name:'Middle'},{id:'sL3_17_3',name:'Bottom'}]},
-    {id:'rL3_18',name:'L3.18',shelves:[{id:'sL3_18_1',name:'Top'},{id:'sL3_18_2',name:'Middle'},{id:'sL3_18_3',name:'Bottom'}]},
-    {id:'rL3_19',name:'L3.19',shelves:[{id:'sL3_19_1',name:'Top'},{id:'sL3_19_2',name:'Middle'},{id:'sL3_19_3',name:'Bottom'}]},
-    {id:'rL3_20',name:'L3.20',shelves:[{id:'sL3_20_1',name:'Top'},{id:'sL3_20_2',name:'Middle'},{id:'sL3_20_3',name:'Bottom'}]}
+    {id:'rL3A',name:'L3A',shelves:[{id:'sL3A_1',name:'Top'},{id:'sL3A_2',name:'Middle'},{id:'sL3A_3',name:'Bottom'}]},
+    {id:'rL3B',name:'L3B',shelves:[{id:'sL3B_1',name:'Top'},{id:'sL3B_2',name:'Middle'},{id:'sL3B_3',name:'Bottom'}]}
   ]},
   {id:'zL4',name:'L4',racks:[
-    {id:'rL4_1',name:'L4.1',shelves:[{id:'sL4_1_1',name:'Top'},{id:'sL4_1_2',name:'Middle'},{id:'sL4_1_3',name:'Bottom'}]},
-    {id:'rL4_2',name:'L4.2',shelves:[{id:'sL4_2_1',name:'Top'},{id:'sL4_2_2',name:'Middle'},{id:'sL4_2_3',name:'Bottom'}]},
-    {id:'rL4_3',name:'L4.3',shelves:[{id:'sL4_3_1',name:'Top'},{id:'sL4_3_2',name:'Middle'},{id:'sL4_3_3',name:'Bottom'}]},
-    {id:'rL4_4',name:'L4.4',shelves:[{id:'sL4_4_1',name:'Top'},{id:'sL4_4_2',name:'Middle'},{id:'sL4_4_3',name:'Bottom'}]},
-    {id:'rL4_5',name:'L4.5',shelves:[{id:'sL4_5_1',name:'Top'},{id:'sL4_5_2',name:'Middle'},{id:'sL4_5_3',name:'Bottom'}]},
-    {id:'rL4_6',name:'L4.6',shelves:[{id:'sL4_6_1',name:'Top'},{id:'sL4_6_2',name:'Middle'},{id:'sL4_6_3',name:'Bottom'}]},
-    {id:'rL4_7',name:'L4.7',shelves:[{id:'sL4_7_1',name:'Top'},{id:'sL4_7_2',name:'Middle'},{id:'sL4_7_3',name:'Bottom'}]},
-    {id:'rL4_8',name:'L4.8',shelves:[{id:'sL4_8_1',name:'Top'},{id:'sL4_8_2',name:'Middle'},{id:'sL4_8_3',name:'Bottom'}]},
-    {id:'rL4_9',name:'L4.9',shelves:[{id:'sL4_9_1',name:'Top'},{id:'sL4_9_2',name:'Middle'},{id:'sL4_9_3',name:'Bottom'}]},
-    {id:'rL4_10',name:'L4.10',shelves:[{id:'sL4_10_1',name:'Top'},{id:'sL4_10_2',name:'Middle'},{id:'sL4_10_3',name:'Bottom'}]},
-    {id:'rL4_11',name:'L4.11',shelves:[{id:'sL4_11_1',name:'Top'},{id:'sL4_11_2',name:'Middle'},{id:'sL4_11_3',name:'Bottom'}]},
-    {id:'rL4_12',name:'L4.12',shelves:[{id:'sL4_12_1',name:'Top'},{id:'sL4_12_2',name:'Middle'},{id:'sL4_12_3',name:'Bottom'}]},
-    {id:'rL4_13',name:'L4.13',shelves:[{id:'sL4_13_1',name:'Top'},{id:'sL4_13_2',name:'Middle'},{id:'sL4_13_3',name:'Bottom'}]},
-    {id:'rL4_14',name:'L4.14',shelves:[{id:'sL4_14_1',name:'Top'},{id:'sL4_14_2',name:'Middle'},{id:'sL4_14_3',name:'Bottom'}]},
-    {id:'rL4_15',name:'L4.15',shelves:[{id:'sL4_15_1',name:'Top'},{id:'sL4_15_2',name:'Middle'},{id:'sL4_15_3',name:'Bottom'}]},
-    {id:'rL4_16',name:'L4.16',shelves:[{id:'sL4_16_1',name:'Top'},{id:'sL4_16_2',name:'Middle'},{id:'sL4_16_3',name:'Bottom'}]},
-    {id:'rL4_17',name:'L4.17',shelves:[{id:'sL4_17_1',name:'Top'},{id:'sL4_17_2',name:'Middle'},{id:'sL4_17_3',name:'Bottom'}]},
-    {id:'rL4_18',name:'L4.18',shelves:[{id:'sL4_18_1',name:'Top'},{id:'sL4_18_2',name:'Middle'},{id:'sL4_18_3',name:'Bottom'}]},
-    {id:'rL4_19',name:'L4.19',shelves:[{id:'sL4_19_1',name:'Top'},{id:'sL4_19_2',name:'Middle'},{id:'sL4_19_3',name:'Bottom'}]},
-    {id:'rL4_20',name:'L4.20',shelves:[{id:'sL4_20_1',name:'Top'},{id:'sL4_20_2',name:'Middle'},{id:'sL4_20_3',name:'Bottom'}]}
+    {id:'rL4A',name:'L4A',shelves:[{id:'sL4A_1',name:'Top'},{id:'sL4A_2',name:'Middle'},{id:'sL4A_3',name:'Bottom'}]},
+    {id:'rL4B',name:'L4B',shelves:[{id:'sL4B_1',name:'Top'},{id:'sL4B_2',name:'Middle'},{id:'sL4B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL5',name:'L5',racks:[
+    {id:'rL5A',name:'L5A',shelves:[{id:'sL5A_1',name:'Top'},{id:'sL5A_2',name:'Middle'},{id:'sL5A_3',name:'Bottom'}]},
+    {id:'rL5B',name:'L5B',shelves:[{id:'sL5B_1',name:'Top'},{id:'sL5B_2',name:'Middle'},{id:'sL5B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL6',name:'L6',racks:[
+    {id:'rL6A',name:'L6A',shelves:[{id:'sL6A_1',name:'Top'},{id:'sL6A_2',name:'Middle'},{id:'sL6A_3',name:'Bottom'}]},
+    {id:'rL6B',name:'L6B',shelves:[{id:'sL6B_1',name:'Top'},{id:'sL6B_2',name:'Middle'},{id:'sL6B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL7',name:'L7',racks:[
+    {id:'rL7A',name:'L7A',shelves:[{id:'sL7A_1',name:'Top'},{id:'sL7A_2',name:'Middle'},{id:'sL7A_3',name:'Bottom'}]},
+    {id:'rL7B',name:'L7B',shelves:[{id:'sL7B_1',name:'Top'},{id:'sL7B_2',name:'Middle'},{id:'sL7B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL8',name:'L8',racks:[
+    {id:'rL8A',name:'L8A',shelves:[{id:'sL8A_1',name:'Top'},{id:'sL8A_2',name:'Middle'},{id:'sL8A_3',name:'Bottom'}]},
+    {id:'rL8B',name:'L8B',shelves:[{id:'sL8B_1',name:'Top'},{id:'sL8B_2',name:'Middle'},{id:'sL8B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL9',name:'L9',racks:[
+    {id:'rL9A',name:'L9A',shelves:[{id:'sL9A_1',name:'Top'},{id:'sL9A_2',name:'Middle'},{id:'sL9A_3',name:'Bottom'}]},
+    {id:'rL9B',name:'L9B',shelves:[{id:'sL9B_1',name:'Top'},{id:'sL9B_2',name:'Middle'},{id:'sL9B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL10',name:'L10',racks:[
+    {id:'rL10A',name:'L10A',shelves:[{id:'sL10A_1',name:'Top'},{id:'sL10A_2',name:'Middle'},{id:'sL10A_3',name:'Bottom'}]},
+    {id:'rL10B',name:'L10B',shelves:[{id:'sL10B_1',name:'Top'},{id:'sL10B_2',name:'Middle'},{id:'sL10B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL11',name:'L11',racks:[
+    {id:'rL11A',name:'L11A',shelves:[{id:'sL11A_1',name:'Top'},{id:'sL11A_2',name:'Middle'},{id:'sL11A_3',name:'Bottom'}]},
+    {id:'rL11B',name:'L11B',shelves:[{id:'sL11B_1',name:'Top'},{id:'sL11B_2',name:'Middle'},{id:'sL11B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL12',name:'L12',racks:[
+    {id:'rL12A',name:'L12A',shelves:[{id:'sL12A_1',name:'Top'},{id:'sL12A_2',name:'Middle'},{id:'sL12A_3',name:'Bottom'}]},
+    {id:'rL12B',name:'L12B',shelves:[{id:'sL12B_1',name:'Top'},{id:'sL12B_2',name:'Middle'},{id:'sL12B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL13',name:'L13',racks:[
+    {id:'rL13A',name:'L13A',shelves:[{id:'sL13A_1',name:'Top'},{id:'sL13A_2',name:'Middle'},{id:'sL13A_3',name:'Bottom'}]},
+    {id:'rL13B',name:'L13B',shelves:[{id:'sL13B_1',name:'Top'},{id:'sL13B_2',name:'Middle'},{id:'sL13B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL14',name:'L14',racks:[
+    {id:'rL14A',name:'L14A',shelves:[{id:'sL14A_1',name:'Top'},{id:'sL14A_2',name:'Middle'},{id:'sL14A_3',name:'Bottom'}]},
+    {id:'rL14B',name:'L14B',shelves:[{id:'sL14B_1',name:'Top'},{id:'sL14B_2',name:'Middle'},{id:'sL14B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL15',name:'L15',racks:[
+    {id:'rL15A',name:'L15A',shelves:[{id:'sL15A_1',name:'Top'},{id:'sL15A_2',name:'Middle'},{id:'sL15A_3',name:'Bottom'}]},
+    {id:'rL15B',name:'L15B',shelves:[{id:'sL15B_1',name:'Top'},{id:'sL15B_2',name:'Middle'},{id:'sL15B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL16',name:'L16',racks:[
+    {id:'rL16A',name:'L16A',shelves:[{id:'sL16A_1',name:'Top'},{id:'sL16A_2',name:'Middle'},{id:'sL16A_3',name:'Bottom'}]},
+    {id:'rL16B',name:'L16B',shelves:[{id:'sL16B_1',name:'Top'},{id:'sL16B_2',name:'Middle'},{id:'sL16B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL17',name:'L17',racks:[
+    {id:'rL17A',name:'L17A',shelves:[{id:'sL17A_1',name:'Top'},{id:'sL17A_2',name:'Middle'},{id:'sL17A_3',name:'Bottom'}]},
+    {id:'rL17B',name:'L17B',shelves:[{id:'sL17B_1',name:'Top'},{id:'sL17B_2',name:'Middle'},{id:'sL17B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL18',name:'L18',racks:[
+    {id:'rL18A',name:'L18A',shelves:[{id:'sL18A_1',name:'Top'},{id:'sL18A_2',name:'Middle'},{id:'sL18A_3',name:'Bottom'}]},
+    {id:'rL18B',name:'L18B',shelves:[{id:'sL18B_1',name:'Top'},{id:'sL18B_2',name:'Middle'},{id:'sL18B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL19',name:'L19',racks:[
+    {id:'rL19A',name:'L19A',shelves:[{id:'sL19A_1',name:'Top'},{id:'sL19A_2',name:'Middle'},{id:'sL19A_3',name:'Bottom'}]},
+    {id:'rL19B',name:'L19B',shelves:[{id:'sL19B_1',name:'Top'},{id:'sL19B_2',name:'Middle'},{id:'sL19B_3',name:'Bottom'}]}
+  ]},
+  {id:'zL20',name:'L20',racks:[
+    {id:'rL20A',name:'L20A',shelves:[{id:'sL20A_1',name:'Top'},{id:'sL20A_2',name:'Middle'},{id:'sL20A_3',name:'Bottom'}]},
+    {id:'rL20B',name:'L20B',shelves:[{id:'sL20B_1',name:'Top'},{id:'sL20B_2',name:'Middle'},{id:'sL20B_3',name:'Bottom'}]}
+  ]},
+  {id:'zZ',name:'Z',racks:[
+    {id:'rZ1',name:'Z1',shelves:[{id:'sZ1',name:'Slot'}]},
+    {id:'rZ2',name:'Z2',shelves:[{id:'sZ2',name:'Slot'}]},
+    {id:'rZ3',name:'Z3',shelves:[{id:'sZ3',name:'Slot'}]},
+    {id:'rZ4',name:'Z4',shelves:[{id:'sZ4',name:'Slot'}]},
+    {id:'rZ5',name:'Z5',shelves:[{id:'sZ5',name:'Slot'}]},
+    {id:'rZ6',name:'Z6',shelves:[{id:'sZ6',name:'Slot'}]},
+    {id:'rZ7',name:'Z7',shelves:[{id:'sZ7',name:'Slot'}]},
+    {id:'rZ8',name:'Z8',shelves:[{id:'sZ8',name:'Slot'}]},
+    {id:'rZ9',name:'Z9',shelves:[{id:'sZ9',name:'Slot'}]},
+    {id:'rZ10',name:'Z10',shelves:[{id:'sZ10',name:'Slot'}]},
+    {id:'rZ11',name:'Z11',shelves:[{id:'sZ11',name:'Slot'}]},
+    {id:'rZ12',name:'Z12',shelves:[{id:'sZ12',name:'Slot'}]},
+    {id:'rZ13',name:'Z13',shelves:[{id:'sZ13',name:'Slot'}]},
+    {id:'rZ14',name:'Z14',shelves:[{id:'sZ14',name:'Slot'}]},
+    {id:'rZ15',name:'Z15',shelves:[{id:'sZ15',name:'Slot'}]},
+    {id:'rZ16',name:'Z16',shelves:[{id:'sZ16',name:'Slot'}]},
+    {id:'rZ17',name:'Z17',shelves:[{id:'sZ17',name:'Slot'}]},
+    {id:'rZ18',name:'Z18',shelves:[{id:'sZ18',name:'Slot'}]},
+    {id:'rZ19',name:'Z19',shelves:[{id:'sZ19',name:'Slot'}]},
+    {id:'rZ20',name:'Z20',shelves:[{id:'sZ20',name:'Slot'}]},
+    {id:'rZ21',name:'Z21',shelves:[{id:'sZ21',name:'Slot'}]},
+    {id:'rZ22',name:'Z22',shelves:[{id:'sZ22',name:'Slot'}]},
+    {id:'rZ23',name:'Z23',shelves:[{id:'sZ23',name:'Slot'}]},
+    {id:'rZ24',name:'Z24',shelves:[{id:'sZ24',name:'Slot'}]},
+    {id:'rZ25',name:'Z25',shelves:[{id:'sZ25',name:'Slot'}]}
   ]}
 ];
-const SKUS = [
+const SKUS=[
   {code:'51010/15CV',name:'苏东 SOTONG WHOLE 510 10/15 1CTN X 10KGS',color:'#f5a623',minQty:5},
   {code:'51010/15CY',name:'苏东 SOTONG WHOLE 10/15 1CTNX10KGSX',color:'#4ecdc4',minQty:5},
   {code:'51010UPCY',name:'苏东 SOTONG WHOLE 510 10UP 1CTN X 10KGSS',color:'#e74c3c',minQty:5},
@@ -1143,11 +1069,10 @@ const SKUS = [
   {code:'YTFMU',name:'黄尾 YELLOW TAILL',color:'#e91e63',minQty:5}
 ];
 
-const SUPABASE_URL = 'https://xndxogfqaddzzyegtmzl.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuZHhvZ2ZxYWRkenp5ZWd0bXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMDM4NDYsImV4cCI6MjA4ODU3OTg0Nn0.S0fhpOQwvaAtZKovi1dcTgJ72mOenzX86lTFbWABoL4';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+// ── STATE ──
 let assignments = {};
+let warehouseZones = null; // dynamic, loaded from structure
+let history = [];
 let selectedSKU = null;
 let assignShelfId = null;
 let addBatchState = null;
@@ -1163,9 +1088,15 @@ function fmtDate(s) {
   const d = new Date(s + 'T00:00:00');
   return d.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'});
 }
+function fmtDateTime(s) {
+  if (!s) return '—';
+  const d = new Date(s);
+  return d.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) + ' ' + d.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+}
 function escH(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function getZones() { return warehouseZones || ZONES; }
 function getSKU(code) { return SKUS.find(s => s.code === code); }
 function getTotalQty(code) {
   let t = 0;
@@ -1185,24 +1116,29 @@ function getBatchCount(code) {
 }
 function getShelfLocations(code) {
   const locs = [];
-  for (const z of ZONES) for (const r of z.racks) for (const s of r.shelves) {
-    if ((assignments[s.id] || []).some(i => i.code === code)) locs.push(r.name + '-' + s.name);
+  for (const z of getZones()) for (const r of z.racks) for (const s of r.shelves) {
+    if ((assignments[s.id] || []).some(i => i.code === code)) locs.push(r.name + (s.name !== 'Slot' ? '-' + s.name : ''));
   }
   return locs;
 }
 function findShelfById(id) {
-  for (const z of ZONES) for (const r of z.racks) {
+  for (const z of getZones()) for (const r of z.racks) {
     const s = r.shelves.find(s => s.id === id);
     if (s) return {z, r, s};
   }
   return null;
 }
 function findRackById(id) {
-  for (const z of ZONES) {
+  for (const z of getZones()) {
     const r = z.racks.find(r => r.id === id);
     if (r) return {z, r};
   }
   return null;
+}
+function shelfLabel(shelfId) {
+  const found = findShelfById(shelfId);
+  if (!found) return shelfId;
+  return found.r.name + (found.s.name !== 'Slot' ? ' – ' + found.s.name : '');
 }
 
 // ── TOAST ──
@@ -1212,147 +1148,127 @@ function toast(msg, type='ok') {
   t.className = 'toast ' + type + ' show';
   setTimeout(() => t.className = 'toast', 3000);
 }
-
-// ── SYNC DOT ──
 function setSyncState(state) {
   const d = document.getElementById('syncDot');
   if (!d) return;
-  d.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+  d.className = 'sync-dot' + (state==='syncing'?' syncing':state==='error'?' error':'');
 }
 
 // ── AUTH ──
 async function doLogin() {
-  const emailEl = document.getElementById('loginEmail');
-  const passEl = document.getElementById('loginPass');
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
   const errEl = document.getElementById('loginErr');
   const loadEl = document.getElementById('loginLoading');
-  const email = emailEl.value.trim();
-  const pass = passEl.value;
-  if (!email || !pass) {
-    errEl.textContent = 'Please enter your email and password.';
-    errEl.style.display = 'block';
-    return;
-  }
-  errEl.style.display = 'none';
-  loadEl.style.display = 'block';
+  if (!email || !pass) { errEl.textContent='Enter email and password.'; errEl.style.display='block'; return; }
+  errEl.style.display='none'; loadEl.style.display='block';
   try {
-    const result = await sb.auth.signInWithPassword({email: email, password: pass});
-    loadEl.style.display = 'none';
-    if (result.error) {
-      errEl.textContent = 'Login failed: ' + result.error.message;
-      errEl.style.display = 'block';
-      return;
-    }
-    currentUser = result.data.user;
+    const res = await sb.auth.signInWithPassword({email, password: pass});
+    loadEl.style.display='none';
+    if (res.error) { errEl.textContent='Login failed: '+res.error.message; errEl.style.display='block'; return; }
+    currentUser = res.data.user;
     bootApp();
-  } catch (e) {
-    loadEl.style.display = 'none';
-    errEl.textContent = 'Error: ' + e.message;
-    errEl.style.display = 'block';
-  }
+  } catch(e) { loadEl.style.display='none'; errEl.textContent='Error: '+e.message; errEl.style.display='block'; }
 }
-
 async function doLogout() {
   await sb.auth.signOut();
   if (realtimeChannel) sb.removeChannel(realtimeChannel);
-  document.getElementById('appShell').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-  assignments = {};
-  selectedSKU = null;
-  currentUser = null;
+  document.getElementById('appShell').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  assignments={}; selectedSKU=null; currentUser=null; history=[];
 }
 
-// Enter key support
-document.getElementById('loginPass').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
-document.getElementById('loginEmail').addEventListener('keydown', function(e) { if (e.key === 'Enter') document.getElementById('loginPass').focus(); });
-document.getElementById('searchInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') doSearch(); });
+document.getElementById('loginPass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('loginEmail').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('loginPass').focus(); });
+document.getElementById('searchInput').addEventListener('keydown', e => { if(e.key==='Enter') doSearch(); });
 
-// Check existing session on page load
 (async function() {
   try {
-    var result = await sb.auth.getSession();
-    if (result.data && result.data.session) {
-      currentUser = result.data.session.user;
-      bootApp();
-    }
+    const r = await sb.auth.getSession();
+    if (r.data && r.data.session) { currentUser = r.data.session.user; bootApp(); }
   } catch(e) {}
 })();
 
 // ── BOOT ──
 async function bootApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('appShell').style.display = 'block';
-  document.getElementById('loadingOverlay').style.display = 'flex';
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appShell').style.display='block';
+  document.getElementById('loadingOverlay').style.display='flex';
   document.getElementById('userEmail').textContent = currentUser.email;
+  await loadStructure();
   await loadAssignments();
-  document.getElementById('loadingOverlay').style.display = 'none';
+  await loadHistory();
+  document.getElementById('loadingOverlay').style.display='none';
   setupRealtime();
   render();
+}
+
+// ── STRUCTURE (dynamic zones) ──
+async function loadStructure() {
+  const res = await sb.from('warehouse_structure').select('*').eq('id','zones').single();
+  if (res.data && res.data.data) {
+    warehouseZones = res.data.data;
+  } else {
+    warehouseZones = JSON.parse(JSON.stringify(ZONES)); // deep copy of default
+    await saveStructure();
+  }
+}
+async function saveStructure() {
+  await sb.from('warehouse_structure').upsert({id:'zones', data: warehouseZones, updated_at: new Date().toISOString()});
 }
 
 // ── DATABASE ──
 async function loadAssignments() {
   setSyncState('syncing');
-  const result = await sb.from('assignments').select('*');
-  if (result.error) {
-    setSyncState('error');
-    toast('Failed to load: ' + result.error.message, 'err');
-    return;
-  }
+  const res = await sb.from('assignments').select('*');
+  if (res.error) { setSyncState('error'); toast('Load failed: '+res.error.message,'err'); return; }
   assignments = {};
-  for (const row of result.data) {
-    if (!assignments[row.shelf_id]) assignments[row.shelf_id] = [];
-    let entry = assignments[row.shelf_id].find(i => i.code === row.sku_code);
-    if (!entry) {
-      entry = {code: row.sku_code, batches: []};
-      assignments[row.shelf_id].push(entry);
-    }
-    entry.batches.push({batchId: row.batch_id, arrival: row.arrival, qty: row.qty});
+  for (const row of res.data) {
+    if (!assignments[row.shelf_id]) assignments[row.shelf_id]=[];
+    let entry = assignments[row.shelf_id].find(i=>i.code===row.sku_code);
+    if (!entry) { entry={code:row.sku_code,batches:[]}; assignments[row.shelf_id].push(entry); }
+    entry.batches.push({batchId:row.batch_id,arrival:row.arrival,qty:row.qty});
   }
   setSyncState('ok');
 }
-
+async function loadHistory() {
+  const res = await sb.from('change_history').select('*').order('ts',{ascending:false}).limit(200);
+  if (res.data) history = res.data;
+}
+async function dbAddHistory(action, sku, from, to, qty) {
+  const row = {user_email: currentUser.email, action, sku_code: sku||'', from_loc: from||'—', to_loc: to||'—', qty: qty!=null?String(qty):'—'};
+  const res = await sb.from('change_history').insert(row);
+  if (!res.error) history.unshift({...row, ts: new Date().toISOString()});
+}
 async function dbAddBatch(shelfId, skuCode, batchId, arrival, qty) {
   setSyncState('syncing');
-  const result = await sb.from('assignments').insert({
-    shelf_id: shelfId, sku_code: skuCode, batch_id: batchId, arrival: arrival, qty: qty
-  });
-  if (result.error) { setSyncState('error'); toast('Save failed: ' + result.error.message, 'err'); return false; }
-  setSyncState('ok');
-  return true;
+  const res = await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty});
+  if (res.error) { setSyncState('error'); toast('Save failed: '+res.error.message,'err'); return false; }
+  setSyncState('ok'); return true;
 }
-
 async function dbUpdateQty(batchId, qty) {
   setSyncState('syncing');
-  const result = await sb.from('assignments').update({qty: qty}).eq('batch_id', batchId);
-  if (result.error) { setSyncState('error'); toast('Update failed: ' + result.error.message, 'err'); return false; }
-  setSyncState('ok');
-  return true;
+  const res = await sb.from('assignments').update({qty}).eq('batch_id',batchId);
+  if (res.error) { setSyncState('error'); toast('Update failed: '+res.error.message,'err'); return false; }
+  setSyncState('ok'); return true;
 }
-
 async function dbDeleteBatch(batchId) {
   setSyncState('syncing');
-  const result = await sb.from('assignments').delete().eq('batch_id', batchId);
-  if (result.error) { setSyncState('error'); toast('Delete failed: ' + result.error.message, 'err'); return false; }
-  setSyncState('ok');
-  return true;
+  const res = await sb.from('assignments').delete().eq('batch_id',batchId);
+  if (res.error) { setSyncState('error'); toast('Delete failed: '+res.error.message,'err'); return false; }
+  setSyncState('ok'); return true;
 }
-
 async function dbDeleteEntry(shelfId, skuCode) {
   setSyncState('syncing');
-  const result = await sb.from('assignments').delete().eq('shelf_id', shelfId).eq('sku_code', skuCode);
-  if (result.error) { setSyncState('error'); toast('Delete failed: ' + result.error.message, 'err'); return false; }
-  setSyncState('ok');
-  return true;
+  const res = await sb.from('assignments').delete().eq('shelf_id',shelfId).eq('sku_code',skuCode);
+  if (res.error) { setSyncState('error'); toast('Delete failed: '+res.error.message,'err'); return false; }
+  setSyncState('ok'); return true;
 }
 
 // ── REALTIME ──
 function setupRealtime() {
-  realtimeChannel = sb.channel('assignments-changes')
-    .on('postgres_changes', {event: '*', schema: 'public', table: 'assignments'}, async function(payload) {
-      await loadAssignments();
-      render();
-    })
+  realtimeChannel = sb.channel('rm-changes')
+    .on('postgres_changes',{event:'*',schema:'public',table:'assignments'}, async ()=>{ await loadAssignments(); render(); })
     .subscribe();
 }
 
@@ -1360,22 +1276,22 @@ function setupRealtime() {
 function render() { renderSKUList(); renderWarehouse(); renderStats(); }
 
 function renderSKUList() {
-  const filter = (document.getElementById('skuFilter') ? document.getElementById('skuFilter').value : '').toUpperCase();
+  const filter = (document.getElementById('skuFilter')||{value:''}).value.toUpperCase();
   const filtered = SKUS.filter(s => !filter || s.code.includes(filter) || s.name.toUpperCase().includes(filter));
-  document.getElementById('skuCount').textContent = SKUS.length + ' SKUs';
+  document.getElementById('skuCount').textContent = SKUS.length+' SKUs';
   let html = '';
   for (const s of filtered) {
     const total = getTotalQty(s.code);
     const bcount = getBatchCount(s.code);
     const locs = getShelfLocations(s.code);
-    const isLow = total < s.minQty && total > 0;
-    html += '<div class="sku-item' + (selectedSKU === s.code ? ' selected' : '') + '" onclick="selectSKU(\'' + s.code.replace(/'/g,"\\'") + '\')" draggable="true" ondragstart="sidebarDragStart(event,\'' + s.code.replace(/'/g,"\\'") + '\')" id="si-' + escH(s.code) + '">';
-    html += '<div class="sku-dot" style="background:' + s.color + '"></div>';
+    const sc = s.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    html += '<div class="sku-item'+(selectedSKU===s.code?' selected':'')+'" onclick="selectSKU(\''+sc+'\')" draggable="true" ondragstart="sidebarDragStart(event,\''+sc+'\')">';
+    html += '<div class="sku-dot" style="background:'+s.color+'"></div>';
     html += '<div class="sku-info">';
-    html += '<div class="sku-code">' + escH(s.code) + (isLow ? '<span class="low-badge">LOW</span>' : '') + '</div>';
-    html += '<div class="sku-name">' + escH(s.name) + '</div>';
-    html += '<div class="sku-total">Stock: <strong style="color:' + (isLow ? '#e74c3c' : '#2ecc71') + '">' + total + '</strong>' + (bcount ? ' · <strong style="color:var(--accent2)">' + bcount + '</strong> batch' + (bcount !== 1 ? 'es' : '') : '') + '</div>';
-    html += locs.length ? '<div class="sku-locs">📍 ' + locs.slice(0,3).join(' · ') + (locs.length > 3 ? ' +' + (locs.length-3) + ' more' : '') + '</div>' : '<div class="sku-locs" style="color:#3a3f52">Not placed</div>';
+    html += '<div class="sku-code">'+escH(s.code)+'</div>';
+    html += '<div class="sku-name">'+escH(s.name)+'</div>';
+    html += '<div class="sku-total">Stock: <strong>'+total+'</strong>'+(bcount?' · <strong style="color:#0077cc">'+bcount+'</strong> batch'+(bcount!==1?'es':''):'')+'</div>';
+    html += locs.length?'<div class="sku-locs">📍 '+locs.slice(0,3).join(' · ')+(locs.length>3?' +'+(locs.length-3)+' more':'')+'</div>':'<div class="sku-locs" style="color:#aaa">Not placed</div>';
     html += '</div></div>';
   }
   document.getElementById('skuList').innerHTML = html;
@@ -1384,426 +1300,474 @@ function renderSKUList() {
 function renderWarehouse() {
   const map = document.getElementById('warehouseMap');
   let html = '';
-  for (const z of ZONES) {
-    html += '<div class="zone-block"><div class="zone-header"><span class="zone-accent">▌</span><span class="zone-name">' + escH(z.name) + '</span></div><div class="rack-row">';
-    for (const r of z.racks) {
-      html += '<div class="rack" id="rk-' + r.id + '" ondragover="rackOver(event,\'' + r.id + '\')" ondragleave="rackLeave(\'' + r.id + '\')" ondrop="rackDrop(event,\'' + r.id + '\')"><div class="rack-header"><span class="rack-name">' + escH(r.name) + '</span></div>';
-      for (const s of r.shelves) {
-        const items = assignments[s.id] || [];
-        const hl = selectedSKU && items.some(i => i.code === selectedSKU);
-        html += '<div class="shelf' + (hl ? ' highlight' : '') + '" id="sh-' + s.id + '" onclick="openAssign(\'' + s.id + '\')" ondragover="shelfOver(event,\'' + s.id + '\')" ondragleave="shelfLeave(\'' + s.id + '\')" ondrop="shelfDrop(event,\'' + s.id + '\')">';
-        html += '<div class="shelf-top"><span class="shelf-label">' + escH(s.name) + '</span></div><div class="shelf-items">';
+  for (const z of getZones()) {
+    const isZ = z.isZoneZ || z.id==='zZ';
+    html += '<div class="zone-block">';
+    html += '<div class="zone-header">';
+    html += '<span class="zone-accent">▌</span><span class="zone-name">Zone '+escH(z.name)+'</span>';
+    html += '<button class="zone-del-btn" onclick="confirmDeleteZone(\''+z.id+'\')" title="Delete zone">🗑</button>';
+    html += '</div>';
+    if (isZ) {
+      html += '<div class="rack-row zone-z-grid">';
+      for (const r of z.racks) {
+        const s = r.shelves[0];
+        const items = assignments[s.id]||[];
+        const hl = selectedSKU && items.some(i=>i.code===selectedSKU);
+        const sc2 = s.id;
+        html += '<div class="z-slot'+(hl?' highlight':'')+(items.length?' z-slot-used':'')+'" onclick="openAssign(\''+sc2+'\')" ondragover="shelfOver(event,\''+sc2+'\')" ondragleave="shelfLeave(\''+sc2+'\')" ondrop="shelfDrop(event,\''+sc2+'\')">';
+        html += '<div class="z-slot-label">'+escH(r.name)+'</div>';
         if (items.length) {
           for (const item of items) {
-            const sku = SKUS.find(sk => sk.code === item.code);
-            if (!sku) continue;
-            const shelfTotal = item.batches.reduce((a,b) => a + b.qty, 0);
-            const qc = shelfTotal < sku.minQty ? 'qty-low' : shelfTotal < sku.minQty*2 ? 'qty-ok' : 'qty-good';
-            const sorted = [...item.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
-            const safeCode = item.code.replace(/'/g, "\\'").replace(/\\/g, '\\\\');
-            html += '<div class="shelf-sku-block"><div class="shelf-sku-header">';
-            html += '<div class="row-dot" style="background:' + sku.color + '"></div>';
-            html += '<div class="row-code" style="color:' + sku.color + '" draggable="true" ondragstart="itemDragStart(event,\'' + s.id + '\',\'' + safeCode + '\',' + shelfTotal + ')">' + escH(item.code) + '</div>';
-            html += '<span class="row-total ' + qc + '">' + shelfTotal + '</span>';
-            html += '<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\'' + s.id + '\',\'' + safeCode + '\',' + shelfTotal + ')" title="Move">⇄</button>';
-            html += '<button class="row-act del" onclick="event.stopPropagation();removeEntry(\'' + s.id + '\',\'' + safeCode + '\')" title="Remove">✕</button>';
-            html += '</div><div class="batch-list">';
-            sorted.forEach(function(b, idx) {
-              html += '<div class="batch-row">';
-              html += '<span class="batch-arr">📅 ' + fmtDate(b.arrival) + (idx === 0 ? '<span class="fifo-tag">FIFO</span>' : '') + '</span>';
-              html += '<div class="batch-qty-ctrl">';
-              html += '<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\'' + s.id + '\',\'' + safeCode + '\',\'' + b.batchId + '\',-1)">−</button>';
-              html += '<span class="bqty-val ' + qc + '">' + b.qty + '</span>';
-              html += '<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\'' + s.id + '\',\'' + safeCode + '\',\'' + b.batchId + '\',1)">+</button>';
-              html += '</div>';
-              html += '<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\'' + s.id + '\',\'' + safeCode + '\',\'' + b.batchId + '\')">✕</button>';
-              html += '</div>';
-            });
-            html += '</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\'' + s.id + '\',\'' + safeCode + '\')">＋ add batch</span></div>';
+            const sku2 = SKUS.find(sk=>sk.code===item.code);
+            const qty = item.batches.reduce((a,b)=>a+b.qty,0);
+            const sc3 = item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            html += '<div class="z-slot-content" style="border-color:'+(sku2?sku2.color:'#333')+'">';
+            html += '<span style="color:'+(sku2?sku2.color:'#333')+';font-size:.62rem;font-weight:700">'+escH(item.code)+'</span>';
+            html += '<span style="color:#1a7a3c;font-size:.6rem;font-weight:700"> ('+qty+')</span>';
+            html += '<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+sc2+'\',\''+sc3+'\')">✕</button>';
+            html += '</div>';
           }
         } else {
-          html += '<div class="empty-shelf">empty · click to assign</div>';
+          html += '<div class="empty-shelf">empty</div>';
         }
-        html += '</div></div>';
+        html += '</div>';
       }
       html += '</div>';
+      html += '<button class="add-struct-btn" onclick="addZoneZSlot(\''+z.id+'\')">＋ Add slot</button>';
+    } else {
+      html += '<div class="rack-row">';
+      for (const r of z.racks) {
+        html += '<div class="rack" id="rk-'+r.id+'" ondragover="rackOver(event,\''+r.id+'\')" ondragleave="rackLeave(\''+r.id+'\')" ondrop="rackDrop(event,\''+r.id+'\')">';
+        html += '<div class="rack-header"><span class="rack-name">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="confirmDeleteRack(\''+z.id+'\',\''+r.id+'\')" title="Delete rack">✕</button></div>';
+        for (const s of r.shelves) {
+          const items = assignments[s.id]||[];
+          const hl = selectedSKU && items.some(i=>i.code===selectedSKU);
+          html += '<div class="shelf'+(hl?' highlight':'')+'" id="sh-'+s.id+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
+          html += '<div class="shelf-top"><span class="shelf-label">'+escH(s.name)+'</span></div><div class="shelf-items">';
+          if (items.length) {
+            for (const item of items) {
+              const sku2 = SKUS.find(sk=>sk.code===item.code);
+              if (!sku2) continue;
+              const st = item.batches.reduce((a,b)=>a+b.qty,0);
+              const sc2 = item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+              html += '<div class="shelf-sku-block"><div class="shelf-sku-header">';
+              html += '<div class="row-dot" style="background:'+sku2.color+'"></div>';
+              html += '<div class="row-code" style="color:'+sku2.color+'" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')">'+escH(item.code)+'</div>';
+              html += '<span class="row-total">'+st+'</span>';
+              html += '<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
+              html += '<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')">✕</button>';
+              html += '</div><div class="batch-list">';
+              item.batches.forEach(b => {
+                html += '<div class="batch-row">';
+                html += '<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
+                html += '<div class="batch-qty-ctrl">';
+                html += '<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
+                html += '<span class="bqty-val">'+b.qty+'</span>';
+                html += '<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
+                html += '</div>';
+                html += '<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">✕</button>';
+                html += '</div>';
+              });
+              html += '</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
+            }
+          } else {
+            html += '<div class="empty-shelf">empty · click to assign</div>';
+          }
+          html += '</div></div>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '<button class="add-struct-btn" onclick="addRackToZone(\''+z.id+'\')">＋ Add rack column</button>';
     }
-    html += '</div></div>';
+    html += '</div>';
   }
+  // Add zone buttons
+  html += '<div class="add-zone-row">';
+  html += '<button class="add-zone-btn" onclick="addRegularZone()">＋ Add R/L Zone</button>';
+  html += '<button class="add-zone-btn" onclick="addZoneZ()">＋ Add Zone Z (grid)</button>';
+  html += '</div>';
   map.innerHTML = html;
 }
 
 function renderStats() {
-  const totalShelves = ZONES.flatMap(z => z.racks).flatMap(r => r.shelves).length;
-  const usedShelves = Object.keys(assignments).filter(k => assignments[k] && assignments[k].length).length;
-  const totalUnits = Object.values(assignments).flat().flatMap(e => e.batches).reduce((a,b) => a + b.qty, 0);
-  const low = SKUS.filter(s => getTotalQty(s.code) > 0 && getTotalQty(s.code) < s.minQty);
+  const totalSlots = getZones().flatMap(z=>z.racks).flatMap(r=>r.shelves).length;
+  const usedSlots = Object.keys(assignments).filter(k=>assignments[k]&&assignments[k].length).length;
+  const totalUnits = Object.values(assignments).flat().flatMap(e=>e.batches).reduce((a,b)=>a+b.qty,0);
   document.getElementById('statsBar').innerHTML =
-    '<div class="stat">📦 <strong>' + SKUS.length + '</strong> SKUs</div>' +
-    '<div class="stat">🗂 <strong>' + usedShelves + '</strong>/' + totalShelves + ' shelves used</div>' +
-    '<div class="stat">🔢 <strong>' + totalUnits + '</strong> total units</div>' +
-    (low.length ? '<div class="stat">⚠️ <strong style="color:#e74c3c">' + low.length + '</strong> low-stock</div>' : '') +
+    '<div class="stat">📦 <strong>'+SKUS.length+'</strong> SKUs</div>'+
+    '<div class="stat">🗂 <strong>'+usedSlots+'</strong>/'+totalSlots+' slots used</div>'+
+    '<div class="stat">🔢 <strong>'+totalUnits+'</strong> total units</div>'+
+    '<span class="stat-link" onclick="showHistory()">📋 History</span>'+
     '<span class="stat-link" onclick="showFullReport()">Full Report ›</span>';
 }
 
-function selectSKU(code) { selectedSKU = (selectedSKU === code) ? null : code; render(); }
+function selectSKU(code) { selectedSKU=(selectedSKU===code)?null:code; render(); }
+
+// ── STRUCTURE MANAGEMENT ──
+function addRegularZone() {
+  const name = prompt('Zone name (e.g. R21 or L21):');
+  if (!name) return;
+  const cols = prompt('Column letters (e.g. A,B,C,D,E,F):','A,B,C,D,E,F');
+  if (!cols) return;
+  const colArr = cols.split(',').map(c=>c.trim()).filter(Boolean);
+  const zid = 'z'+name.replace(/\s/g,'');
+  if (getZones().find(z=>z.id===zid)) { alert('Zone already exists!'); return; }
+  const racks = colArr.map(col => {
+    const rname = name+col;
+    return {id:'r'+rname, name:rname, shelves:[
+      {id:'s'+rname+'_1',name:'Top'},
+      {id:'s'+rname+'_2',name:'Middle'},
+      {id:'s'+rname+'_3',name:'Bottom'}
+    ]};
+  });
+  getZones().push({id:zid, name:name, racks});
+  saveStructure();
+  render();
+  toast('✅ Zone '+name+' added!');
+}
+
+function addZoneZ() {
+  const name = prompt('Zone name (e.g. Z2):');
+  if (!name) return;
+  const count = parseInt(prompt('How many slots?','25'))||25;
+  const zid = 'z'+name.replace(/\s/g,'');
+  if (getZones().find(z=>z.id===zid)) { alert('Zone already exists!'); return; }
+  const racks = [];
+  for (let i=1;i<=count;i++) {
+    racks.push({id:'r'+name+i, name:name+i, shelves:[{id:'s'+name+i, name:'Slot'}]});
+  }
+  getZones().push({id:zid, name:name, isZoneZ:true, racks});
+  saveStructure();
+  render();
+  toast('✅ Zone '+name+' added!');
+}
+
+function addRackToZone(zid) {
+  const zone = getZones().find(z=>z.id===zid);
+  if (!zone) return;
+  const col = prompt('New column letter (e.g. G):');
+  if (!col) return;
+  const rname = zone.name+col.trim().toUpperCase();
+  if (zone.racks.find(r=>r.name===rname)) { alert('Rack already exists!'); return; }
+  zone.racks.push({id:'r'+rname, name:rname, shelves:[
+    {id:'s'+rname+'_1',name:'Top'},
+    {id:'s'+rname+'_2',name:'Middle'},
+    {id:'s'+rname+'_3',name:'Bottom'}
+  ]});
+  saveStructure();
+  render();
+  toast('✅ '+rname+' added!');
+}
+
+function addZoneZSlot(zid) {
+  const zone = getZones().find(z=>z.id===zid);
+  if (!zone) return;
+  const next = zone.racks.length+1;
+  const sname = zone.name+next;
+  zone.racks.push({id:'r'+sname, name:sname, shelves:[{id:'s'+sname,name:'Slot'}]});
+  saveStructure();
+  render();
+  toast('✅ Slot '+sname+' added!');
+}
+
+function confirmDeleteZone(zid) {
+  const zone = getZones().find(z=>z.id===zid);
+  if (!zone) return;
+  const hasData = zone.racks.some(r=>r.shelves.some(s=>assignments[s.id]&&assignments[s.id].length));
+  const msg = hasData ? '⚠️ Zone '+zone.name+' has stock assigned! Are you sure you want to delete it?' : 'Delete zone '+zone.name+'?';
+  if (!confirm(msg)) return;
+  warehouseZones = getZones().filter(z=>z.id!==zid);
+  saveStructure();
+  render();
+  toast('🗑 Zone '+zone.name+' deleted');
+}
+
+function confirmDeleteRack(zid, rid) {
+  const zone = getZones().find(z=>z.id===zid);
+  if (!zone) return;
+  const rack = zone.racks.find(r=>r.id===rid);
+  if (!rack) return;
+  const hasData = rack.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
+  const msg = hasData ? '⚠️ Rack '+rack.name+' has stock! Delete anyway?' : 'Delete rack '+rack.name+'?';
+  if (!confirm(msg)) return;
+  zone.racks = zone.racks.filter(r=>r.id!==rid);
+  saveStructure();
+  render();
+  toast('🗑 Rack '+rack.name+' deleted');
+}
 
 // ── ASSIGN MODAL ──
 function openAssign(shelfId) {
   assignShelfId = shelfId;
   const found = findShelfById(shelfId);
-  document.getElementById('assignLoc').textContent = found ? found.r.name + ' – ' + found.s.name : 'Shelf';
+  const loc = found ? found.r.name+(found.s.name!=='Slot'?' – '+found.s.name:'') : shelfId;
+  document.getElementById('assignLoc').textContent = loc;
   let opts = '<option value="">— Select SKU —</option>';
-  for (const s of SKUS) opts += '<option value="' + escH(s.code) + '">' + escH(s.code) + ' — ' + escH(s.name) + '</option>';
+  for (const s of SKUS) opts += '<option value="'+escH(s.code)+'">'+escH(s.code)+' — '+escH(s.name)+'</option>';
   document.getElementById('assignSku').innerHTML = opts;
   document.getElementById('assignArrival').value = todayStr();
   document.getElementById('assignQty').value = 1;
-  document.getElementById('assignBg').style.display = 'flex';
+  document.getElementById('assignBg').style.display='flex';
 }
 async function doAssign() {
   const code = document.getElementById('assignSku').value;
   const arrival = document.getElementById('assignArrival').value;
-  const qty = parseInt(document.getElementById('assignQty').value) || 1;
+  const qty = parseInt(document.getElementById('assignQty').value)||1;
   if (!code) { alert('Select a SKU.'); return; }
   if (!arrival) { alert('Enter arrival date.'); return; }
-  const batchId = 'b' + Date.now() + Math.random().toString(36).slice(2);
+  const batchId = 'b'+Date.now()+Math.random().toString(36).slice(2);
   const ok = await dbAddBatch(assignShelfId, code, batchId, arrival, qty);
   if (ok) {
-    if (!assignments[assignShelfId]) assignments[assignShelfId] = [];
-    let entry = assignments[assignShelfId].find(i => i.code === code);
-    if (!entry) { entry = {code: code, batches: []}; assignments[assignShelfId].push(entry); }
-    entry.batches.push({batchId: batchId, arrival: arrival, qty: qty});
-    toast('✅ Batch added!');
-    closeAssign();
-    render();
+    if (!assignments[assignShelfId]) assignments[assignShelfId]=[];
+    let entry = assignments[assignShelfId].find(i=>i.code===code);
+    if (!entry) { entry={code,batches:[]}; assignments[assignShelfId].push(entry); }
+    entry.batches.push({batchId,arrival,qty});
+    await dbAddHistory('Added', code, null, shelfLabel(assignShelfId), qty);
+    toast('✅ Added!'); closeAssign(); render();
   }
 }
-function closeAssign() { document.getElementById('assignBg').style.display = 'none'; assignShelfId = null; }
+function closeAssign() { document.getElementById('assignBg').style.display='none'; assignShelfId=null; }
 
 // ── ADD BATCH ──
 function openAddBatch(shelfId, code) {
-  addBatchState = {shelfId: shelfId, code: code};
+  addBatchState = {shelfId, code};
   const found = findShelfById(shelfId);
-  const sku = getSKU(code);
-  document.getElementById('addBatchLoc').textContent = code + ' — ' + (sku ? sku.name : '') + ' @ ' + (found ? found.r.name + ' – ' + found.s.name : '');
+  const loc = found ? found.r.name+(found.s.name!=='Slot'?' – '+found.s.name:'') : shelfId;
+  document.getElementById('addBatchLoc').textContent = code+' @ '+loc;
   document.getElementById('abArrival').value = todayStr();
   document.getElementById('abQty').value = 1;
-  document.getElementById('addBatchBg').style.display = 'flex';
+  document.getElementById('addBatchBg').style.display='flex';
 }
 async function doAddBatch() {
   if (!addBatchState) return;
-  const shelfId = addBatchState.shelfId;
-  const code = addBatchState.code;
+  const {shelfId, code} = addBatchState;
   const arrival = document.getElementById('abArrival').value;
-  const qty = parseInt(document.getElementById('abQty').value) || 1;
+  const qty = parseInt(document.getElementById('abQty').value)||1;
   if (!arrival) { alert('Enter arrival date.'); return; }
-  const batchId = 'b' + Date.now() + Math.random().toString(36).slice(2);
+  const batchId = 'b'+Date.now()+Math.random().toString(36).slice(2);
   const ok = await dbAddBatch(shelfId, code, batchId, arrival, qty);
   if (ok) {
-    const entry = assignments[shelfId] ? assignments[shelfId].find(i => i.code === code) : null;
-    if (entry) entry.batches.push({batchId: batchId, arrival: arrival, qty: qty});
-    toast('✅ Batch added!');
-    closeAddBatch();
-    render();
+    const entry = assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;
+    if (entry) entry.batches.push({batchId,arrival,qty});
+    await dbAddHistory('Batch added', code, null, shelfLabel(shelfId), qty);
+    toast('✅ Batch added!'); closeAddBatch(); render();
   }
 }
-function closeAddBatch() { document.getElementById('addBatchBg').style.display = 'none'; addBatchState = null; }
+function closeAddBatch() { document.getElementById('addBatchBg').style.display='none'; addBatchState=null; }
 
 // ── QTY + DELETE ──
 async function changeBatchQty(shelfId, code, batchId, delta) {
-  const entry = assignments[shelfId] ? assignments[shelfId].find(i => i.code === code) : null;
+  const entry = assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;
   if (!entry) return;
-  const batch = entry.batches.find(b => b.batchId === batchId);
+  const batch = entry.batches.find(b=>b.batchId===batchId);
   if (!batch) return;
-  const newQty = Math.max(0, batch.qty + delta);
+  const newQty = Math.max(0, batch.qty+delta);
   const ok = await dbUpdateQty(batchId, newQty);
-  if (ok) { batch.qty = newQty; render(); }
+  if (ok) {
+    await dbAddHistory('Qty '+(delta>0?'+':'')+delta, code, shelfLabel(shelfId), null, newQty);
+    batch.qty = newQty; render();
+  }
 }
 async function deleteBatch(shelfId, code, batchId) {
   if (!confirm('Remove this batch?')) return;
   const ok = await dbDeleteBatch(batchId);
   if (ok) {
-    const entry = assignments[shelfId] ? assignments[shelfId].find(i => i.code === code) : null;
+    const entry = assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;
     if (entry) {
-      entry.batches = entry.batches.filter(b => b.batchId !== batchId);
-      if (!entry.batches.length) assignments[shelfId] = assignments[shelfId].filter(i => i.code !== code);
+      entry.batches = entry.batches.filter(b=>b.batchId!==batchId);
+      if (!entry.batches.length) assignments[shelfId]=assignments[shelfId].filter(i=>i.code!==code);
     }
-    if (assignments[shelfId] && !assignments[shelfId].length) delete assignments[shelfId];
-    toast('🗑 Batch removed');
-    render();
+    if (assignments[shelfId]&&!assignments[shelfId].length) delete assignments[shelfId];
+    await dbAddHistory('Batch removed', code, shelfLabel(shelfId), null, null);
+    toast('🗑 Removed'); render();
   }
 }
 async function removeEntry(shelfId, code) {
-  if (!confirm('Remove all batches of ' + code + ' from this shelf?')) return;
+  if (!confirm('Remove all batches of '+code+' from this slot?')) return;
   const ok = await dbDeleteEntry(shelfId, code);
   if (ok) {
     if (assignments[shelfId]) {
-      assignments[shelfId] = assignments[shelfId].filter(i => i.code !== code);
+      assignments[shelfId]=assignments[shelfId].filter(i=>i.code!==code);
       if (!assignments[shelfId].length) delete assignments[shelfId];
     }
-    toast('🗑 Entry removed');
-    render();
+    await dbAddHistory('Removed', code, shelfLabel(shelfId), null, null);
+    toast('🗑 Removed'); render();
   }
 }
 
 // ── MOVE ──
 function openMoveBlock(fromShelfId, code, maxQty) {
-  moveState = {fromShelfId: fromShelfId, code: code, maxQty: maxQty};
-  const sku = getSKU(code);
+  moveState = {fromShelfId, code, maxQty};
   const loc = findShelfById(fromShelfId);
-  document.getElementById('moveInfo').innerHTML = 'Moving: <strong>' + escH(code) + '</strong> — ' + escH(sku ? sku.name : '') + '<br>From: <strong>' + (loc ? loc.r.name + ' – ' + loc.s.name : fromShelfId) + '</strong><br>Available: <strong>' + maxQty + ' units</strong>';
-  document.getElementById('moveQtyInput').value = 1;
-  document.getElementById('moveQtyInput').max = maxQty;
-  let zoneOpts = '';
-  for (const z of ZONES) zoneOpts += '<option value="' + z.id + '">' + escH(z.name) + '</option>';
-  document.getElementById('moveZone').innerHTML = zoneOpts;
+  const locName = loc ? loc.r.name+(loc.s.name!=='Slot'?' – '+loc.s.name:'') : fromShelfId;
+  document.getElementById('moveInfo').innerHTML = 'Moving: <strong>'+escH(code)+'</strong><br>From: <strong>'+locName+'</strong><br>Available: <strong>'+maxQty+' units</strong>';
+  document.getElementById('moveQtyInput').value=1;
+  document.getElementById('moveQtyInput').max=maxQty;
+  let zOpts='';
+  for (const z of getZones()) zOpts+='<option value="'+z.id+'">'+escH(z.name)+'</option>';
+  document.getElementById('moveZone').innerHTML=zOpts;
   updateMoveRack();
-  document.getElementById('moveBg').style.display = 'flex';
+  document.getElementById('moveBg').style.display='flex';
 }
 function updateMoveRack() {
-  const zid = document.getElementById('moveZone').value;
-  const z = ZONES.find(z => z.id === zid);
-  let opts = '';
-  if (z) for (const r of z.racks) opts += '<option value="' + r.id + '">' + escH(r.name) + '</option>';
-  document.getElementById('moveRack').innerHTML = opts;
+  const zid=document.getElementById('moveZone').value;
+  const z=getZones().find(z=>z.id===zid);
+  let opts='';
+  if(z) for(const r of z.racks) opts+='<option value="'+r.id+'">'+escH(r.name)+'</option>';
+  document.getElementById('moveRack').innerHTML=opts;
   updateMoveShelf();
 }
 function updateMoveShelf() {
-  const rid = document.getElementById('moveRack').value;
-  const found = findRackById(rid);
-  let opts = '';
-  if (found) for (const s of found.r.shelves) opts += '<option value="' + s.id + '">' + escH(s.name) + '</option>';
-  document.getElementById('moveShelf').innerHTML = opts;
+  const rid=document.getElementById('moveRack').value;
+  const found=findRackById(rid);
+  let opts='';
+  if(found) for(const s of found.r.shelves) opts+='<option value="'+s.id+'">'+escH(s.name)+'</option>';
+  document.getElementById('moveShelf').innerHTML=opts;
 }
 async function confirmMove() {
   if (!moveState) return;
-  const fromShelfId = moveState.fromShelfId;
-  const code = moveState.code;
-  const maxQty = moveState.maxQty;
+  const {fromShelfId, code, maxQty} = moveState;
   const toShelfId = document.getElementById('moveShelf').value;
-  const qty = parseInt(document.getElementById('moveQtyInput').value) || 1;
-  if (toShelfId === fromShelfId) { alert('Same shelf. Choose a different one.'); return; }
-  if (qty > maxQty) { alert('Only ' + maxQty + ' available.'); return; }
-  const srcEntry = assignments[fromShelfId] ? assignments[fromShelfId].find(i => i.code === code) : null;
+  const qty = parseInt(document.getElementById('moveQtyInput').value)||1;
+  if (toShelfId===fromShelfId) { alert('Same slot.'); return; }
+  if (qty>maxQty) { alert('Only '+maxQty+' available.'); return; }
+  const srcEntry = assignments[fromShelfId]?assignments[fromShelfId].find(i=>i.code===code):null;
   if (!srcEntry) return;
-  const sorted = [...srcEntry.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
+  const sorted = [...srcEntry.batches].sort((a,b)=>a.arrival.localeCompare(b.arrival));
   let remaining = qty;
   for (const b of sorted) {
-    if (remaining <= 0) break;
+    if (remaining<=0) break;
     const take = Math.min(remaining, b.qty);
-    const newBatchId = 'b' + Date.now() + Math.random().toString(36).slice(2);
-    await sb.from('assignments').insert({shelf_id: toShelfId, sku_code: code, batch_id: newBatchId, arrival: b.arrival, qty: take});
-    if (b.qty - take === 0) {
-      await sb.from('assignments').delete().eq('batch_id', b.batchId);
-    } else {
-      await sb.from('assignments').update({qty: b.qty - take}).eq('batch_id', b.batchId);
-    }
+    const newId = 'b'+Date.now()+Math.random().toString(36).slice(2);
+    await sb.from('assignments').insert({shelf_id:toShelfId,sku_code:code,batch_id:newId,arrival:b.arrival,qty:take});
+    if (b.qty-take===0) await sb.from('assignments').delete().eq('batch_id',b.batchId);
+    else await sb.from('assignments').update({qty:b.qty-take}).eq('batch_id',b.batchId);
     remaining -= take;
   }
+  await dbAddHistory('Moved', code, shelfLabel(fromShelfId), shelfLabel(toShelfId), qty);
   await loadAssignments();
-  closeMove();
-  render();
-  toast('✅ Moved ' + qty + ' units');
+  closeMove(); render();
+  toast('✅ Moved '+qty+' units');
 }
-function closeMove() { document.getElementById('moveBg').style.display = 'none'; moveState = null; }
+function closeMove() { document.getElementById('moveBg').style.display='none'; moveState=null; }
+
+// ── HISTORY PANEL ──
+function showHistory() {
+  if (!history.length) {
+    document.getElementById('historyBody').innerHTML='<div class="no-result">No history yet.</div>';
+  } else {
+    let html='<table class="hist-table"><thead><tr><th>Time</th><th>User</th><th>Action</th><th>SKU</th><th>From</th><th>To</th><th>Qty</th></tr></thead><tbody>';
+    for (const h of history) {
+      html+='<tr>';
+      html+='<td style="white-space:nowrap;color:#555">'+fmtDateTime(h.ts)+'</td>';
+      html+='<td style="color:#555">'+escH(h.user_email||h.user||'')+'</td>';
+      html+='<td><strong>'+escH(h.action)+'</strong></td>';
+      html+='<td style="color:#0066cc;font-family:monospace;font-weight:600">'+escH(h.sku_code||h.sku||'')+'</td>';
+      html+='<td style="color:#0077aa">'+escH(String(h.from_loc||h.from||'—'))+'</td>';
+      html+='<td style="color:#0077aa">'+escH(String(h.to_loc||h.to||'—'))+'</td>';
+      html+='<td>'+escH(String(h.qty||'—'))+'</td>';
+      html+='</tr>';
+    }
+    html+='</tbody></table>';
+    document.getElementById('historyBody').innerHTML=html;
+  }
+  document.getElementById('historyPanel').style.display='flex';
+}
+function closeHistory() { document.getElementById('historyPanel').style.display='none'; }
 
 // ── SEARCH ──
 function doSearch() {
   const q = document.getElementById('searchInput').value.trim().toUpperCase();
   if (!q) return;
-  const matches = SKUS.filter(s => s.code.includes(q) || s.name.toUpperCase().includes(q));
-  document.getElementById('spTitle').textContent = 'SEARCH: "' + q + '" — ' + matches.length + ' result' + (matches.length !== 1 ? 's' : '');
-  if (!matches.length) {
-    document.getElementById('spBody').innerHTML = '<div class="no-result">No SKU found.</div>';
-    document.getElementById('searchPanel').style.display = 'flex';
-    return;
-  }
-  let html = '';
+  const matches = SKUS.filter(s=>s.code.includes(q)||s.name.toUpperCase().includes(q));
+  document.getElementById('spTitle').textContent='SEARCH: "'+q+'" — '+matches.length+' result'+(matches.length!==1?'s':'');
+  let html='';
+  if (!matches.length) html='<div class="no-result">No SKU found.</div>';
   for (const s of matches) {
-    const total = getTotalQty(s.code);
-    const isLow = total < s.minQty && total > 0;
-    html += '<div class="sp-sku-block"><div class="sp-sku-title"><div class="sp-dot" style="background:' + s.color + '"></div><div class="sp-code">' + escH(s.code) + '</div><div class="sp-name">' + escH(s.name) + '</div><div class="sp-total" style="color:' + (isLow ? '#e74c3c' : '#2ecc71') + '">' + total + ' units' + (isLow ? ' ⚠ LOW' : '') + '</div></div>';
-    let hasAny = false;
-    for (const z of ZONES) for (const r of z.racks) for (const sh of r.shelves) {
-      const entry = (assignments[sh.id] || []).find(i => i.code === s.code);
-      if (!entry || !entry.batches.length) continue;
-      hasAny = true;
-      const sorted = [...entry.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
-      const shelfTotal = sorted.reduce((a,b) => a + b.qty, 0);
-      html += '<div class="sp-location-block"><div class="sp-loc-label">📍 ' + escH(r.name) + ' – ' + escH(sh.name) + ' (' + shelfTotal + ' units, ' + sorted.length + ' batch' + (sorted.length > 1 ? 'es' : '') + ')</div><table class="sp-batch-table"><thead><tr><th>#</th><th>Arrival Date</th><th>Qty</th></tr></thead><tbody>';
-      sorted.forEach(function(b, idx) {
-        html += '<tr><td style="color:var(--muted)">' + (idx+1) + (idx === 0 ? '<span class="fifo-tag">FIFO</span>' : '') + '</td><td style="color:var(--accent2)">' + fmtDate(b.arrival) + '</td><td style="color:var(--text);font-weight:600">' + b.qty + '</td></tr>';
-      });
-      html += '</tbody></table></div>';
+    const total=getTotalQty(s.code);
+    html+='<div class="sp-sku-block"><div class="sp-sku-title"><div class="sp-dot" style="background:'+s.color+'"></div><div class="sp-code">'+escH(s.code)+'</div><div class="sp-name">'+escH(s.name)+'</div><div class="sp-total">'+total+' units</div></div>';
+    let hasAny=false;
+    for (const z of getZones()) for (const r of z.racks) for (const sh of r.shelves) {
+      const entry=(assignments[sh.id]||[]).find(i=>i.code===s.code);
+      if (!entry||!entry.batches.length) continue;
+      hasAny=true;
+      const st=entry.batches.reduce((a,b)=>a+b.qty,0);
+      const locName=r.name+(sh.name!=='Slot'?' – '+sh.name:'');
+      html+='<div class="sp-location-block"><div class="sp-loc-label">📍 '+escH(locName)+' ('+st+' units)</div>';
+      html+='<table class="hist-table"><thead><tr><th>#</th><th>Arrival</th><th>Qty</th></tr></thead><tbody>';
+      entry.batches.forEach((b,i)=>{ html+='<tr><td>'+(i+1)+'</td><td>'+fmtDate(b.arrival)+'</td><td><strong>'+b.qty+'</strong></td></tr>'; });
+      html+='</tbody></table></div>';
     }
-    if (!hasAny) html += '<div style="padding:8px 0 4px;font-size:.75rem;color:var(--muted);">Not placed on any shelf yet.</div>';
-    html += '</div>';
+    if (!hasAny) html+='<div style="padding:6px 0;font-size:.8rem;color:#999">Not placed yet.</div>';
+    html+='</div>';
   }
-  document.getElementById('spBody').innerHTML = html;
-  document.getElementById('searchPanel').style.display = 'flex';
+  document.getElementById('spBody').innerHTML=html;
+  document.getElementById('searchPanel').style.display='flex';
 }
-function closeSearchPanel() { document.getElementById('searchPanel').style.display = 'none'; }
-function clearSearch() { document.getElementById('searchInput').value = ''; selectedSKU = null; closeSearchPanel(); render(); }
+function closeSearchPanel() { document.getElementById('searchPanel').style.display='none'; }
+function clearSearch() { document.getElementById('searchInput').value=''; selectedSKU=null; closeSearchPanel(); render(); }
 
 // ── DRAG AND DROP ──
-function itemDragStart(e, fromShelfId, code, qty) {
-  dragState = {fromShelfId: fromShelfId, code: code, qty: qty, fromSidebar: false};
-  e.dataTransfer.effectAllowed = 'move';
-  e.dataTransfer.setData('text/plain', code);
-}
-function sidebarDragStart(e, code) {
-  dragState = {fromShelfId: null, code: code, qty: null, fromSidebar: true};
-  e.dataTransfer.effectAllowed = 'copy';
-  e.dataTransfer.setData('text/plain', code);
-}
-document.addEventListener('dragend', function() {
-  dragState = null;
-  document.querySelectorAll('.dragging').forEach(function(el) { el.classList.remove('dragging'); });
-  document.querySelectorAll('.drag-over,.drag-over-shelf').forEach(function(el) { el.classList.remove('drag-over'); el.classList.remove('drag-over-shelf'); });
-});
-function shelfOver(e, id) { e.preventDefault(); e.stopPropagation(); var el = document.getElementById('sh-' + id); if (el) el.classList.add('drag-over-shelf'); }
-function shelfLeave(e, id) { var el = document.getElementById('sh-' + id); if (el) el.classList.remove('drag-over-shelf'); }
-async function shelfDrop(e, toShelfId) {
+function itemDragStart(e,fromShelfId,code,qty) { dragState={fromShelfId,code,qty,fromSidebar:false}; e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain',code); }
+function sidebarDragStart(e,code) { dragState={fromShelfId:null,code,qty:null,fromSidebar:true}; e.dataTransfer.effectAllowed='copy'; e.dataTransfer.setData('text/plain',code); }
+document.addEventListener('dragend',()=>{ dragState=null; document.querySelectorAll('.drag-over-shelf').forEach(el=>el.classList.remove('drag-over-shelf')); });
+function shelfOver(e,id) { e.preventDefault(); e.stopPropagation(); document.getElementById('sh-'+id)?.classList.add('drag-over-shelf'); }
+function shelfLeave(e,id) { document.getElementById('sh-'+id)?.classList.remove('drag-over-shelf'); }
+async function shelfDrop(e,toShelfId) {
   e.preventDefault(); e.stopPropagation();
-  var el = document.getElementById('sh-' + toShelfId); if (el) el.classList.remove('drag-over-shelf');
+  document.getElementById('sh-'+toShelfId)?.classList.remove('drag-over-shelf');
   if (!dragState) return;
-  const fromShelfId = dragState.fromShelfId;
-  const code = dragState.code;
-  const fromSidebar = dragState.fromSidebar;
-  if (fromSidebar) {
-    openAssign(toShelfId);
-    const sel = document.getElementById('assignSku');
-    for (const opt of sel.options) { if (opt.value === code) { opt.selected = true; break; } }
-    dragState = null; return;
-  }
-  if (fromShelfId === toShelfId) { dragState = null; return; }
-  const srcEntry = assignments[fromShelfId] ? assignments[fromShelfId].find(i => i.code === code) : null;
-  if (!srcEntry) { dragState = null; return; }
+  if (dragState.fromSidebar) { openAssign(toShelfId); const sel=document.getElementById('assignSku'); for(const o of sel.options){if(o.value===dragState.code){o.selected=true;break;}} dragState=null; return; }
+  if (dragState.fromShelfId===toShelfId) { dragState=null; return; }
+  const srcEntry=assignments[dragState.fromShelfId]?assignments[dragState.fromShelfId].find(i=>i.code===dragState.code):null;
+  if (!srcEntry) { dragState=null; return; }
   for (const b of srcEntry.batches) {
-    const newId = 'b' + Date.now() + Math.random().toString(36).slice(2);
-    await sb.from('assignments').insert({shelf_id: toShelfId, sku_code: code, batch_id: newId, arrival: b.arrival, qty: b.qty});
-    await sb.from('assignments').delete().eq('batch_id', b.batchId);
+    const newId='b'+Date.now()+Math.random().toString(36).slice(2);
+    await sb.from('assignments').insert({shelf_id:toShelfId,sku_code:dragState.code,batch_id:newId,arrival:b.arrival,qty:b.qty});
+    await sb.from('assignments').delete().eq('batch_id',b.batchId);
   }
-  await loadAssignments();
-  dragState = null; render(); toast('✅ Moved to new shelf');
+  await dbAddHistory('Moved (drag)', dragState.code, shelfLabel(dragState.fromShelfId), shelfLabel(toShelfId), '—');
+  await loadAssignments(); dragState=null; render(); toast('✅ Moved');
 }
-function rackOver(e, id) { e.preventDefault(); var el = document.getElementById('rk-' + id); if (el) el.classList.add('drag-over'); }
-function rackLeave(id) { var el = document.getElementById('rk-' + id); if (el) el.classList.remove('drag-over'); }
-function rackDrop(e, id) { var el = document.getElementById('rk-' + id); if (el) el.classList.remove('drag-over'); }
+function rackOver(e,id) { e.preventDefault(); document.getElementById('rk-'+id)?.classList.add('drag-over'); }
+function rackLeave(id) { document.getElementById('rk-'+id)?.classList.remove('drag-over'); }
+function rackDrop(e,id) { document.getElementById('rk-'+id)?.classList.remove('drag-over'); }
 
 // ── EXCEL EXPORT ──
 function exportToExcel() {
   var wb = XLSX.utils.book_new();
-
-  // Sheet 1: Stock Summary
-  var sum = [['SKU Code','Item Name','Total Units','Min Stock','Status','Locations']];
-  for (var si = 0; si < SKUS.length; si++) {
-    var s = SKUS[si];
-    var total = getTotalQty(s.code);
-    var locs = getShelfLocations(s.code);
-    if (total > 0) sum.push([s.code, s.name, total, s.minQty, total < s.minQty ? 'LOW STOCK' : 'OK', locs.join(', ')]);
-  }
-  var ws1 = XLSX.utils.aoa_to_sheet(sum);
-  ws1['!cols'] = [{wch:18},{wch:45},{wch:12},{wch:10},{wch:12},{wch:40}];
-  XLSX.utils.book_append_sheet(wb, ws1, 'Stock Summary');
-
-  // Sheet 2: Batch Detail FIFO
-  var det = [['Zone','Rack','Shelf','SKU Code','Item Name','Batch #','Arrival Date','Qty','FIFO']];
-  for (var zi = 0; zi < ZONES.length; zi++) {
-    var z = ZONES[zi];
-    for (var ri = 0; ri < z.racks.length; ri++) {
-      var r = z.racks[ri];
-      for (var shi = 0; shi < r.shelves.length; shi++) {
-        var sh = r.shelves[shi];
-        var items = assignments[sh.id] || [];
-        for (var ii = 0; ii < items.length; ii++) {
-          var item = items[ii];
-          var sku = SKUS.find(function(sk) { return sk.code === item.code; });
-          var sorted = item.batches.slice().sort(function(a,b) { return a.arrival.localeCompare(b.arrival); });
-          for (var bi = 0; bi < sorted.length; bi++) {
-            var b = sorted[bi];
-            det.push([z.name, r.name, sh.name, item.code, sku ? sku.name : '', bi+1, b.arrival, b.qty, bi === 0 ? 'FIFO FIRST' : '']);
-          }
-        }
-      }
+  var sum=[['SKU Code','Item Name','Total Units','Locations']];
+  for (var s of SKUS) { var t=getTotalQty(s.code); if(t>0) sum.push([s.code,s.name,t,getShelfLocations(s.code).join(', ')]); }
+  var ws1=XLSX.utils.aoa_to_sheet(sum); ws1['!cols']=[{wch:18},{wch:45},{wch:12},{wch:50}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Stock Summary');
+  var det=[['Zone','Rack','Shelf','SKU Code','Item Name','Arrival Date','Qty']];
+  for (var z of getZones()) for (var r of z.racks) for (var sh of r.shelves) {
+    for (var item of (assignments[sh.id]||[])) {
+      var sku2=SKUS.find(sk=>sk.code===item.code);
+      item.batches.slice().sort((a,b)=>a.arrival.localeCompare(b.arrival)).forEach(b=>{ det.push([z.name,r.name,sh.name,item.code,sku2?sku2.name:'',b.arrival,b.qty]); });
     }
   }
-  var ws2 = XLSX.utils.aoa_to_sheet(det);
-  ws2['!cols'] = [{wch:8},{wch:8},{wch:8},{wch:18},{wch:40},{wch:8},{wch:14},{wch:8},{wch:12}];
-  XLSX.utils.book_append_sheet(wb, ws2, 'Batch Detail (FIFO)');
-
-  // Sheet 3: Warehouse Grid Map
-  // Zone order: L1,L2,L3,L4 then R8 down to R1
-  var zoneOrder = ['zL1','zL2','zL3','zL4','zR8','zR7','zR6','zR5','zR4','zR3','zR2','zR1'];
-  var shelfNames = ['Top','Middle','Bottom'];
-  var RACK_COUNT = 20;
-
-  var headerRow = ['Zone / Shelf'];
-  for (var n = 1; n <= RACK_COUNT; n++) headerRow.push('Rack ' + n);
-  var gridData = [headerRow];
-
-  for (var zoi = 0; zoi < zoneOrder.length; zoi++) {
-    var zid = zoneOrder[zoi];
-    var zone = null;
-    for (var zz = 0; zz < ZONES.length; zz++) { if (ZONES[zz].id === zid) { zone = ZONES[zz]; break; } }
-    if (!zone) continue;
-    for (var sni = 0; sni < shelfNames.length; sni++) {
-      var shelfName = shelfNames[sni];
-      var row = [zone.name + ' - ' + shelfName];
-      for (var rn = 1; rn <= RACK_COUNT; rn++) {
-        var rack = null;
-        for (var rr = 0; rr < zone.racks.length; rr++) {
-          if (zone.racks[rr].name === zone.name + '.' + rn) { rack = zone.racks[rr]; break; }
-        }
-        if (!rack) { row.push(''); continue; }
-        var shelf = null;
-        for (var ss = 0; ss < rack.shelves.length; ss++) {
-          if (rack.shelves[ss].name === shelfName) { shelf = rack.shelves[ss]; break; }
-        }
-        if (!shelf) { row.push(''); continue; }
-        var shelfItems = assignments[shelf.id] || [];
-        if (!shelfItems.length) { row.push(''); continue; }
-        var parts = [];
-        for (var pi = 0; pi < shelfItems.length; pi++) {
-          var it = shelfItems[pi];
-          var qty = it.batches.reduce(function(a,b) { return a + b.qty; }, 0);
-          parts.push(it.code + ' (' + qty + ')');
-        }
-        row.push(parts.join(', '));
-      }
-      gridData.push(row);
-    }
-    // blank row between zones
-    var blankRow = [];
-    for (var bc = 0; bc <= RACK_COUNT; bc++) blankRow.push('');
-    gridData.push(blankRow);
-  }
-
-  var ws3 = XLSX.utils.aoa_to_sheet(gridData);
-  var gridCols = [{wch:20}];
-  for (var gc = 0; gc < RACK_COUNT; gc++) gridCols.push({wch:24});
-  ws3['!cols'] = gridCols;
-  XLSX.utils.book_append_sheet(wb, ws3, 'Warehouse Grid Map');
-
-  XLSX.writeFile(wb, 'RackMap_Export_' + todayStr() + '.xlsx');
+  var ws2=XLSX.utils.aoa_to_sheet(det); ws2['!cols']=[{wch:8},{wch:10},{wch:10},{wch:18},{wch:40},{wch:14},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Batch Detail');
+  var hist=[['Time','User','Action','SKU','From','To','Qty']];
+  for (var h of history) hist.push([fmtDateTime(h.ts),h.user_email||h.user||'',h.action,h.sku_code||h.sku||'',h.from_loc||h.from||'—',h.to_loc||h.to||'—',h.qty||'—']);
+  var ws3=XLSX.utils.aoa_to_sheet(hist); ws3['!cols']=[{wch:18},{wch:25},{wch:14},{wch:18},{wch:20},{wch:20},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Change History');
+  XLSX.writeFile(wb,'RackMap_Export_'+todayStr()+'.xlsx');
 }
 
-// ── FULL REPORT ──
 function showFullReport() {
-  let msg = '══ WAREHOUSE STOCK REPORT ══\n\n';
+  let msg='══ WAREHOUSE STOCK REPORT ══\n\n';
   for (const s of SKUS) {
-    const total = getTotalQty(s.code);
-    if (!total) continue;
-    msg += '[' + (total < s.minQty ? '⚠ LOW' : '✓ OK ') + ']  ' + s.code + '  |  ' + s.name + '\n';
-    msg += '        Total: ' + total + ' units\n';
-    for (const z of ZONES) for (const r of z.racks) for (const sh of r.shelves) {
-      const entry = (assignments[sh.id] || []).find(i => i.code === s.code);
-      if (!entry || !entry.batches.length) continue;
-      const sorted = [...entry.batches].sort((a,b) => a.arrival.localeCompare(b.arrival));
-      msg += '        📍 ' + r.name + '-' + sh.name + ':\n';
-      sorted.forEach(function(b, i) { msg += '           Batch ' + (i+1) + ': ' + fmtDate(b.arrival) + ' × ' + b.qty + (i === 0 ? ' [FIFO]' : '') + '\n'; });
+    const total=getTotalQty(s.code); if(!total) continue;
+    msg+=s.code+' | '+s.name+'\n  Total: '+total+' units\n';
+    for (const z of getZones()) for (const r of z.racks) for (const sh of r.shelves) {
+      const entry=(assignments[sh.id]||[]).find(i=>i.code===s.code);
+      if (!entry||!entry.batches.length) continue;
+      msg+='  📍 '+r.name+(sh.name!=='Slot'?'-'+sh.name:'')+': '+entry.batches.reduce((a,b)=>a+b.qty,0)+'\n';
     }
-    msg += '\n';
+    msg+='\n';
   }
   alert(msg);
 }
