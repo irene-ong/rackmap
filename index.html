@@ -12,7 +12,6 @@
 :root{--bg:#f5f6fa;--panel:#ffffff;--border:#e2e4ed;--accent:#1a6fc4;--accent2:#0a9e8a;--red:#d93025;--green:#1a7a3c;--text:#1a1d2e;--muted:#6b7280;--card:#ffffff;--shadow:0 1px 4px rgba(0,0,0,.08);}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:14px;}
-/* LOGIN */
 .login-screen{position:fixed;inset:0;background:#eef1f8;display:flex;align-items:center;justify-content:center;z-index:1000;}
 .login-box{background:#fff;border:1px solid var(--border);border-radius:16px;padding:40px;width:min(420px,92vw);box-shadow:0 8px 40px rgba(0,0,0,.12);}
 .login-logo{font-size:2rem;font-weight:800;color:var(--accent);text-align:center;margin-bottom:4px;letter-spacing:1px;}
@@ -26,7 +25,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .login-btn:hover{background:#155fa0;}
 .login-err{background:#fdf2f2;border:1px solid #f5c6c6;color:var(--red);border-radius:6px;padding:8px 12px;font-size:.78rem;margin-top:10px;display:none;}
 .login-loading{text-align:center;color:var(--muted);font-size:.8rem;padding:10px;display:none;}
-/* HEADER */
 header{background:#fff;border-bottom:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow);}
 .logo{font-size:1.5rem;font-weight:800;color:var(--accent);line-height:1;}
 .logo span{color:var(--accent2);}
@@ -37,21 +35,16 @@ header{background:#fff;border-bottom:2px solid var(--accent);padding:10px 20px;d
 .sync-dot.syncing{background:orange;animation:pulse 1s infinite;}
 .sync-dot.error{background:var(--red);}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-/* INPUTS / BUTTONS */
 input[type="text"],input[type="number"],input[type="date"]{background:#f9fafb;border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:.8rem;transition:border-color .2s;}
 input[type="text"]:focus,input[type="number"]:focus,input[type="date"]:focus{outline:none;border-color:var(--accent);background:#fff;}
-input[type="date"]{width:140px;}
-input[type="text"]{width:180px;}input[type="number"]{width:70px;}
+input[type="date"]{width:140px;}input[type="text"]{width:180px;}input[type="number"]{width:70px;}
 button{background:var(--accent);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-family:'Inter',sans-serif;font-weight:600;font-size:.78rem;cursor:pointer;transition:background .15s;white-space:nowrap;}
 button:hover{background:#155fa0;}
 button.sec{background:#fff;border:1px solid var(--border);color:var(--text);}
 button.sec:hover{border-color:var(--accent);color:var(--accent);background:#fff;}
 button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
-/* HINT BAR */
 .hint-bar{background:#f0f7ff;border-bottom:1px solid #d0e8ff;padding:4px 20px;font-size:.68rem;color:#5580aa;display:flex;gap:8px;align-items:center;}
-/* LAYOUT */
 .main{display:flex;height:calc(100vh - 70px);}
-/* SIDEBAR */
 .sidebar{width:280px;min-width:240px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);}
 .sidebar-header{padding:10px 13px;border-bottom:1px solid var(--border);font-size:.78rem;font-weight:700;color:var(--accent2);display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;letter-spacing:.5px;}
 .sku-list{flex:1;overflow-y:auto;padding:5px;}
@@ -66,7 +59,6 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .sku-name{font-size:.7rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .sku-total{font-size:.65rem;margin-top:2px;color:var(--text);}
 .sku-locs{font-size:.62rem;color:var(--accent2);margin-top:1px;}
-/* WAREHOUSE */
 .warehouse-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .warehouse{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}
 .warehouse::-webkit-scrollbar{width:5px;}
@@ -78,14 +70,12 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .zone-del-btn{background:transparent;border:none;color:#ccc;font-size:.7rem;cursor:pointer;padding:2px 5px;margin-left:auto;border-radius:4px;}
 .zone-del-btn:hover{color:var(--red);background:#fdf2f2;}
 .rack-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;}
-/* RACK */
 .rack{background:#fafbfc;border:1px solid var(--border);border-radius:8px;min-width:148px;max-width:180px;transition:border-color .2s;}
 .rack.drag-over{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(10,158,138,.2);}
 .rack-header{background:#f0f4ff;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0;}
 .rack-name{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:700;color:var(--accent);}
 .rack-del-btn{background:transparent;border:none;color:#ccc;font-size:.62rem;cursor:pointer;padding:1px 4px;border-radius:3px;}
 .rack-del-btn:hover{color:var(--red);background:#fdf2f2;}
-/* SHELF */
 .shelf{border-bottom:1px solid var(--border);padding:4px 6px;min-height:44px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:2px;}
 .shelf:last-child{border-bottom:none;}
 .shelf:hover{background:#f0f7ff;}
@@ -116,7 +106,6 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .add-batch-link{font-size:.58rem;color:#aaa;cursor:pointer;padding-left:10px;margin-top:1px;}
 .add-batch-link:hover{color:var(--accent2);}
 .empty-shelf{font-size:.6rem;color:#bbb;font-style:italic;padding:2px 0;}
-/* ZONE Z */
 .zone-z-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:560px;}
 .z-slot{background:#fafbfc;border:2px solid var(--border);border-radius:8px;padding:7px 5px;min-height:70px;cursor:pointer;transition:border-color .2s,background .2s;display:flex;flex-direction:column;align-items:center;gap:4px;}
 .z-slot:hover{border-color:var(--accent);background:#f0f7ff;}
@@ -125,18 +114,15 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .z-slot-label{font-family:'DM Mono',monospace;font-size:.68rem;font-weight:700;color:var(--muted);}
 .z-slot-used{border-color:#b8ddb8;background:#f4faf4;}
 .z-slot-content{display:flex;align-items:center;gap:3px;border-left:3px solid;padding-left:4px;width:100%;}
-/* ADD BUTTONS */
 .add-struct-btn{background:transparent;border:1px dashed var(--border);color:var(--muted);font-size:.72rem;padding:4px 10px;border-radius:6px;cursor:pointer;margin-top:8px;}
 .add-struct-btn:hover{border-color:var(--accent2);color:var(--accent2);background:#e6f7f5;}
 .add-zone-row{display:flex;gap:10px;padding:8px 0;}
 .add-zone-btn{background:#fff;border:1px dashed var(--accent);color:var(--accent);font-size:.78rem;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;}
 .add-zone-btn:hover{background:#eef6ff;}
-/* STATS */
 .stats-bar{background:#fff;border-top:1px solid var(--border);padding:6px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:.72rem;color:var(--muted);}
 .stat strong{color:var(--text);font-size:.82rem;}
 .stat-link{color:var(--accent);cursor:pointer;font-size:.72rem;font-weight:600;padding:3px 8px;border-radius:5px;background:#eef6ff;}
 .stat-link:hover{background:#d0e8ff;}
-/* MODALS */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(3px);}
 .modal{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px;min-width:320px;max-width:500px;width:92vw;box-shadow:0 20px 60px rgba(0,0,0,.15);max-height:90vh;overflow-y:auto;}
 .modal h3{font-size:1rem;font-weight:700;color:var(--accent);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;}
@@ -148,7 +134,6 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:8px;}
 .modal-section{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:600;margin-bottom:6px;}
 .move-info{background:#f0f7ff;border:1px solid #c7dff7;border-radius:8px;padding:10px 12px;font-size:.8rem;margin-bottom:12px;line-height:1.8;}
-/* PANELS */
 .search-panel,.history-panel{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .panel-inner{background:#fff;border:1px solid var(--border);border-radius:14px;padding:24px;width:min(760px,94vw);max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15);}
 .sp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;}
@@ -168,21 +153,17 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .hist-table td{padding:6px 8px;border-bottom:1px solid #f0f0f0;font-family:'DM Mono',monospace;}
 .hist-table tr:hover td{background:#f9fafb;}
 .no-result{text-align:center;padding:30px;color:var(--muted);font-size:.9rem;}
-/* TOAST */
 .toast{position:fixed;bottom:24px;right:24px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:.8rem;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.ok{border-color:var(--green);color:var(--green);}
 .toast.err{border-color:var(--red);color:var(--red);}
-/* LOADING */
 .loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;z-index:500;flex-direction:column;gap:14px;}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-txt{font-size:.85rem;color:var(--muted);}
-@media print{.login-screen,.toolbar,.sidebar,.stats-bar,.hint-bar,.toast,.modal-bg,.search-panel,.history-panel{display:none!important;}.main{height:auto;}}
 </style>
 </head>
 <body>
-
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="login-logo">RACK<span>MAP</span></div>
@@ -194,12 +175,10 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
     <div class="login-loading" id="loginLoading">Signing in…</div>
   </div>
 </div>
-
 <div class="loading-overlay" id="loadingOverlay" style="display:none;">
   <div class="spinner"></div>
   <div class="loading-txt">Loading warehouse data…</div>
 </div>
-
 <div id="appShell" style="display:none;">
 <header>
   <div><div class="logo">RACK<span>MAP</span></div><div class="tagline">Lee Huat · Frozen Goods · Live Sync</div></div>
@@ -231,18 +210,11 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
   </div>
 </div>
 </div>
-
-<!-- Assign -->
 <div class="modal-bg" id="assignBg" style="display:none;"><div class="modal"><h3>Assign SKU to Slot</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">Select SKU</div><select id="assignSku"></select><div class="modal-section">Batch Details</div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">Cancel</button><button onclick="doAssign()">Add</button></div></div></div>
-<!-- Add Batch -->
 <div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">Cancel</button><button onclick="doAddBatch()">Add Batch</button></div></div></div>
-<!-- Move -->
 <div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveShelf" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">Cancel</button><button onclick="confirmMove()">Move</button></div></div></div>
-<!-- Search -->
 <div class="search-panel" id="searchPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title" id="spTitle">Search Results</div><button class="sp-close" onclick="closeSearchPanel()">✕</button></div><div id="spBody"></div></div></div>
-<!-- History -->
 <div class="history-panel" id="historyPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title">📋 Change History</div><button class="sp-close" onclick="closeHistory()">✕</button></div><div id="historyBody"></div></div></div>
-
 <div class="toast" id="toast"></div>
 <script>
 const SUPABASE_URL='https://xndxogfqaddzzyegtmzl.supabase.co';
@@ -1304,7 +1276,7 @@ function renderWarehouse() {
     const isZ = z.isZoneZ || z.id==='zZ';
     html += '<div class="zone-block">';
     html += '<div class="zone-header">';
-    html += '<span class="zone-accent">▌</span><span class="zone-name">Zone '+escH(z.name)+'</span>';
+    html += '<span class="zone-accent">▌</span><span class="zone-name">'+( isZ?'Zone ':'')+escH(z.name)+'</span>';
     html += '<button class="zone-del-btn" onclick="confirmDeleteZone(\''+z.id+'\')" title="Delete zone">🗑</button>';
     html += '</div>';
     if (isZ) {
@@ -1315,7 +1287,7 @@ function renderWarehouse() {
         const hl = selectedSKU && items.some(i=>i.code===selectedSKU);
         const sc2 = s.id;
         html += '<div class="z-slot'+(hl?' highlight':'')+(items.length?' z-slot-used':'')+'" onclick="openAssign(\''+sc2+'\')" ondragover="shelfOver(event,\''+sc2+'\')" ondragleave="shelfLeave(\''+sc2+'\')" ondrop="shelfDrop(event,\''+sc2+'\')">';
-        html += '<div class="z-slot-label">'+escH(r.name)+'</div>';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="z-slot-label">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="event.stopPropagation();confirmDeleteZSlot(\''+z.id+'\',\''+r.id+'\')" >✕</button></div>';
         if (items.length) {
           for (const item of items) {
             const sku2 = SKUS.find(sk=>sk.code===item.code);
@@ -1471,6 +1443,19 @@ function addZoneZSlot(zid) {
   toast('✅ Slot '+sname+' added!');
 }
 
+function confirmDeleteZSlot(zid, rid) {
+  const zone = getZones().find(z=>z.id===zid);
+  if (!zone) return;
+  const rack = zone.racks.find(r=>r.id===rid);
+  if (!rack) return;
+  const hasData = rack.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
+  const msg = hasData ? '⚠️ Slot '+rack.name+' has stock! Delete anyway?' : 'Delete slot '+rack.name+'?';
+  if (!confirm(msg)) return;
+  zone.racks = zone.racks.filter(r=>r.id!==rid);
+  saveStructure();
+  render();
+  toast('🗑 Slot '+rack.name+' deleted');
+}
 function confirmDeleteZone(zid) {
   const zone = getZones().find(z=>z.id===zid);
   if (!zone) return;
@@ -1737,10 +1722,12 @@ function rackDrop(e,id) { document.getElementById('rk-'+id)?.classList.remove('d
 // ── EXCEL EXPORT ──
 function exportToExcel() {
   var wb = XLSX.utils.book_new();
+  // Sheet 1: Stock Summary
   var sum=[['SKU Code','Item Name','Total Units','Locations']];
   for (var s of SKUS) { var t=getTotalQty(s.code); if(t>0) sum.push([s.code,s.name,t,getShelfLocations(s.code).join(', ')]); }
   var ws1=XLSX.utils.aoa_to_sheet(sum); ws1['!cols']=[{wch:18},{wch:45},{wch:12},{wch:50}];
   XLSX.utils.book_append_sheet(wb,ws1,'Stock Summary');
+  // Sheet 2: Batch Detail
   var det=[['Zone','Rack','Shelf','SKU Code','Item Name','Arrival Date','Qty']];
   for (var z of getZones()) for (var r of z.racks) for (var sh of r.shelves) {
     for (var item of (assignments[sh.id]||[])) {
@@ -1750,10 +1737,77 @@ function exportToExcel() {
   }
   var ws2=XLSX.utils.aoa_to_sheet(det); ws2['!cols']=[{wch:8},{wch:10},{wch:10},{wch:18},{wch:40},{wch:14},{wch:8}];
   XLSX.utils.book_append_sheet(wb,ws2,'Batch Detail');
+  // Sheet 3: Change History
   var hist=[['Time','User','Action','SKU','From','To','Qty']];
-  for (var h of history) hist.push([fmtDateTime(h.ts),h.user_email||h.user||'',h.action,h.sku_code||h.sku||'',h.from_loc||h.from||'—',h.to_loc||h.to||'—',h.qty||'—']);
+  for (var h of history) hist.push([fmtDateTime(h.ts),h.user_email||h.user||'',h.action,h.sku_code||h.sku||'',h.from_loc||h.from||'--',h.to_loc||h.to||'--',h.qty||'--']);
   var ws3=XLSX.utils.aoa_to_sheet(hist); ws3['!cols']=[{wch:18},{wch:25},{wch:14},{wch:18},{wch:20},{wch:20},{wch:8}];
   XLSX.utils.book_append_sheet(wb,ws3,'Change History');
+  // Sheet 4: Warehouse Grid Map
+  function cellContent(shelfId) {
+    var items = assignments[shelfId] || [];
+    if (!items.length) return '';
+    return items.map(function(it){ return it.code+' ('+it.batches.reduce(function(a,b){return a+b.qty;},0)+')'; }).join(', ');
+  }
+  var gridRows = [];
+  var rNums=[]; for(var rn=1;rn<=20;rn++) rNums.push(rn);
+  var rCols=['A','B','C','D','E','F'];
+  var shNames=['Top','Middle','Bottom'];
+  var rhRow=['RIGHT']; for(var i=0;i<rNums.length;i++) rhRow.push(rNums[i]); gridRows.push(rhRow);
+  for(var rci=0;rci<rCols.length;rci++){
+    var col=rCols[rci];
+    for(var rsi=0;rsi<shNames.length;rsi++){
+      var shN=shNames[rsi];
+      var row=[col+'-'+shN];
+      for(var rni=0;rni<rNums.length;rni++){
+        var zname='R'+rNums[rni];
+        var zone=null; for(var zi=0;zi<getZones().length;zi++){if(getZones()[zi].name===zname){zone=getZones()[zi];break;}}
+        if(!zone){row.push('');continue;}
+        var rack=null; for(var ri2=0;ri2<zone.racks.length;ri2++){if(zone.racks[ri2].name===zname+col){rack=zone.racks[ri2];break;}}
+        if(!rack){row.push('');continue;}
+        var shelf=null; for(var si2=0;si2<rack.shelves.length;si2++){if(rack.shelves[si2].name===shN){shelf=rack.shelves[si2];break;}}
+        row.push(shelf?cellContent(shelf.id):'');
+      }
+      gridRows.push(row);
+    }
+    var blankR=[''];for(var bi=0;bi<20;bi++)blankR.push('');gridRows.push(blankR);
+  }
+  gridRows.push([]);gridRows.push([]);
+  var lNums=[]; for(var ln=1;ln<=20;ln++) lNums.push(ln);
+  var lCols=['A','B'];
+  var lhRow=['LEFT']; for(var li=0;li<lNums.length;li++) lhRow.push(lNums[li]); gridRows.push(lhRow);
+  for(var lci=0;lci<lCols.length;lci++){
+    var lcol=lCols[lci];
+    for(var lsi=0;lsi<shNames.length;lsi++){
+      var lshN=shNames[lsi];
+      var lrow=[lcol+'-'+lshN];
+      for(var lni=0;lni<lNums.length;lni++){
+        var lzname='L'+lNums[lni];
+        var lzone=null; for(var lzi=0;lzi<getZones().length;lzi++){if(getZones()[lzi].name===lzname){lzone=getZones()[lzi];break;}}
+        if(!lzone){lrow.push('');continue;}
+        var lrack=null; for(var lri=0;lri<lzone.racks.length;lri++){if(lzone.racks[lri].name===lzname+lcol){lrack=lzone.racks[lri];break;}}
+        if(!lrack){lrow.push('');continue;}
+        var lshelf=null; for(var lshi=0;lshi<lrack.shelves.length;lshi++){if(lrack.shelves[lshi].name===lshN){lshelf=lrack.shelves[lshi];break;}}
+        lrow.push(lshelf?cellContent(lshelf.id):'');
+      }
+      gridRows.push(lrow);
+    }
+    var lblankR=[''];for(var lbi=0;lbi<20;lbi++)lblankR.push('');gridRows.push(lblankR);
+  }
+  gridRows.push([]);gridRows.push([]);
+  gridRows.push(['ZONE Z']);
+  var zZones=getZones().filter(function(z){return z.isZoneZ||z.id==='zZ';});
+  for(var zzi=0;zzi<zZones.length;zzi++){
+    var zzone=zZones[zzi]; if(zzi>0) gridRows.push(['Zone '+zzone.name]);
+    var zRow=[];
+    for(var zsi=0;zsi<zzone.racks.length;zsi++){
+      var zSlot=zzone.racks[zsi]; var zSh=zSlot.shelves[0];
+      zRow.push(zSlot.name+(zSh?': '+cellContent(zSh.id):''));
+      if(zRow.length===5||zsi===zzone.racks.length-1){gridRows.push(zRow);zRow=[];}
+    }
+  }
+  var ws4=XLSX.utils.aoa_to_sheet(gridRows);
+  var gc=[{wch:12}]; for(var g=0;g<20;g++) gc.push({wch:22}); ws4['!cols']=gc;
+  XLSX.utils.book_append_sheet(wb,ws4,'Warehouse Grid Map');
   XLSX.writeFile(wb,'RackMap_Export_'+todayStr()+'.xlsx');
 }
 
