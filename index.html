@@ -1200,6 +1200,7 @@ async function loadAssignments() {
   if (res.error) { setSyncState('error'); toast('Load failed: '+res.error.message,'err'); return; }
   assignments = {};
   for (const row of res.data) {
+    if (!row.qty || row.qty <= 0) continue; // skip zero-qty ghost entries
     if (!assignments[row.shelf_id]) assignments[row.shelf_id]=[];
     let entry = assignments[row.shelf_id].find(i=>i.code===row.sku_code);
     if (!entry) { entry={code:row.sku_code,batches:[]}; assignments[row.shelf_id].push(entry); }
@@ -1224,6 +1225,11 @@ async function dbAddBatch(shelfId, skuCode, batchId, arrival, qty) {
 }
 async function dbUpdateQty(batchId, qty) {
   setSyncState('syncing');
+  if (qty <= 0) {
+    const res = await sb.from('assignments').delete().eq('batch_id',batchId);
+    if (res.error) { setSyncState('error'); return false; }
+    setSyncState('ok'); return true;
+  }
   const res = await sb.from('assignments').update({qty}).eq('batch_id',batchId);
   if (res.error) { setSyncState('error'); toast('Update failed: '+res.error.message,'err'); return false; }
   setSyncState('ok'); return true;
@@ -1539,11 +1545,8 @@ async function doAssign() {
   const batchId = 'b'+Date.now()+Math.random().toString(36).slice(2);
   const ok = await dbAddBatch(assignShelfId, code, batchId, arrival, qty);
   if (ok) {
-    if (!assignments[assignShelfId]) assignments[assignShelfId]=[];
-    let entry = assignments[assignShelfId].find(i=>i.code===code);
-    if (!entry) { entry={code,batches:[]}; assignments[assignShelfId].push(entry); }
-    entry.batches.push({batchId,arrival,qty});
     await dbAddHistory('Added', code, null, shelfLabel(assignShelfId), qty);
+    await loadAssignments();
     toast('✅ Added!'); closeAssign(); render();
   }
 }
@@ -1568,9 +1571,8 @@ async function doAddBatch() {
   const batchId = 'b'+Date.now()+Math.random().toString(36).slice(2);
   const ok = await dbAddBatch(shelfId, code, batchId, arrival, qty);
   if (ok) {
-    const entry = assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;
-    if (entry) entry.batches.push({batchId,arrival,qty});
     await dbAddHistory('Batch added', code, null, shelfLabel(shelfId), qty);
+    await loadAssignments();
     toast('✅ Batch added!'); closeAddBatch(); render();
   }
 }
@@ -1582,37 +1584,37 @@ async function changeBatchQty(shelfId, code, batchId, delta) {
   if (!entry) return;
   const batch = entry.batches.find(b=>b.batchId===batchId);
   if (!batch) return;
-  const newQty = Math.max(0, batch.qty+delta);
+  const newQty = batch.qty + delta;
+  if (newQty <= 0) {
+    // Auto-delete when reaches zero
+    if (!confirm('Qty will reach 0. Remove this batch?')) return;
+    const ok = await dbDeleteBatch(batchId);
+    if (ok) {
+      await dbAddHistory('Batch removed (qty 0)', code, shelfLabel(shelfId), null, 0);
+      await loadAssignments(); render();
+    }
+    return;
+  }
   const ok = await dbUpdateQty(batchId, newQty);
   if (ok) {
     await dbAddHistory('Qty '+(delta>0?'+':'')+delta, code, shelfLabel(shelfId), null, newQty);
-    batch.qty = newQty; render();
+    await loadAssignments(); render();
   }
 }
 async function deleteBatch(shelfId, code, batchId) {
   if (!confirm('Remove this batch?')) return;
   const ok = await dbDeleteBatch(batchId);
   if (ok) {
-    const entry = assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;
-    if (entry) {
-      entry.batches = entry.batches.filter(b=>b.batchId!==batchId);
-      if (!entry.batches.length) assignments[shelfId]=assignments[shelfId].filter(i=>i.code!==code);
-    }
-    if (assignments[shelfId]&&!assignments[shelfId].length) delete assignments[shelfId];
     await dbAddHistory('Batch removed', code, shelfLabel(shelfId), null, null);
-    toast('🗑 Removed'); render();
+    await loadAssignments(); toast('🗑 Removed'); render();
   }
 }
 async function removeEntry(shelfId, code) {
   if (!confirm('Remove all batches of '+code+' from this slot?')) return;
   const ok = await dbDeleteEntry(shelfId, code);
   if (ok) {
-    if (assignments[shelfId]) {
-      assignments[shelfId]=assignments[shelfId].filter(i=>i.code!==code);
-      if (!assignments[shelfId].length) delete assignments[shelfId];
-    }
     await dbAddHistory('Removed', code, shelfLabel(shelfId), null, null);
-    toast('🗑 Removed'); render();
+    await loadAssignments(); toast('🗑 Removed'); render();
   }
 }
 
@@ -1654,18 +1656,27 @@ async function confirmMove() {
   if (qty>maxQty) { alert('Only '+maxQty+' available.'); return; }
   const srcEntry = assignments[fromShelfId]?assignments[fromShelfId].find(i=>i.code===code):null;
   if (!srcEntry) return;
-  const sorted = [...srcEntry.batches].sort((a,b)=>a.arrival.localeCompare(b.arrival));
+  const sorted = srcEntry.batches.map(b=>({...b})).sort((a,b)=>a.arrival.localeCompare(b.arrival));
   let remaining = qty;
+  const toAdd = [];
   for (const b of sorted) {
     if (remaining<=0) break;
     const take = Math.min(remaining, b.qty);
-    const newId = 'b'+Date.now()+Math.random().toString(36).slice(2);
-    await sb.from('assignments').insert({shelf_id:toShelfId,sku_code:code,batch_id:newId,arrival:b.arrival,qty:take});
-    if (b.qty-take===0) await sb.from('assignments').delete().eq('batch_id',b.batchId);
-    else await sb.from('assignments').update({qty:b.qty-take}).eq('batch_id',b.batchId);
+    toAdd.push({arrival: b.arrival, take, batchId: b.batchId, leftOver: b.qty - take});
     remaining -= take;
   }
+  // Process deletes/updates first, then inserts
+  for (const t of toAdd) {
+    if (t.leftOver === 0) await dbDeleteBatch(t.batchId);
+    else await dbUpdateQty(t.batchId, t.leftOver);
+  }
+  for (const t of toAdd) {
+    const newId = 'b'+Date.now()+Math.random().toString(36).slice(2);
+    await dbAddBatch(toShelfId, code, newId, t.arrival, t.take);
+  }
   await dbAddHistory('Moved', code, shelfLabel(fromShelfId), shelfLabel(toShelfId), qty);
+  // Clean up any zero-qty rows left behind
+  await sb.from('assignments').delete().lte('qty', 0);
   await loadAssignments();
   closeMove(); render();
   toast('✅ Moved '+qty+' units');
@@ -1742,12 +1753,19 @@ async function shelfDrop(e,toShelfId) {
   if (dragState.fromShelfId===toShelfId) { dragState=null; return; }
   const srcEntry=assignments[dragState.fromShelfId]?assignments[dragState.fromShelfId].find(i=>i.code===dragState.code):null;
   if (!srcEntry) { dragState=null; return; }
-  for (const b of srcEntry.batches) {
-    const newId='b'+Date.now()+Math.random().toString(36).slice(2);
-    await sb.from('assignments').insert({shelf_id:toShelfId,sku_code:dragState.code,batch_id:newId,arrival:b.arrival,qty:b.qty});
-    await sb.from('assignments').delete().eq('batch_id',b.batchId);
+  const fromShelfId = dragState.fromShelfId;
+  const moveCode = dragState.code;
+  const batchesCopy = srcEntry.batches.map(b=>({...b})); // snapshot before any mutation
+  // Delete all old batches first, then add to new location
+  for (const b of batchesCopy) {
+    await dbDeleteBatch(b.batchId);
   }
-  await dbAddHistory('Moved (drag)', dragState.code, shelfLabel(dragState.fromShelfId), shelfLabel(toShelfId), '—');
+  for (const b of batchesCopy) {
+    const newId='b'+Date.now()+Math.random().toString(36).slice(2);
+    await dbAddBatch(toShelfId, moveCode, newId, b.arrival, b.qty);
+  }
+  await dbAddHistory('Moved (drag)', moveCode, shelfLabel(fromShelfId), shelfLabel(toShelfId), '—');
+  await sb.from('assignments').delete().lte('qty', 0);
   await loadAssignments(); dragState=null; render(); toast('✅ Moved');
 }
 function rackOver(e,id) { e.preventDefault(); document.getElementById('rk-'+id)?.classList.add('drag-over'); }
