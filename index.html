@@ -155,6 +155,11 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .sku-unplaced{color:#e67e00;cursor:pointer;font-weight:600;}
 .sku-unplaced:hover{text-decoration:underline;}
 .unplaced-panel{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+
+.sku-mgr-row{display:flex;align-items:center;gap:8px;padding:7px 6px;border-bottom:1px solid var(--border);transition:background .15s;}
+.sku-mgr-row:hover{background:#f5f8ff;}
+.sku-mgr-row:last-child{border-bottom:none;}
+.color-pick{width:36px;height:36px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:2px;}
 .no-result{text-align:center;padding:30px;color:var(--muted);font-size:.9rem;}
 .toast{position:fixed;bottom:24px;right:24px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:.8rem;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:999;transform:translateY(60px);opacity:0;transition:all .3s;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
@@ -191,6 +196,7 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
       <button onclick="doSearch()">🔍 Search</button>
       <button class="sec" onclick="clearSearch()">Clear</button>
     </div>
+    <button class="sec" onclick="openSKUManager()">📋 SKU Manager</button>
     <button class="sec" onclick="window.print()">🖨 Print</button>
     <button class="grn" onclick="exportToExcel()">📊 Excel</button>
     <div class="user-badge">
@@ -219,6 +225,42 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 <div class="search-panel" id="searchPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title" id="spTitle">Search Results</div><button class="sp-close" onclick="closeSearchPanel()">✕</button></div><div id="spBody"></div></div></div>
 <div class="history-panel" id="historyPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title">📋 Change History</div><button class="sp-close" onclick="closeHistory()">✕</button></div><div id="historyBody"></div></div></div>
 <div class="unplaced-panel" id="unplacedPanel" style="display:none;"><div class="panel-inner" style="max-width:480px;"><div class="sp-header"><div class="sp-title">⚠️ Unplaced Batches</div><button class="sp-close" onclick="closeUnplaced()">✕</button></div><div id="unplacedBody"></div></div></div>
+
+<!-- SKU Manager -->
+<div class="search-panel" id="skuManagerPanel" style="display:none;">
+  <div class="panel-inner" style="max-width:620px;">
+    <div class="sp-header">
+      <div class="sp-title">📋 SKU Manager <span id="skuMgrCount" style="font-size:.7rem;font-weight:400;color:var(--muted);margin-left:8px;"></span></div>
+      <button class="sp-close" onclick="closeSKUManager()">✕</button>
+    </div>
+    <!-- Add new SKU -->
+    <div style="background:#f0f7ff;border:1px solid #c7dff7;border-radius:10px;padding:14px;margin-bottom:14px;">
+      <div style="font-size:.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">➕ Add New SKU</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <div><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">CODE</label><input type="text" id="newSkuCode" placeholder="e.g. 51010/15CV" style="width:140px;text-transform:uppercase;"/></div>
+        <div style="flex:1;min-width:180px;"><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">NAME</label><input type="text" id="newSkuName" placeholder="Item description" style="width:100%;"/></div>
+        <div><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">COLOUR</label><input type="color" id="newSkuColor" value="#1a6fc4" class="color-pick"/></div>
+        <div style="padding-top:16px;"><button onclick="addSKU()">Add SKU</button></div>
+      </div>
+    </div>
+    <!-- Filter -->
+    <input type="text" id="skuMgrFilter" placeholder="Filter SKUs..." style="width:100%;margin-bottom:10px;" oninput="renderSKUManagerList()"/>
+    <!-- List -->
+    <div id="skuMgrList" style="max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;"></div>
+  </div>
+</div>
+<!-- Edit SKU -->
+<div class="modal-bg" id="editSkuPanel" style="display:none;">
+  <div class="modal" style="max-width:400px;">
+    <h3>Edit SKU</h3>
+    <div class="modal-loc" id="editSkuCodeLbl"></div>
+    <input type="hidden" id="editSkuCodeHidden"/>
+    <div class="modal-row"><label>Name:</label><input type="text" id="editSkuName" style="flex:1;width:auto;"/></div>
+    <div class="modal-row"><label>Colour:</label><input type="color" id="editSkuColor" class="color-pick"/></div>
+    <div class="modal-btns"><button class="sec" onclick="closeEditSKU()">Cancel</button><button onclick="saveEditSKU()">Save</button></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 const SUPABASE_URL='https://xndxogfqaddzzyegtmzl.supabase.co';
@@ -1044,9 +1086,10 @@ const SKUS=[
   {code:'YTFM',name:'黄尾肉 YELLOW TAIL FILLET MEAT0/1',color:'#1abc9c',minQty:5},
   {code:'YTFMU',name:'黄尾 YELLOW TAILL',color:'#e91e63',minQty:5}
 ];
-
 // ── STATE ──
 let assignments = {};
+let DYNAMIC_SKUS = null;
+function getAllSKUs() { return DYNAMIC_SKUS !== null ? DYNAMIC_SKUS : SKUS; }
 let warehouseZones = null; // dynamic, loaded from structure
 let history = [];
 let selectedSKU = null;
@@ -1073,7 +1116,7 @@ function escH(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function getZones() { return warehouseZones || ZONES; }
-function getSKU(code) { return SKUS.find(s => s.code === code); }
+function getSKU(code) { return getAllSKUs().find(s => s.code === code); }
 function getTotalQty(code) {
   let t = 0;
   for (const items of Object.values(assignments)) {
@@ -1171,6 +1214,7 @@ async function bootApp() {
   document.getElementById('appShell').style.display='block';
   document.getElementById('loadingOverlay').style.display='flex';
   document.getElementById('userEmail').textContent = currentUser.email;
+  await loadSKUs();
   await loadStructure();
   await loadAssignments();
   await loadHistory();
@@ -1278,13 +1322,112 @@ function showUnplacedBatches(code) {
 }
 function closeUnplaced() { document.getElementById('unplacedPanel').style.display = 'none'; }
 
+
+// ── SKU MANAGEMENT ──
+async function loadSKUs() {
+  const res = await sb.from('skus').select('*').order('code');
+  if (res.data && res.data.length > 0) {
+    DYNAMIC_SKUS = res.data.map(r => ({code:r.code, name:r.name, color:r.color||'#888888', minQty:5}));
+  } else {
+    DYNAMIC_SKUS = null; // fall back to built-in
+  }
+}
+
+function openSKUManager() {
+  document.getElementById('newSkuCode').value='';
+  document.getElementById('newSkuName').value='';
+  document.getElementById('newSkuColor').value='#1a6fc4';
+  renderSKUManagerList();
+  document.getElementById('skuManagerPanel').style.display='flex';
+}
+function closeSKUManager() { document.getElementById('skuManagerPanel').style.display='none'; }
+
+function renderSKUManagerList() {
+  const skus = getAllSKUs();
+  const q = (document.getElementById('skuMgrFilter')||{value:''}).value.toUpperCase();
+  const filtered = skus.filter(s => !q || s.code.includes(q) || s.name.toUpperCase().includes(q));
+  let html = '';
+  for (const s of filtered) {
+    html += '<div class="sku-mgr-row">';
+    html += '<div style="width:14px;height:14px;border-radius:50%;background:'+s.color+';flex-shrink:0;"></div>';
+    html += '<div style="flex:1;min-width:0;overflow:hidden;">';
+    html += '<div style="font-family:DM Mono,monospace;font-size:.75rem;font-weight:700;color:#1a6fc4;">'+escH(s.code)+'</div>';
+    html += '<div style="font-size:.7rem;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+escH(s.name)+'</div>';
+    html += '</div>';
+    html += '<button class="row-act" data-code="'+escH(s.code)+'" onclick="openEditSKU(this.dataset.code)" title="Edit">✏️</button>';
+    html += '<button class="row-act del" data-code="'+escH(s.code)+'" onclick="deleteSKU(this.dataset.code)" title="Delete">✕</button>';
+    html += '</div>';
+  }
+  document.getElementById('skuMgrList').innerHTML = html || '<div class="no-result">No SKUs found</div>';
+  document.getElementById('skuMgrCount').textContent = skus.length+' SKUs';
+}
+
+async function addSKU() {
+  const code = document.getElementById('newSkuCode').value.trim().toUpperCase();
+  const name = document.getElementById('newSkuName').value.trim();
+  const color = document.getElementById('newSkuColor').value;
+  if (!code) { alert('Enter SKU code.'); return; }
+  if (!name) { alert('Enter SKU name.'); return; }
+  if (getAllSKUs().find(s=>s.code===code)) { alert('SKU '+code+' already exists!'); return; }
+  const res = await sb.from('skus').upsert({code, name, color});
+  if (res.error) { toast('Failed: '+res.error.message,'err'); return; }
+  await loadSKUs();
+  document.getElementById('newSkuCode').value='';
+  document.getElementById('newSkuName').value='';
+  document.getElementById('newSkuColor').value='#1a6fc4';
+  renderSKUManagerList();
+  render();
+  toast('✅ SKU '+code+' added!');
+}
+
+function openEditSKU(code) {
+  const s = getSKU(code);
+  if (!s) return;
+  document.getElementById('editSkuCodeLbl').textContent = s.code;
+  document.getElementById('editSkuCodeHidden').value = s.code;
+  document.getElementById('editSkuName').value = s.name;
+  document.getElementById('editSkuColor').value = s.color||'#888888';
+  document.getElementById('editSkuPanel').style.display='flex';
+}
+function closeEditSKU() { document.getElementById('editSkuPanel').style.display='none'; }
+
+async function saveEditSKU() {
+  const code = document.getElementById('editSkuCodeHidden').value;
+  const name = document.getElementById('editSkuName').value.trim();
+  const color = document.getElementById('editSkuColor').value;
+  if (!name) { alert('Enter SKU name.'); return; }
+  const res = await sb.from('skus').upsert({code, name, color});
+  if (res.error) { toast('Failed: '+res.error.message,'err'); return; }
+  await loadSKUs();
+  closeEditSKU();
+  renderSKUManagerList();
+  render();
+  toast('✅ '+code+' updated!');
+}
+
+async function deleteSKU(code) {
+  const hasStock = getTotalQty(code) > 0;
+  const msg = hasStock ? '⚠️ '+code+' has stock! Delete SKU anyway?' : 'Delete SKU '+code+'?';
+  if (!confirm(msg)) return;
+  await sb.from('skus').delete().eq('code', code);
+  // If built-in SKU, mark as deleted by keeping a local filtered list
+  if (DYNAMIC_SKUS) {
+    DYNAMIC_SKUS = DYNAMIC_SKUS.filter(s=>s.code!==code);
+  } else {
+    DYNAMIC_SKUS = SKUS.filter(s=>s.code!==code);
+  }
+  renderSKUManagerList();
+  render();
+  toast('🗑 SKU '+code+' deleted');
+}
+
 // ── RENDER ──
 function render() { renderSKUList(); renderWarehouse(); renderStats(); }
 
 function renderSKUList() {
   const filter = (document.getElementById('skuFilter')||{value:''}).value.toUpperCase();
-  const filtered = SKUS.filter(s => !filter || s.code.includes(filter) || s.name.toUpperCase().includes(filter));
-  document.getElementById('skuCount').textContent = SKUS.length+' SKUs';
+  const filtered = getAllSKUs().filter(s => !filter || s.code.includes(filter) || s.name.toUpperCase().includes(filter));
+  document.getElementById('skuCount').textContent = getAllSKUs().length+' SKUs';
   let html = '';
   for (const s of filtered) {
     const total = getTotalQty(s.code);
@@ -1359,7 +1502,7 @@ function renderWarehouse() {
           html += '<div class="shelf-top"><span class="shelf-label">'+escH(s.name)+'</span></div><div class="shelf-items">';
           if (items.length) {
             for (const item of items) {
-              const sku2 = SKUS.find(sk=>sk.code===item.code);
+              const sku2 = getAllSKUs().find(sk=>sk.code===item.code);
               if (!sku2) continue;
               const st = item.batches.reduce((a,b)=>a+b.qty,0);
               const sc2 = item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -1530,7 +1673,7 @@ function openAssign(shelfId) {
   const loc = found ? found.r.name+(found.s.name!=='Slot'?' – '+found.s.name:'') : shelfId;
   document.getElementById('assignLoc').textContent = loc;
   let opts = '<option value="">— Select SKU —</option>';
-  for (const s of SKUS) opts += '<option value="'+escH(s.code)+'">'+escH(s.code)+' — '+escH(s.name)+'</option>';
+  for (const s of getAllSKUs()) opts += '<option value="'+escH(s.code)+'">'+escH(s.code)+' — '+escH(s.name)+'</option>';
   document.getElementById('assignSku').innerHTML = opts;
   document.getElementById('assignArrival').value = todayStr();
   document.getElementById('assignQty').value = 1;
@@ -1711,7 +1854,7 @@ function closeHistory() { document.getElementById('historyPanel').style.display=
 function doSearch() {
   const q = document.getElementById('searchInput').value.trim().toUpperCase();
   if (!q) return;
-  const matches = SKUS.filter(s=>s.code.includes(q)||s.name.toUpperCase().includes(q));
+  const matches = getAllSKUs().filter(s=>s.code.includes(q)||s.name.toUpperCase().includes(q));
   document.getElementById('spTitle').textContent='SEARCH: "'+q+'" — '+matches.length+' result'+(matches.length!==1?'s':'');
   let html='';
   if (!matches.length) html='<div class="no-result">No SKU found.</div>';
@@ -1777,7 +1920,7 @@ function exportToExcel() {
   var wb = XLSX.utils.book_new();
   // Sheet 1: Stock Summary
   var sum=[['SKU Code','Item Name','Total Units','Locations']];
-  for (var s of SKUS) { var t=getTotalQty(s.code); if(t>0) sum.push([s.code,s.name,t,getShelfLocations(s.code).join(', ')]); }
+  for (var s of getAllSKUs()) { var t=getTotalQty(s.code); if(t>0) sum.push([s.code,s.name,t,getShelfLocations(s.code).join(', ')]); }
   var ws1=XLSX.utils.aoa_to_sheet(sum); ws1['!cols']=[{wch:18},{wch:45},{wch:12},{wch:50}];
   XLSX.utils.book_append_sheet(wb,ws1,'Stock Summary');
   // Sheet 2: Batch Detail
