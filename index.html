@@ -87,7 +87,8 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .shelf-sku-block{border-radius:4px;padding:2px 3px;}
 .shelf-sku-header{display:flex;align-items:center;gap:3px;}
 .row-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.row-code{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;flex:1;cursor:grab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-code{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;flex:1;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-code:hover{text-decoration:underline;}
 .row-total{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--green);font-weight:700;}
 .row-act{background:transparent;border:none;color:#ccc;font-size:.56rem;padding:1px 3px;cursor:pointer;border-radius:3px;}
 .row-act:hover{color:var(--accent);background:#eef6ff;}
@@ -219,8 +220,8 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
   </div>
 </div>
 </div>
-<div class="modal-bg" id="assignBg" style="display:none;"><div class="modal"><h3>Assign SKU to Slot</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">Select SKU</div><select id="assignSku"></select><div class="modal-section">Batch Details</div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">Cancel</button><button onclick="doAssign()">Add</button></div></div></div>
-<div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">Cancel</button><button onclick="doAddBatch()">Add Batch</button></div></div></div>
+<div class="modal-bg" id="assignBg" style="display:none;"><div class="modal"><h3>Assign SKU to Slot</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">Select SKU</div><select id="assignSku"></select><div class="modal-section">Batch Details</div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1"/></div><div class="modal-row"><label>Weight:</label><input type="text" id="assignWeight" placeholder="e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">Cancel</button><button onclick="doAssign()">Add</button></div></div></div>
+<div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1"/></div><div class="modal-row"><label>Weight:</label><input type="text" id="abWeight" placeholder="e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">Cancel</button><button onclick="doAddBatch()">Add Batch</button></div></div></div>
 <div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveShelf" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">Cancel</button><button onclick="confirmMove()">Move</button></div></div></div>
 <div class="search-panel" id="searchPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title" id="spTitle">Search Results</div><button class="sp-close" onclick="closeSearchPanel()">✕</button></div><div id="spBody"></div></div></div>
 <div class="history-panel" id="historyPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title">📋 Change History</div><button class="sp-close" onclick="closeHistory()">✕</button></div><div id="historyBody"></div></div></div>
@@ -258,6 +259,20 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
     <div class="modal-row"><label>Name:</label><input type="text" id="editSkuName" style="flex:1;width:auto;"/></div>
     <div class="modal-row"><label>Colour:</label><input type="color" id="editSkuColor" class="color-pick"/></div>
     <div class="modal-btns"><button class="sec" onclick="closeEditSKU()">Cancel</button><button onclick="saveEditSKU()">Save</button></div>
+  </div>
+</div>
+
+
+<!-- Item Detail Panel -->
+<div class="modal-bg" id="itemDetailPanel" style="display:none;">
+  <div class="modal" style="max-width:520px;">
+    <h3>📦 Item Detail</h3>
+    <div id="itemDetailBody"></div>
+    <div class="modal-btns" style="margin-top:12px;">
+      <button class="sec" onclick="closeItemDetail()">Close</button>
+      <button class="sec grn" id="itemDetailAddBatchBtn">＋ Add Batch</button>
+      <button id="itemDetailMoveBtn">⇄ Move</button>
+    </div>
   </div>
 </div>
 
@@ -507,32 +522,11 @@ const ZONES = [
     {id:'rL20A',name:'L20A',shelves:[{id:'sL20A_1',name:'Top'},{id:'sL20A_2',name:'Middle'},{id:'sL20A_3',name:'Bottom'}]},
     {id:'rL20B',name:'L20B',shelves:[{id:'sL20B_1',name:'Top'},{id:'sL20B_2',name:'Middle'},{id:'sL20B_3',name:'Bottom'}]}
   ]},
-  {id:'zZ',name:'Z',racks:[
-    {id:'rZ1',name:'Z1',shelves:[{id:'sZ1',name:'Slot'}]},
-    {id:'rZ2',name:'Z2',shelves:[{id:'sZ2',name:'Slot'}]},
-    {id:'rZ3',name:'Z3',shelves:[{id:'sZ3',name:'Slot'}]},
-    {id:'rZ4',name:'Z4',shelves:[{id:'sZ4',name:'Slot'}]},
-    {id:'rZ5',name:'Z5',shelves:[{id:'sZ5',name:'Slot'}]},
-    {id:'rZ6',name:'Z6',shelves:[{id:'sZ6',name:'Slot'}]},
-    {id:'rZ7',name:'Z7',shelves:[{id:'sZ7',name:'Slot'}]},
-    {id:'rZ8',name:'Z8',shelves:[{id:'sZ8',name:'Slot'}]},
-    {id:'rZ9',name:'Z9',shelves:[{id:'sZ9',name:'Slot'}]},
-    {id:'rZ10',name:'Z10',shelves:[{id:'sZ10',name:'Slot'}]},
-    {id:'rZ11',name:'Z11',shelves:[{id:'sZ11',name:'Slot'}]},
-    {id:'rZ12',name:'Z12',shelves:[{id:'sZ12',name:'Slot'}]},
-    {id:'rZ13',name:'Z13',shelves:[{id:'sZ13',name:'Slot'}]},
-    {id:'rZ14',name:'Z14',shelves:[{id:'sZ14',name:'Slot'}]},
-    {id:'rZ15',name:'Z15',shelves:[{id:'sZ15',name:'Slot'}]},
-    {id:'rZ16',name:'Z16',shelves:[{id:'sZ16',name:'Slot'}]},
-    {id:'rZ17',name:'Z17',shelves:[{id:'sZ17',name:'Slot'}]},
-    {id:'rZ18',name:'Z18',shelves:[{id:'sZ18',name:'Slot'}]},
-    {id:'rZ19',name:'Z19',shelves:[{id:'sZ19',name:'Slot'}]},
-    {id:'rZ20',name:'Z20',shelves:[{id:'sZ20',name:'Slot'}]},
-    {id:'rZ21',name:'Z21',shelves:[{id:'sZ21',name:'Slot'}]},
-    {id:'rZ22',name:'Z22',shelves:[{id:'sZ22',name:'Slot'}]},
-    {id:'rZ23',name:'Z23',shelves:[{id:'sZ23',name:'Slot'}]},
-    {id:'rZ24',name:'Z24',shelves:[{id:'sZ24',name:'Slot'}]},
-    {id:'rZ25',name:'Z25',shelves:[{id:'sZ25',name:'Slot'}]}
+  {id:'zZ',name:'Z',isZoneZ:true,racks:[
+    {id:'rZ1',name:'Z1',shelves:[{id:'sZ1',name:'Slot'}]}
+  ]},
+  {id:'zY',name:'Y',isZoneZ:true,racks:[
+    {id:'rY1',name:'Y1',shelves:[{id:'sY1',name:'Slot'}]}
   ]}
 ];
 const SKUS=[
@@ -1086,7 +1080,6 @@ const SKUS=[
   {code:'YTFM',name:'黄尾肉 YELLOW TAIL FILLET MEAT0/1',color:'#1abc9c',minQty:5},
   {code:'YTFMU',name:'黄尾 YELLOW TAILL',color:'#e91e63',minQty:5}
 ];
-// ── STATE ──
 let assignments = {};
 let DYNAMIC_SKUS = null;
 function getAllSKUs() { return DYNAMIC_SKUS !== null ? DYNAMIC_SKUS : SKUS; }
@@ -1248,7 +1241,7 @@ async function loadAssignments() {
     if (!assignments[row.shelf_id]) assignments[row.shelf_id]=[];
     let entry = assignments[row.shelf_id].find(i=>i.code===row.sku_code);
     if (!entry) { entry={code:row.sku_code,batches:[]}; assignments[row.shelf_id].push(entry); }
-    entry.batches.push({batchId:row.batch_id,arrival:row.arrival,qty:row.qty});
+    entry.batches.push({batchId:row.batch_id,arrival:row.arrival,qty:row.qty,weight:row.weight||''});
   }
   setSyncState('ok');
 }
@@ -1261,9 +1254,9 @@ async function dbAddHistory(action, sku, from, to, qty) {
   const res = await sb.from('change_history').insert(row);
   if (!res.error) history.unshift({...row, ts: new Date().toISOString()});
 }
-async function dbAddBatch(shelfId, skuCode, batchId, arrival, qty) {
+async function dbAddBatch(shelfId, skuCode, batchId, arrival, qty, weight) {
   setSyncState('syncing');
-  const res = await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty});
+  const res = await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty,weight:weight||null});
   if (res.error) { setSyncState('error'); toast('Save failed: '+res.error.message,'err'); return false; }
   setSyncState('ok'); return true;
 }
@@ -1453,6 +1446,47 @@ function renderSKUList() {
   document.getElementById('skuList').innerHTML = html;
 }
 
+function renderZSlot(z, r, s, items, hl) {
+  let h = '';
+  h += '<div class="rack" id="rk-'+r.id+'">';
+  h += '<div class="rack-header"><span class="rack-name">'+escH(r.name)+'</span>';
+  h += '<button class="rack-del-btn" data-zid="'+z.id+'" data-rid="'+r.id+'" onclick="confirmDeleteZSlot(this.dataset.zid,this.dataset.rid)" title="Delete">✕</button></div>';
+  h += '<div class="shelf'+(hl?' highlight':'')+'" id="sh-'+s.id+'" data-sid="'+s.id+'" onclick="openAssign(this.dataset.sid)" ondragover="shelfOver(event,this.dataset.sid)" ondragleave="shelfLeave(this.dataset.sid)" ondrop="shelfDrop(event,this.dataset.sid)">';
+  h += '<div class="shelf-top"><span class="shelf-label">Slot</span></div><div class="shelf-items">';
+  if (items.length) {
+    for (const item of items) {
+      const sku2 = getAllSKUs().find(sk=>sk.code===item.code);
+      if (!sku2) continue;
+      const st = item.batches.reduce((a,b)=>a+b.qty,0);
+      h += '<div class="shelf-sku-block"><div class="shelf-sku-header">';
+      h += '<div class="row-dot" style="background:'+sku2.color+'"></div>';
+      h += '<div class="row-code" style="color:'+sku2.color+'" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" data-qty="'+st+'" draggable="true" ondragstart="itemDragStart(event,this.dataset.sid,this.dataset.code,parseInt(this.dataset.qty))">'+escH(item.code)+'</div>';
+      h += '<span class="row-total">'+st+'</span>';
+      h += '<button class="row-act" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" onclick="event.stopPropagation();openItemDetail(this.dataset.sid,this.dataset.code)" title="View">📋</button>';
+      h += '<button class="row-act" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" data-qty="'+st+'" onclick="event.stopPropagation();openMoveBlock(this.dataset.sid,this.dataset.code,parseInt(this.dataset.qty))" title="Move">⇄</button>';
+      h += '<button class="row-act del" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" onclick="event.stopPropagation();removeEntry(this.dataset.sid,this.dataset.code)">✕</button>';
+      h += '</div><div class="batch-list">';
+      item.batches.forEach(b => {
+        h += '<div class="batch-row">';
+        h += '<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
+        if (b.weight) h += '<span style="font-size:.58rem;color:#e67e00;margin-left:4px;">⚖️ '+escH(String(b.weight))+'</span>';
+        h += '<div class="batch-qty-ctrl">';
+        h += '<button class="bqty-btn m" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" data-bid="'+b.batchId+'" onclick="event.stopPropagation();changeBatchQty(this.dataset.sid,this.dataset.code,this.dataset.bid,-1)">−</button>';
+        h += '<span class="bqty-val">'+b.qty+'</span>';
+        h += '<button class="bqty-btn p" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" data-bid="'+b.batchId+'" onclick="event.stopPropagation();changeBatchQty(this.dataset.sid,this.dataset.code,this.dataset.bid,1)">+</button>';
+        h += '</div>';
+        h += '<button class="batch-del" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" data-bid="'+b.batchId+'" onclick="event.stopPropagation();deleteBatch(this.dataset.sid,this.dataset.code,this.dataset.bid)">✕</button>';
+        h += '</div>';
+      });
+      h += '</div><span class="add-batch-link" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" onclick="event.stopPropagation();openAddBatch(this.dataset.sid,this.dataset.code)">＋ add batch</span></div>';
+    }
+  } else {
+    h += '<div class="empty-shelf">empty · click to assign</div>';
+  }
+  h += '</div></div></div>';
+  return h;
+}
+
 function renderWarehouse() {
   const map = document.getElementById('warehouseMap');
   let html = '';
@@ -1464,32 +1498,15 @@ function renderWarehouse() {
     html += '<button class="zone-del-btn" onclick="confirmDeleteZone(\''+z.id+'\')" title="Delete zone">🗑</button>';
     html += '</div>';
     if (isZ) {
-      html += '<div class="rack-row zone-z-grid">';
+      html += '<div class="rack-row">';
       for (const r of z.racks) {
         const s = r.shelves[0];
         const items = assignments[s.id]||[];
         const hl = selectedSKU && items.some(i=>i.code===selectedSKU);
-        const sc2 = s.id;
-        html += '<div class="z-slot'+(hl?' highlight':'')+(items.length?' z-slot-used':'')+'" onclick="openAssign(\''+sc2+'\')" ondragover="shelfOver(event,\''+sc2+'\')" ondragleave="shelfLeave(\''+sc2+'\')" ondrop="shelfDrop(event,\''+sc2+'\')">';
-        html += '<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="z-slot-label">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="event.stopPropagation();confirmDeleteZSlot(\''+z.id+'\',\''+r.id+'\')" >✕</button></div>';
-        if (items.length) {
-          for (const item of items) {
-            const sku2 = SKUS.find(sk=>sk.code===item.code);
-            const qty = item.batches.reduce((a,b)=>a+b.qty,0);
-            const sc3 = item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-            html += '<div class="z-slot-content" style="border-color:'+(sku2?sku2.color:'#333')+'">';
-            html += '<span style="color:'+(sku2?sku2.color:'#333')+';font-size:.62rem;font-weight:700">'+escH(item.code)+'</span>';
-            html += '<span style="color:#1a7a3c;font-size:.6rem;font-weight:700"> ('+qty+')</span>';
-            html += '<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+sc2+'\',\''+sc3+'\')">✕</button>';
-            html += '</div>';
-          }
-        } else {
-          html += '<div class="empty-shelf">empty</div>';
-        }
-        html += '</div>';
+        html += renderZSlot(z, r, s, items, hl);
       }
       html += '</div>';
-      html += '<button class="add-struct-btn" onclick="addZoneZSlot(\''+z.id+'\')">＋ Add slot</button>';
+      html += '<button class="add-struct-btn" data-zid="' + z.id + '" onclick="addZoneZSlot(this.dataset.zid)">＋ Add slot</button>';
     } else {
       html += '<div class="rack-row">';
       for (const r of z.racks) {
@@ -1510,12 +1527,14 @@ function renderWarehouse() {
               html += '<div class="row-dot" style="background:'+sku2.color+'"></div>';
               html += '<div class="row-code" style="color:'+sku2.color+'" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')">'+escH(item.code)+'</div>';
               html += '<span class="row-total">'+st+'</span>';
+              html += '<button class="row-act" data-sid="'+s.id+'" data-code="'+escH(item.code)+'" onclick="event.stopPropagation();openItemDetail(this.dataset.sid,this.dataset.code)" title="View">📋</button>';
               html += '<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
               html += '<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')">✕</button>';
               html += '</div><div class="batch-list">';
               item.batches.forEach(b => {
                 html += '<div class="batch-row">';
                 html += '<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
+              if (b.weight) html += '<span style="font-size:.58rem;color:#e67e00;margin-left:4px;">⚖️ '+escH(String(b.weight))+'</span>';
                 html += '<div class="batch-qty-ctrl">';
                 html += '<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
                 html += '<span class="bqty-val">'+b.qty+'</span>';
@@ -1683,10 +1702,11 @@ async function doAssign() {
   const code = document.getElementById('assignSku').value;
   const arrival = document.getElementById('assignArrival').value;
   const qty = parseInt(document.getElementById('assignQty').value)||1;
+  const weight = document.getElementById('assignWeight').value.trim();
   if (!code) { alert('Select a SKU.'); return; }
   if (!arrival) { alert('Enter arrival date.'); return; }
   const batchId = 'b'+Date.now()+Math.random().toString(36).slice(2);
-  const ok = await dbAddBatch(assignShelfId, code, batchId, arrival, qty);
+  const ok = await dbAddBatch(assignShelfId, code, batchId, arrival, qty, weight);
   if (ok) {
     await dbAddHistory('Added', code, null, shelfLabel(assignShelfId), qty);
     await loadAssignments();
@@ -1710,9 +1730,10 @@ async function doAddBatch() {
   const {shelfId, code} = addBatchState;
   const arrival = document.getElementById('abArrival').value;
   const qty = parseInt(document.getElementById('abQty').value)||1;
+  const weight = document.getElementById('abWeight').value.trim();
   if (!arrival) { alert('Enter arrival date.'); return; }
   const batchId = 'b'+Date.now()+Math.random().toString(36).slice(2);
-  const ok = await dbAddBatch(shelfId, code, batchId, arrival, qty);
+  const ok = await dbAddBatch(shelfId, code, batchId, arrival, qty, weight);
   if (ok) {
     await dbAddHistory('Batch added', code, null, shelfLabel(shelfId), qty);
     await loadAssignments();
@@ -1824,6 +1845,56 @@ async function confirmMove() {
   closeMove(); render();
   toast('✅ Moved '+qty+' units');
 }
+
+// ── ITEM DETAIL POPUP ──
+function openItemDetail(shelfId, code) {
+  const sku = getSKU(code);
+  const entry = assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;
+  if (!entry) return;
+  const found = findShelfById(shelfId);
+  const locName = found ? found.r.name+(found.s.name!=='Slot'?' – '+found.s.name:'') : shelfId;
+  const totalQty = entry.batches.reduce((a,b)=>a+b.qty,0);
+  let html = '<div style="margin-bottom:12px;">';
+  html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
+  html += '<div style="width:14px;height:14px;border-radius:50%;background:'+(sku?sku.color:'#888')+'"></div>';
+  html += '<div class="sp-code">'+escH(code)+'</div>';
+  html += '</div>';
+  html += '<div class="sp-name" style="margin-bottom:6px;">'+escH(sku?sku.name:'')+'</div>';
+  html += '<div style="background:#f0f7ff;border-radius:6px;padding:8px 12px;font-family:DM Mono,monospace;font-size:.78rem;color:#1a6fc4;margin-bottom:10px;">📍 '+escH(locName)+' &nbsp;·&nbsp; <strong>'+totalQty+'</strong> units total</div>';
+  html += '</div>';
+  html += '<table class="hist-table"><thead><tr><th>#</th><th>Arrival</th><th>Weight</th><th>Qty</th><th></th></tr></thead><tbody>';
+  entry.batches.forEach(function(b,i) {
+    html += '<tr>';
+    html += '<td>'+(i+1)+'</td>';
+    html += '<td>'+fmtDate(b.arrival)+'</td>';
+    html += '<td>'+(b.weight?'⚖️ '+escH(String(b.weight)):'—')+'</td>';
+    html += '<td><strong>'+b.qty+'</strong></td>';
+    html += '<td><button class="batch-del" data-sid="'+escH(shelfId)+'" data-code="'+escH(code)+'" data-bid="'+escH(b.batchId)+'" onclick="deleteBatch(this.dataset.sid,this.dataset.code,this.dataset.bid);closeItemDetail();">✕</button></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('itemDetailBody').innerHTML = html;
+  document.getElementById('itemDetailMoveBtn').onclick = function() { closeItemDetail(); openMoveBlock(shelfId, code, totalQty); };
+  document.getElementById('itemDetailAddBatchBtn').onclick = function() { closeItemDetail(); openAddBatch(shelfId, code); };
+  document.getElementById('itemDetailPanel').style.display='flex';
+}
+function closeItemDetail() { document.getElementById('itemDetailPanel').style.display='none'; }
+async function deleteBatchFromDetail(btn) {
+  const sid = btn.dataset.sid;
+  const code = btn.dataset.code;
+  const bid = btn.dataset.bid;
+  if (!confirm('Remove this batch?')) return;
+  const ok = await dbDeleteBatch(bid);
+  if (ok) {
+    await dbAddHistory('Batch removed', code, shelfLabel(sid), null, null);
+    await loadAssignments();
+    render();
+    const entry = assignments[sid] ? assignments[sid].find(i=>i.code===code) : null;
+    if (!entry || !entry.batches.length) closeItemDetail();
+    else openItemDetail(sid, code);
+  }
+}
+
 function closeMove() { document.getElementById('moveBg').style.display='none'; moveState=null; }
 
 // ── HISTORY PANEL ──
@@ -2021,7 +2092,6 @@ function showFullReport() {
   }
   alert(msg);
 }
-
 </script>
 </body>
 </html>
