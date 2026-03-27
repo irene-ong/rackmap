@@ -276,6 +276,22 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
   </div>
 </div>
 
+
+<!-- Unplaced Items Manager -->
+<div class="search-panel" id="unplacedManagerPanel" style="display:none;">
+  <div class="panel-inner" style="max-width:640px;">
+    <div class="sp-header">
+      <div class="sp-title">⚠️ Unplaced Items <span id="unplacedMgrCount" style="font-size:.7rem;font-weight:400;color:var(--muted);margin-left:8px;"></span></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button style="background:#d93025;font-size:.72rem;padding:5px 12px;" onclick="deleteAllUnplaced()">🗑 Delete All</button>
+        <button class="sp-close sec" onclick="closeUnplacedManager()">✕</button>
+      </div>
+    </div>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:12px;">These items are in the database but not assigned to a valid rack slot. Reassign them to a rack or delete them.</div>
+    <div id="unplacedMgrBody"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <script>
 const SUPABASE_URL='https://xndxogfqaddzzyegtmzl.supabase.co';
@@ -1416,6 +1432,110 @@ async function deleteSKU(code) {
   toast('🗑 SKU '+code+' deleted');
 }
 
+
+// ── UNPLACED ITEMS MANAGER ──
+function getValidShelfIds() {
+  const ids = new Set();
+  for (const z of getZones()) for (const r of z.racks) for (const s of r.shelves) ids.add(s.id);
+  return ids;
+}
+
+function getUnplacedItems() {
+  const validIds = getValidShelfIds();
+  const unplaced = [];
+  for (const [shelfId, items] of Object.entries(assignments)) {
+    if (!validIds.has(shelfId)) {
+      for (const item of items) {
+        const totalQty = item.batches.reduce((a,b)=>a+b.qty,0);
+        unplaced.push({shelfId, code: item.code, batches: item.batches, totalQty});
+      }
+    }
+  }
+  return unplaced;
+}
+
+function openUnplacedManager() {
+  renderUnplacedList();
+  document.getElementById('unplacedManagerPanel').style.display='flex';
+}
+function closeUnplacedManager() { document.getElementById('unplacedManagerPanel').style.display='none'; }
+
+function renderUnplacedList() {
+  const items = getUnplacedItems();
+  const count = document.getElementById('unplacedMgrCount');
+  if (count) count.textContent = items.length + ' item'+(items.length!==1?'s':'')+' unplaced';
+  if (!items.length) {
+    document.getElementById('unplacedMgrBody').innerHTML = '<div class="no-result" style="padding:30px;text-align:center;">✅ No unplaced items! Everything is assigned to a valid rack slot.</div>';
+    return;
+  }
+  let html = '';
+  for (const item of items) {
+    const sku = getSKU(item.code);
+    html += '<div class="sku-mgr-row" style="flex-direction:column;align-items:flex-start;gap:6px;padding:12px;">';
+    html += '<div style="display:flex;align-items:center;gap:8px;width:100%;">';
+    html += '<div style="width:12px;height:12px;border-radius:50%;background:'+(sku?sku.color:'#888')+';flex-shrink:0;"></div>';
+    html += '<div style="flex:1;">';
+    html += '<div style="font-family:DM Mono,monospace;font-size:.8rem;font-weight:700;color:#1a6fc4;">'+escH(item.code)+'</div>';
+    html += '<div style="font-size:.72rem;color:#6b7280;">'+escH(sku?sku.name:'Unknown SKU')+'</div>';
+    html += '</div>';
+    html += '<div style="font-size:.75rem;font-weight:700;color:#1a7a3c;">'+item.totalQty+' units · '+item.batches.length+' batch'+(item.batches.length!==1?'es':'')+'</div>';
+    html += '</div>';
+    // Show batches
+    html += '<div style="width:100%;background:#f9fafb;border-radius:6px;padding:6px 10px;">';
+    item.batches.forEach((b,i) => {
+      html += '<div style="font-size:.7rem;color:#555;padding:2px 0;">Batch '+(i+1)+': 📅 '+fmtDate(b.arrival)+' &nbsp;·&nbsp; Qty: <strong>'+b.qty+'</strong>'+(b.weight?' &nbsp;·&nbsp; ⚖️ '+escH(String(b.weight)):'')+'</div>';
+    });
+    html += '<div style="font-size:.65rem;color:#aaa;margin-top:4px;">Orphaned shelf ID: <code>'+escH(item.shelfId)+'</code></div>';
+    html += '</div>';
+    // Action buttons
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;">';
+        html += '<button style="font-size:.72rem;padding:5px 10px;" data-code="'+escH(item.code)+'" data-sid="'+escH(item.shelfId)+'" onclick="reassignUnplaced(this)">⇄ Reassign to Rack</button>';
+    html += '<button class="sec" style="font-size:.72rem;padding:5px 10px;color:#d93025;border-color:#d93025;" data-code="'+escH(item.code)+'" data-sid="'+escH(item.shelfId)+'" onclick="deleteUnplaced(this)">🗑 Delete All Batches</button>';
+    html += '</div>';
+    html += '</div>';
+  }
+  document.getElementById('unplacedMgrBody').innerHTML = html;
+}
+
+async function deleteUnplaced(btn) {
+  const code = btn.dataset.code;
+  const sid = btn.dataset.sid;
+  if (!confirm('Delete ALL batches of '+code+' from orphaned slot?')) return;
+  const ok = await dbDeleteEntry(sid, code);
+  if (ok) {
+    await dbAddHistory('Deleted unplaced', code, sid, null, null);
+    await loadAssignments();
+    renderUnplacedList();
+    render();
+    toast('🗑 Deleted');
+  }
+}
+
+function reassignUnplaced(btn) {
+  const code = btn.dataset.code;
+  const sid = btn.dataset.sid;
+  // Find total qty for this item
+  const entry = assignments[sid] ? assignments[sid].find(i=>i.code===code) : null;
+  if (!entry) return;
+  const totalQty = entry.batches.reduce((a,b)=>a+b.qty,0);
+  closeUnplacedManager();
+  openMoveBlock(sid, code, totalQty);
+}
+
+async function deleteAllUnplaced() {
+  const items = getUnplacedItems();
+  if (!items.length) { toast('No unplaced items!'); return; }
+  if (!confirm('Delete ALL '+items.length+' unplaced item'+(items.length!==1?'s':'')+' permanently?')) return;
+  for (const item of items) {
+    await dbDeleteEntry(item.shelfId, item.code);
+    await dbAddHistory('Bulk deleted unplaced', item.code, item.shelfId, null, null);
+  }
+  await loadAssignments();
+  renderUnplacedList();
+  render();
+  toast('🗑 All unplaced items deleted');
+}
+
 // ── RENDER ──
 function render() { renderSKUList(); renderWarehouse(); renderStats(); }
 
@@ -1439,7 +1559,7 @@ function renderSKUList() {
     if (locs.length) {
       html += '<div class="sku-locs">📍 '+locs.slice(0,3).join(' · ')+(locs.length>3?' +'+(locs.length-3)+' more':'')+'</div>';
     } else if (totalBatches > 0) {
-      html += '<div class="sku-locs sku-unplaced" data-code="'+escH(s.code)+'" onclick="event.stopPropagation();showUnplacedBatches(this.dataset.code)">⚠️ Not placed — tap to see batches</div>';
+      html += '<div class="sku-locs sku-unplaced" data-code="'+escH(s.code)+'" onclick="event.stopPropagation();openUnplacedManager()">⚠️ Not placed — tap to fix</div>';
     } else {
       html += '<div class="sku-locs" style="color:#ccc">Not placed</div>';
     }
@@ -1571,10 +1691,13 @@ function renderStats() {
   const totalSlots = getZones().flatMap(z=>z.racks).flatMap(r=>r.shelves).length;
   const usedSlots = Object.keys(assignments).filter(k=>assignments[k]&&assignments[k].length).length;
   const totalUnits = Object.values(assignments).flat().flatMap(e=>e.batches).reduce((a,b)=>a+b.qty,0);
+    const unplacedCount = getUnplacedItems().length;
+  const unplacedBtn = unplacedCount > 0 ? '<span class="stat-link" style="background:#fff0f0;color:#d93025;" onclick="openUnplacedManager()">⚠️ '+unplacedCount+' Unplaced</span>' : '';
   document.getElementById('statsBar').innerHTML =
-    '<div class="stat">📦 <strong>'+SKUS.length+'</strong> SKUs</div>'+
+    '<div class="stat">📦 <strong>'+getAllSKUs().length+'</strong> SKUs</div>'+
     '<div class="stat">🗂 <strong>'+usedSlots+'</strong>/'+totalSlots+' slots used</div>'+
     '<div class="stat">🔢 <strong>'+totalUnits+'</strong> total units</div>'+
+    unplacedBtn+
     '<span class="stat-link" onclick="showHistory()">📋 History</span>'+
     '<span class="stat-link" onclick="showFullReport()">Full Report ›</span>';
 }
@@ -1793,7 +1916,7 @@ function openMoveBlock(fromShelfId, code, maxQty) {
   document.getElementById('moveQtyInput').value=1;
   document.getElementById('moveQtyInput').max=maxQty;
   let zOpts='';
-  for (const z of getZones()) zOpts+='<option value="'+z.id+'">'+escH(z.name)+'</option>';
+  for (const z of getZones()) zOpts+='<option value="'+z.id+'">'+(z.isZoneZ?'Zone ':'')+escH(z.name)+'</option>';
   document.getElementById('moveZone').innerHTML=zOpts;
   updateMoveRack();
   document.getElementById('moveBg').style.display='flex';
@@ -1801,6 +1924,10 @@ function openMoveBlock(fromShelfId, code, maxQty) {
 function updateMoveRack() {
   const zid=document.getElementById('moveZone').value;
   const z=getZones().find(z=>z.id===zid);
+  // For single-slot zones (Zone Y, Z), hide rack and shelf selectors
+  const isSingleSlot = z && z.isZoneZ && z.racks.length===1;
+  document.getElementById('moveRack').style.display = isSingleSlot ? 'none' : '';
+  document.getElementById('moveShelf').style.display = isSingleSlot ? 'none' : '';
   let opts='';
   if(z) for(const r of z.racks) opts+='<option value="'+r.id+'">'+escH(r.name)+'</option>';
   document.getElementById('moveRack').innerHTML=opts;
