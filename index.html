@@ -1319,11 +1319,17 @@ function closeUnplaced() { document.getElementById('unplacedPanel').style.displa
 // ── SKU MANAGEMENT ──
 async function loadSKUs() {
   const res = await sb.from('skus').select('*').order('code');
-  if (res.data && res.data.length > 0) {
-    DYNAMIC_SKUS = res.data.map(r => ({code:r.code, name:r.name, color:r.color||'#888888', minQty:5}));
-  } else {
-    DYNAMIC_SKUS = null; // fall back to built-in
+  if (res.error || !res.data || res.data.length === 0) {
+    DYNAMIC_SKUS = null; // use built-in as-is
+    return;
   }
+  // Merge: start with built-in SKUs, then override/add with DB entries
+  const dbMap = {};
+  res.data.forEach(r => { if(r.name!=='__DELETED__') dbMap[r.code] = {code:r.code, name:r.name, color:r.color||'#888888', minQty:5}; else dbMap[r.code] = null; });
+  // Built-in SKUs not in DB stay as-is; DB entries override or add new ones
+  const merged = SKUS.filter(s => dbMap[s.code] !== null && !dbMap[s.code]).concat(Object.values(dbMap).filter(Boolean));
+  merged.sort((a,b) => a.code.localeCompare(b.code));
+  DYNAMIC_SKUS = merged;
 }
 
 function openSKUManager() {
@@ -1402,13 +1408,9 @@ async function deleteSKU(code) {
   const hasStock = getTotalQty(code) > 0;
   const msg = hasStock ? '⚠️ '+code+' has stock! Delete SKU anyway?' : 'Delete SKU '+code+'?';
   if (!confirm(msg)) return;
-  await sb.from('skus').delete().eq('code', code);
-  // If built-in SKU, mark as deleted by keeping a local filtered list
-  if (DYNAMIC_SKUS) {
-    DYNAMIC_SKUS = DYNAMIC_SKUS.filter(s=>s.code!==code);
-  } else {
-    DYNAMIC_SKUS = SKUS.filter(s=>s.code!==code);
-  }
+  // Mark as deleted in DB (upsert with deleted flag so it won't reappear)
+  await sb.from('skus').upsert({code, name:'__DELETED__', color:'#cccccc', deleted:true});
+  await loadSKUs();
   renderSKUManagerList();
   render();
   toast('🗑 SKU '+code+' deleted');
