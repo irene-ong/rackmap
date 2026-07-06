@@ -25,7 +25,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-h
 .login-btn:hover{background:#155fa0;}
 .login-err{background:#fdf2f2;border:1px solid #f5c6c6;color:var(--red);border-radius:6px;padding:8px 12px;font-size:.78rem;margin-top:10px;display:none;}
 .login-loading{text-align:center;color:var(--muted);font-size:.8rem;padding:10px;display:none;}
-header{background:#fff;border-bottom:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow);position:sticky;top:0;z-index:50;}
+header{background:#fff;border-bottom:2px solid var(--accent);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow);}
 .logo{font-size:1.5rem;font-weight:800;color:var(--accent);line-height:1;}
 .logo span{color:var(--accent2);}
 .tagline{font-size:.65rem;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;}
@@ -44,10 +44,10 @@ button.sec{background:#fff;border:1px solid var(--border);color:var(--text);}
 button.sec:hover{border-color:var(--accent);color:var(--accent);}
 button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .hint-bar{background:#f0f7ff;border-bottom:1px solid #d0e8ff;padding:4px 20px;font-size:.68rem;color:#5580aa;}
-.main{display:flex;align-items:flex-start;}
-.sidebar{width:280px;min-width:240px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;box-shadow:var(--shadow);position:sticky;top:70px;align-self:flex-start;height:calc(100vh - 70px);overflow-y:auto;}
+.main{display:flex;height:calc(100vh - 70px);}
+.sidebar{width:280px;min-width:240px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow);}
 .sidebar-header{padding:10px 13px;border-bottom:1px solid var(--border);font-size:.78rem;font-weight:700;color:var(--accent2);display:flex;align-items:center;justify-content:space-between;text-transform:uppercase;letter-spacing:.5px;}
-.sku-list{padding:5px;}
+.sku-list{flex:1;overflow-y:auto;padding:5px;}
 .sku-list::-webkit-scrollbar{width:3px;}
 .sku-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
 .sku-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:4px;cursor:grab;transition:border-color .2s;display:flex;align-items:flex-start;gap:8px;user-select:none;}
@@ -62,7 +62,7 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .sku-unplaced{color:#e67e00;cursor:pointer;font-weight:600;}
 .sku-unplaced:hover{text-decoration:underline;}
 .warehouse-wrap{flex:1;display:flex;flex-direction:column;min-width:0;}
-.warehouse{padding:16px;display:flex;flex-direction:column;gap:16px;}
+.warehouse{flex:1;overflow-y:auto;overflow-x:clip;padding:16px;display:flex;flex-direction:column;gap:16px;}
 .warehouse::-webkit-scrollbar{width:5px;}.rack-row::-webkit-scrollbar{height:4px;}.rack-row::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 .warehouse::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 .zone-block{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;box-shadow:var(--shadow);overflow-x:auto;box-sizing:border-box;}
@@ -121,7 +121,7 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .add-zone-row{display:flex;gap:10px;padding:8px 0;}
 .add-zone-btn{background:#fff;border:1px dashed var(--accent);color:var(--accent);font-size:.78rem;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;}
 .add-zone-btn:hover{background:#eef6ff;}
-.stats-bar{background:#fff;border-top:1px solid var(--border);padding:6px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:.72rem;color:var(--muted);position:sticky;bottom:0;z-index:40;box-shadow:0 -2px 6px rgba(0,0,0,.05);}
+.stats-bar{background:#fff;border-top:1px solid var(--border);padding:6px 16px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:.72rem;color:var(--muted);}
 .stat strong{color:var(--text);font-size:.82rem;}
 .stat-link{color:var(--accent);cursor:pointer;font-size:.72rem;font-weight:600;padding:3px 8px;border-radius:5px;background:#eef6ff;}
 .stat-link:hover{background:#d0e8ff;}
@@ -1306,9 +1306,9 @@ async function dbAddHistory(action,sku,from,to,qty) {
   const res=await sb.from('change_history').insert(row);
   if(!res.error)history.unshift({...row,ts:new Date().toISOString()});
 }
-async function dbAddBatch(shelfId,skuCode,batchId,arrival,qty,weight,jiQty,jiCompany,jiInvoice) {
+async function dbAddBatch(shelfId,skuCode,batchId,arrival,qty,weight) {
   setSyncState('syncing');
-  const res=await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty,weight:weight||'',ji_qty:jiQty||0,ji_company:jiCompany||'',ji_invoice:jiInvoice||''});
+  const res=await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty,weight:weight||'',ji_qty:0,ji_company:'',ji_invoice:''});
   if(res.error){setSyncState('error');toast('Save failed: '+res.error.message,'err');return false;}
   setSyncState('ok');return true;
 }
@@ -1441,7 +1441,6 @@ async function setBatchQty(shelfId, code, batchId, val) {
 function setupRealtime() {
   realtimeChannel=sb.channel('rm-changes')
     .on('postgres_changes',{event:'*',schema:'public',table:'assignments'},async()=>{await loadAssignments();render();})
-    .on('postgres_changes',{event:'*',schema:'public',table:'warehouse_structure'},async()=>{await loadStructure();render();})
     .subscribe();
 }
 
@@ -1539,127 +1538,103 @@ function renderSKUList(){
   document.getElementById('skuList').innerHTML=html;
 }
 
-function renderZSlotHtml(z,r){
-  const s=r.shelves[0];
-  const items=assignments[s.id]||[];
-  const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
-  let html='<div class="z-slot'+(hl?' highlight':'')+(items.length?' z-slot-used':'')+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
-  html+='<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="z-slot-label">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="event.stopPropagation();confirmDeleteZSlot(\''+z.id+'\',\''+r.id+'\')">✕</button></div>';
-  if(items.length){
-    for(const item of items){
-      const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
-      const st=item.batches.reduce((a,b)=>a+b.qty,0);
-      const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      html+='<div class="shelf-sku-block" style="width:100%;margin-bottom:3px;"><div class="shelf-sku-header">';
-      html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
-      html+='<div class="row-code" style="color:'+sku2.color+'" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')" onclick="event.stopPropagation();openItemDetail(\''+s.id+'\',\''+sc2+'\')">'+escH(item.code)+'</div>';
-      html+='<span class="row-total">'+st+'</span>';
-      html+='<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
-      html+='<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')" title="Remove">✕</button>';
-      html+='</div><div class="batch-list">';
-      item.batches.forEach(b=>{
-        html+='<div class="batch-row">';
-        html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
-        if(b.weight)html+='<span class="batch-arr" style="color:#888;margin-left:3px;">⚖️ '+escH(b.weight)+'</span>';
-        if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
-        html+='<div class="batch-qty-ctrl">';
-        html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
-        html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
-        html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
-        html+='</div><button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button><button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button></div>';
-        html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
-      });
-    }
-  } else {
-    html+='<div class="empty-shelf">empty · click to assign</div>';
-  }
-  html+='</div>';
-  return html;
-}
-
-function renderRackHtml(z,r){
-  let html='<div class="rack" id="rk-'+r.id+'" ondragover="rackOver(event,\''+r.id+'\')" ondragleave="rackLeave(\''+r.id+'\')" ondrop="rackDrop(event,\''+r.id+'\')">';
-  html+='<div class="rack-header"><span class="rack-name">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="confirmDeleteRack(\''+z.id+'\',\''+r.id+'\')" title="Delete rack">✕</button></div>';
-  for(const s of r.shelves){
-    const items=assignments[s.id]||[];
-    const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
-    html+='<div class="shelf'+(hl?' highlight':'')+'" id="sh-'+s.id+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
-    html+='<div class="shelf-top"><span class="shelf-label">'+escH(s.name)+'</span></div><div class="shelf-items">';
-    if(items.length){
-      for(const item of items){
-        const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
-        const st=item.batches.reduce((a,b)=>a+b.qty,0);
-        const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-        html+='<div class="shelf-sku-block"><div class="shelf-sku-header">';
-        html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
-        html+='<div class="row-code" style="color:'+sku2.color+';cursor:pointer;" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')" onclick="event.stopPropagation();openItemDetail(\''+s.id+'\',\''+sc2+'\')">'+escH(item.code)+'</div>';
-        html+='<span class="row-total">'+st+'</span>';
-        html+='<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
-        html+='<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')" title="Remove">✕</button>';
-        html+='</div><div class="batch-list">';
-        item.batches.forEach(b=>{
-          html+='<div class="batch-row">';
-          html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
-          if(b.weight)html+='<span style="font-size:.58rem;color:#e67e00;margin-left:4px;">⚖️ '+escH(String(b.weight))+'</span>';
-          if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
-          html+='<div class="batch-qty-ctrl">';
-          html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
-          html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
-          html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
-          html+='<button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button>';
-          html+='<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button>';
-          html+='</div>';
-        });
-        html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
-      }
-    } else {
-      html+='<div class="empty-shelf">empty · click to assign</div>';
-    }
-    html+='</div></div>';
-  }
-  html+='</div>';
-  return html;
-}
-
 function renderWarehouse(){
   const map=document.getElementById('warehouseMap');
   let html='';
   for(const z of getZones()){
-    try{
-      const isZ=z.isZoneZ||z.id==='zZ'||z.id==='zY';
-      html+='<div class="zone-block">';
-      html+='<div class="zone-header"><span class="zone-accent">▌</span><span class="zone-name">'+(isZ?'Zone ':'')+escH(z.name)+'</span>';
-      html+='<button class="zone-del-btn" onclick="confirmDeleteZone(\''+z.id+'\')" title="Delete zone">🗑</button></div>';
-      if(isZ){
-        html+='<div class="rack-row zone-z-grid">';
-        for(const r of z.racks){
-          try{
-            html+=renderZSlotHtml(z,r);
-          }catch(e){
-            console.error('RackMap: failed to render slot',z&&z.id,r&&r.id,e);
-            html+='<div class="z-slot" style="border-color:#d93025;"><span style="color:#d93025;font-size:.65rem;">⚠️ Error: '+escH((r&&(r.name||r.id))||'slot')+'<br>See console (F12)</span></div>';
+    const isZ=z.isZoneZ||z.id==='zZ'||z.id==='zY';
+    html+='<div class="zone-block">';
+    html+='<div class="zone-header"><span class="zone-accent">▌</span><span class="zone-name">'+(isZ?'Zone ':'')+escH(z.name)+'</span>';
+    html+='<button class="zone-del-btn" onclick="confirmDeleteZone(\''+z.id+'\')" title="Delete zone">🗑</button></div>';
+    if(isZ){
+      html+='<div class="rack-row zone-z-grid">';
+      for(const r of z.racks){
+        const s=r.shelves[0];
+        const items=assignments[s.id]||[];
+        const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
+        html+='<div class="z-slot'+(hl?' highlight':'')+(items.length?' z-slot-used':'')+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
+        html+='<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="z-slot-label">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="event.stopPropagation();confirmDeleteZSlot(\''+z.id+'\',\''+r.id+'\')">✕</button></div>';
+        if(items.length){
+          for(const item of items){
+            const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
+            const st=item.batches.reduce((a,b)=>a+b.qty,0);
+            const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            html+='<div class="shelf-sku-block" style="width:100%;margin-bottom:3px;"><div class="shelf-sku-header">';
+            html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
+            html+='<div class="row-code" style="color:'+sku2.color+'" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')" onclick="event.stopPropagation();openItemDetail(\''+s.id+'\',\''+sc2+'\')">'+escH(item.code)+'</div>';
+            html+='<span class="row-total">'+st+'</span>';
+            html+='<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
+            html+='<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')" title="Remove">✕</button>';
+            html+='</div><div class="batch-list">';
+            item.batches.forEach(b=>{
+              html+='<div class="batch-row">';
+              html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
+              if(b.weight)html+='<span class="batch-arr" style="color:#888;margin-left:3px;">⚖️ '+escH(b.weight)+'</span>';
+              if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
+              html+='<div class="batch-qty-ctrl">';
+              html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
+              html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
+              html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
+              html+='</div><button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button><button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button></div>';
+            html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
+            });
           }
+        } else {
+          html+='<div class="empty-shelf">empty · click to assign</div>';
         }
         html+='</div>';
-        html+='<button class="add-struct-btn" onclick="addZoneZSlot(\''+z.id+'\')">＋ Add slot</button>';
-      } else {
-        html+='<div class="rack-row">';
-        for(const r of z.racks){
-          try{
-            html+=renderRackHtml(z,r);
-          }catch(e){
-            console.error('RackMap: failed to render rack',z&&z.id,r&&r.id,e);
-            html+='<div class="rack" style="border-color:#d93025;padding:8px;"><span style="color:#d93025;font-size:.7rem;">⚠️ Error rendering '+escH((r&&(r.name||r.id))||'rack')+'<br><span style="color:#888;font-size:.6rem;">See console (F12)</span></span></div>';
-          }
-        }
-        html+='</div>';
-        html+='<button class="add-struct-btn" onclick="addRackToZone(\''+z.id+'\')">＋ Add rack column</button>';
       }
       html+='</div>';
-    }catch(e){
-      console.error('RackMap: failed to render zone',z&&z.id,e);
-      html+='<div class="zone-block" style="border-color:#d93025;"><div style="color:#d93025;font-size:.8rem;padding:10px;">⚠️ Error rendering zone '+escH((z&&(z.name||z.id))||'?')+'. Open browser console (F12) and send the red error text to Claude/your developer.</div></div>';
+      html+='<button class="add-struct-btn" onclick="addZoneZSlot(\''+z.id+'\')">＋ Add slot</button>';
+    } else {
+      html+='<div class="rack-row">';
+      for(const r of z.racks){
+        html+='<div class="rack" id="rk-'+r.id+'" ondragover="rackOver(event,\''+r.id+'\')" ondragleave="rackLeave(\''+r.id+'\')" ondrop="rackDrop(event,\''+r.id+'\')">';
+        html+='<div class="rack-header"><span class="rack-name">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="confirmDeleteRack(\''+z.id+'\',\''+r.id+'\')" title="Delete rack">✕</button></div>';
+        for(const s of r.shelves){
+          const items=assignments[s.id]||[];
+          const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
+          html+='<div class="shelf'+(hl?' highlight':'')+'" id="sh-'+s.id+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
+          html+='<div class="shelf-top"><span class="shelf-label">'+escH(s.name)+'</span></div><div class="shelf-items">';
+          if(items.length){
+            for(const item of items){
+              const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
+              const st=item.batches.reduce((a,b)=>a+b.qty,0);
+              const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+              html+='<div class="shelf-sku-block"><div class="shelf-sku-header">';
+              html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
+              html+='<div class="row-code" style="color:'+sku2.color+';cursor:pointer;" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')" onclick="event.stopPropagation();openItemDetail(\''+s.id+'\',\''+sc2+'\')">'+escH(item.code)+'</div>';
+              html+='<span class="row-total">'+st+'</span>';
+              html+='<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
+              html+='<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')" title="Remove">✕</button>';
+              html+='</div><div class="batch-list">';
+              item.batches.forEach(b=>{
+                html+='<div class="batch-row">';
+                html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
+                if(b.weight)html+='<span style="font-size:.58rem;color:#e67e00;margin-left:4px;">⚖️ '+escH(String(b.weight))+'</span>';
+                if(b.jiQty>0)html+='<span class=\"ji-badge\">寄 '+b.jiQty+'</span>';
+                if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
+                html+='<div class="batch-qty-ctrl">';
+                html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
+                html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
+                html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
+                html+='<button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button>';
+                html+='<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button>';
+                html+='</div>';
+              });
+              html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
+            }
+          } else {
+            html+='<div class="empty-shelf">empty · click to assign</div>';
+          }
+          html+='</div></div>';
+        }
+        html+='</div>';
+      }
+      html+='</div>';
+      html+='<button class="add-struct-btn" onclick="addRackToZone(\''+z.id+'\')">＋ Add rack column</button>';
     }
+    html+='</div>';
   }
   html+='<div class="add-zone-row"><button class="add-zone-btn" onclick="addRegularZone()">＋ Add R/L Zone</button><button class="add-zone-btn" onclick="addZoneZ()">＋ Add Zone Z (grid)</button></div>';
   map.innerHTML=html;
@@ -1685,66 +1660,57 @@ function renderStats(){
 function selectSKU(code){selectedSKU=(selectedSKU===code)?null:code;render();}
 
 // ── STRUCTURE MANAGEMENT ──
-async function addRegularZone(){
+function addRegularZone(){
   const name=prompt('区域名称（如 R21 或 L21）: | Zone name (e.g. R21 or L21):');if(!name)return;
   const cols=prompt('列字母（如 A,B,C,D,E,F）: | Column letters (e.g. A,B,C,D,E,F):','A,B,C,D,E,F');if(!cols)return;
   const colArr=cols.split(',').map(c=>c.trim()).filter(Boolean);
   const zid='z'+name.replace(/\s/g,'');
-  await loadStructure();
-  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');render();return;}
+  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');return;}
   const racks=colArr.map(col=>{const rname=name+col;return{id:'r'+rname,name:rname,shelves:[{id:'s'+rname+'_1',name:'Top'},{id:'s'+rname+'_2',name:'Middle'},{id:'s'+rname+'_3',name:'Bottom'}]};});
-  getZones().push({id:zid,name:name,racks});await saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
+  getZones().push({id:zid,name:name,racks});saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
 }
-async function addZoneZ(){
+function addZoneZ(){
   const name=prompt('区域名称（如 New Incoming）: | Zone name (e.g. New Incoming):');if(!name)return;
   const count=parseInt(prompt('槽位数量 How many slots?','1'))||1;
   const zid='z'+name.replace(/\s/g,'');
-  await loadStructure();
-  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');render();return;}
+  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');return;}
   const racks=[];
   for(let i=1;i<=count;i++)racks.push({id:'r'+name+i,name:name+i,shelves:[{id:'s'+name+i,name:'Slot'}]});
-  getZones().push({id:zid,name:name,isZoneZ:true,racks});await saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
+  getZones().push({id:zid,name:name,isZoneZ:true,racks});saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
 }
-async function addRackToZone(zid){
+function addRackToZone(zid){
+  const zone=getZones().find(z=>z.id===zid);if(!zone)return;
   const col=prompt('新列字母（如 G）: | New column letter (e.g. G):');if(!col)return;
-  await loadStructure();
-  const zone=getZones().find(z=>z.id===zid);if(!zone){render();return;}
   const rname=zone.name+col.trim().toUpperCase();
-  if(zone.racks.find(r=>r.name===rname)){alert('该货架列已存在！Rack already exists!');render();return;}
+  if(zone.racks.find(r=>r.name===rname)){alert('该货架列已存在！Rack already exists!');return;}
   zone.racks.push({id:'r'+rname,name:rname,shelves:[{id:'s'+rname+'_1',name:'Top'},{id:'s'+rname+'_2',name:'Middle'},{id:'s'+rname+'_3',name:'Bottom'}]});
-  await saveStructure();render();toast('✅ '+rname+' 已添加！added!');
+  saveStructure();render();toast('✅ '+rname+' 已添加！added!');
 }
-async function addZoneZSlot(zid){
-  await loadStructure();
-  const zone=getZones().find(z=>z.id===zid);if(!zone){render();return;}
+function addZoneZSlot(zid){
+  const zone=getZones().find(z=>z.id===zid);if(!zone)return;
   const next=zone.racks.length+1;const sname=zone.name+next;
   zone.racks.push({id:'r'+sname,name:sname,shelves:[{id:'s'+sname,name:'Slot'}]});
-  await saveStructure();render();toast('✅ Slot '+sname+' 已添加！added!');
+  saveStructure();render();toast('✅ Slot '+sname+' 已添加！added!');
 }
-async function confirmDeleteZone(zid){
+function confirmDeleteZone(zid){
   const zone=getZones().find(z=>z.id===zid);if(!zone)return;
   const hasData=zone.racks.some(r=>r.shelves.some(s=>assignments[s.id]&&assignments[s.id].length));
   if(!confirm((hasData?'⚠️ 区域 '+zone.name+' 有库存！has stock! ':'')+'确认删除区域 Delete zone '+zone.name+'?'))return;
-  await loadStructure();
-  warehouseZones=getZones().filter(z=>z.id!==zid);await saveStructure();render();toast('🗑 区域 '+zone.name+' 已删除 deleted');
+  warehouseZones=getZones().filter(z=>z.id!==zid);saveStructure();render();toast('🗑 区域 '+zone.name+' 已删除 deleted');
 }
-async function confirmDeleteRack(zid,rid){
-  const zone0=getZones().find(z=>z.id===zid);if(!zone0)return;
-  const rack0=zone0.racks.find(r=>r.id===rid);if(!rack0)return;
-  const hasData=rack0.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
-  if(!confirm((hasData?'⚠️ Rack '+rack0.name+' 有库存！has stock! ':'')+'确认删除货架 Delete rack '+rack0.name+'?'))return;
-  await loadStructure();
-  const zone=getZones().find(z=>z.id===zid);if(!zone){render();return;}
-  zone.racks=zone.racks.filter(r=>r.id!==rid);await saveStructure();render();toast('🗑 货架 '+rack0.name+' 已删除 deleted');
+function confirmDeleteRack(zid,rid){
+  const zone=getZones().find(z=>z.id===zid);if(!zone)return;
+  const rack=zone.racks.find(r=>r.id===rid);if(!rack)return;
+  const hasData=rack.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
+  if(!confirm((hasData?'⚠️ Rack '+rack.name+' 有库存！has stock! ':'')+'确认删除货架 Delete rack '+rack.name+'?'))return;
+  zone.racks=zone.racks.filter(r=>r.id!==rid);saveStructure();render();toast('🗑 货架 '+rack.name+' 已删除 deleted');
 }
-async function confirmDeleteZSlot(zid,rid){
-  const zone0=getZones().find(z=>z.id===zid);if(!zone0)return;
-  const rack0=zone0.racks.find(r=>r.id===rid);if(!rack0)return;
-  const hasData=rack0.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
-  if(!confirm((hasData?'⚠️ Slot '+rack0.name+' 有库存！has stock! ':'')+'确认删除槽位 Delete slot '+rack0.name+'?'))return;
-  await loadStructure();
-  const zone=getZones().find(z=>z.id===zid);if(!zone){render();return;}
-  zone.racks=zone.racks.filter(r=>r.id!==rid);await saveStructure();render();toast('🗑 槽位 '+rack0.name+' 已删除 deleted');
+function confirmDeleteZSlot(zid,rid){
+  const zone=getZones().find(z=>z.id===zid);if(!zone)return;
+  const rack=zone.racks.find(r=>r.id===rid);if(!rack)return;
+  const hasData=rack.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
+  if(!confirm((hasData?'⚠️ Slot '+rack.name+' 有库存！has stock! ':'')+'确认删除槽位 Delete slot '+rack.name+'?'))return;
+  zone.racks=zone.racks.filter(r=>r.id!==rid);saveStructure();render();toast('🗑 槽位 '+rack.name+' 已删除 deleted');
 }
 
 // ── ASSIGN MODAL ──
@@ -1764,10 +1730,9 @@ function openAssign(shelfId){
 async function doAssign(){
   const code=document.getElementById('assignSku').value;
   const arrival=document.getElementById('assignArrival').value;
-  const qty=parseInt(document.getElementById('assignQty').value);
+  const qty=parseInt(document.getElementById('assignQty').value)||1;
   const weight=document.getElementById('assignWeight').value.trim();
   if(!code){alert('Select a SKU.');return;}if(!arrival){alert('Enter arrival date.');return;}
-  if(isNaN(qty)||qty<=0){alert('请输入有效数量。Enter a valid quantity.');return;}
   const batchId='b'+Date.now()+Math.random().toString(36).slice(2);
   const ok=await dbAddBatch(assignShelfId,code,batchId,arrival,qty,weight);
   if(ok){
@@ -1792,10 +1757,9 @@ async function doAddBatch(){
   if(!addBatchState)return;
   const{shelfId,code}=addBatchState;
   const arrival=document.getElementById('abArrival').value;
-  const qty=parseInt(document.getElementById('abQty').value);
+  const qty=parseInt(document.getElementById('abQty').value)||1;
   const weight=document.getElementById('abWeight').value.trim();
   if(!arrival){alert('Enter arrival date.');return;}
-  if(isNaN(qty)||qty<=0){alert('请输入有效数量。Enter a valid quantity.');return;}
   const batchId='b'+Date.now()+Math.random().toString(36).slice(2);
   const ok=await dbAddBatch(shelfId,code,batchId,arrival,qty,weight);
   if(ok){await dbAddHistory('Batch added',code,null,shelfLabel(shelfId),qty);await loadAssignments();toast('✅ 批次已添加！Batch added!');closeAddBatch();render();}
@@ -1896,28 +1860,17 @@ async function confirmMove(){
   const z=getZones().find(z=>z.id===zid);
   const isSingleSlot=z&&z.isZoneZ&&z.racks.length===1;
   const toShelfId=isSingleSlot?z.racks[0].shelves[0].id:document.getElementById('moveShelf').value;
-  const qtyRaw=document.getElementById('moveQtyInput').value;
-  const qty=parseInt(qtyRaw);
-  if(isNaN(qty)||qty<=0){alert('请输入有效数量。Enter a valid quantity.');return;}
+  const qty=parseInt(document.getElementById('moveQtyInput').value)||1;
   if(toShelfId===fromShelfId){alert('目标货架相同。Same slot.');return;}if(qty>maxQty){alert('仅剩 Only '+maxQty+' 件可用。 available.');return;}
   const srcEntry=assignments[fromShelfId]?assignments[fromShelfId].find(i=>i.code===code):null;if(!srcEntry)return;
   const sorted=srcEntry.batches.map(b=>({...b})).sort((a,b)=>a.arrival.localeCompare(b.arrival));
-  const totalAvailable=sorted.reduce((a,b)=>a+(b.qty-(b.jiQty||0)),0);
-  if(qty>totalAvailable){alert('部分库存已寄存，无法移动。 Only '+totalAvailable+' 件未寄存可移动。 ('+totalAvailable+' non-reserved units available to move; the rest is held under 寄/Ji.)');return;}
   let remaining=qty;const toAdd=[];
-  for(const b of sorted){
-    if(remaining<=0)break;
-    const available=b.qty-(b.jiQty||0);
-    if(available<=0)continue; // fully reserved under Ji, skip
-    const take=Math.min(remaining,available);
-    toAdd.push({arrival:b.arrival,take,batchId:b.batchId,leftOver:b.qty-take,weight:b.weight||''});
-    remaining-=take;
-  }
+  for(const b of sorted){if(remaining<=0)break;const take=Math.min(remaining,b.qty);toAdd.push({arrival:b.arrival,take,batchId:b.batchId,leftOver:b.qty-take});remaining-=take;}
   for(const t of toAdd){if(t.leftOver===0)await dbDeleteBatch(t.batchId);else await dbUpdateQty(t.batchId,t.leftOver);}
-  for(const t of toAdd){const newId='b'+Date.now()+Math.random().toString(36).slice(2);await dbAddBatch(toShelfId,code,newId,t.arrival,t.take,t.weight);}
+  for(const t of toAdd){const newId='b'+Date.now()+Math.random().toString(36).slice(2);await dbAddBatch(toShelfId,code,newId,t.arrival,t.take,'');}
   await sb.from('assignments').delete().lte('qty',0);
   await dbAddHistory('Moved',code,shelfLabel(fromShelfId),shelfLabel(toShelfId),qty);
-  await loadAssignments();closeMove();render();toast('✅ 已移动 Moved '+qty+' 件 units');
+  await loadAssignments();closeMove();render();toast('✅ 已移动 Moved '+qty+' 件 件 units');
 }
 function closeMove(){document.getElementById('moveBg').style.display='none';moveState=null;}
 
@@ -1991,7 +1944,7 @@ async function shelfDrop(e,toShelfId){
   const fromShelfId=dragState.fromShelfId;const moveCode=dragState.code;
   const batchesCopy=srcEntry.batches.map(b=>({...b}));
   for(const b of batchesCopy)await dbDeleteBatch(b.batchId);
-  for(const b of batchesCopy){const newId='b'+Date.now()+Math.random().toString(36).slice(2);await dbAddBatch(toShelfId,moveCode,newId,b.arrival,b.qty,b.weight||'',b.jiQty||0,b.jiCompany||'',b.jiInvoice||'');}
+  for(const b of batchesCopy){const newId='b'+Date.now()+Math.random().toString(36).slice(2);await dbAddBatch(toShelfId,moveCode,newId,b.arrival,b.qty,b.weight||'');}
   await sb.from('assignments').delete().lte('qty',0);
   await dbAddHistory('Moved (drag)',moveCode,shelfLabel(fromShelfId),shelfLabel(toShelfId),'—');
   await loadAssignments();dragState=null;render();toast('✅ Moved');
