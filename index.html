@@ -61,24 +61,24 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .sku-locs{font-size:.62rem;color:var(--accent2);margin-top:1px;}
 .sku-unplaced{color:#e67e00;cursor:pointer;font-weight:600;}
 .sku-unplaced:hover{text-decoration:underline;}
-.warehouse-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.warehouse-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 .warehouse{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:16px;}
 .warehouse::-webkit-scrollbar{width:5px;}.rack-row::-webkit-scrollbar{height:4px;}.rack-row::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 .warehouse::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
-.zone-block{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;box-shadow:var(--shadow);}
+.zone-block{background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;box-shadow:var(--shadow);overflow:hidden;}
 .zone-header{display:flex;align-items:center;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:10px;}
 .zone-accent{color:var(--accent);font-size:1rem;font-weight:800;}
 .zone-name{font-size:.85rem;font-weight:700;letter-spacing:.5px;}
 .zone-del-btn{background:transparent;border:none;color:#ccc;font-size:.7rem;cursor:pointer;padding:2px 5px;margin-left:auto;border-radius:4px;}
 .zone-del-btn:hover{color:var(--red);background:#fdf2f2;}
-.rack-row{display:flex;gap:6px;flex-wrap:nowrap;align-items:flex-start;overflow-x:auto;padding-bottom:6px;}
-.rack{background:#fafbfc;border:1px solid var(--border);border-radius:8px;flex:0 0 160px;min-width:160px;}
+.rack-row{display:flex;gap:6px;flex-wrap:nowrap;align-items:flex-start;overflow-x:auto;padding-bottom:6px;width:100%;}
+.rack{background:#fafbfc;border:1px solid var(--border);border-radius:8px;flex:0 0 155px;width:155px;max-width:155px;box-sizing:border-box;}
 .rack.drag-over{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(10,158,138,.2);}
-.rack-header{background:#f0f4ff;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0;}
+.rack-header{background:#f0f4ff;padding:4px 6px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0;}
 .rack-name{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:700;color:var(--accent);}
 .rack-del-btn{background:transparent;border:none;color:#ccc;font-size:.62rem;cursor:pointer;padding:1px 4px;border-radius:3px;}
 .rack-del-btn:hover{color:var(--red);background:#fdf2f2;}
-.shelf{border-bottom:1px solid var(--border);padding:4px 6px;min-height:44px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:2px;}
+.shelf{border-bottom:1px solid var(--border);padding:3px 5px;min-height:36px;cursor:pointer;transition:background .15s;display:flex;flex-direction:column;gap:2px;}
 .shelf:last-child{border-bottom:none;}
 .shelf:hover{background:#f0f7ff;}
 .shelf.highlight{background:#e6f7f5;}
@@ -87,24 +87,24 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .shelf-label{font-size:.56rem;color:#aaa;font-family:'DM Mono',monospace;font-weight:500;}
 .shelf-items{display:flex;flex-direction:column;gap:2px;}
 .shelf-sku-block{border-radius:4px;padding:2px 3px;}
-.shelf-sku-header{display:flex;align-items:center;gap:3px;}
+.shelf-sku-header{display:flex;align-items:center;gap:2px;}
 .row-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
-.row-code{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;flex:1;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.row-code{font-family:'DM Mono',monospace;font-size:.6rem;font-weight:700;flex:1;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;}
 .row-code:hover{text-decoration:underline;}
 .row-total{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--green);font-weight:700;}
 .row-act{background:transparent;border:none;color:#ccc;font-size:.56rem;padding:1px 3px;cursor:pointer;border-radius:3px;}
 .row-act:hover{color:var(--accent);background:#eef6ff;}
 .row-act.del:hover{color:var(--red);background:#fdf2f2;}
 .batch-list{padding-left:10px;display:flex;flex-direction:column;gap:1px;margin-top:1px;}
-.batch-row{display:flex;align-items:center;gap:3px;padding:1px 2px;border-radius:3px;}
+.batch-row{display:flex;flex-direction:column;gap:2px;padding:2px 3px;border-radius:3px;}
 .batch-row:hover{background:#f0f4ff;}
-.batch-arr{font-family:'DM Mono',monospace;font-size:.58rem;color:var(--accent2);}
-.batch-qty-ctrl{display:flex;align-items:center;gap:2px;margin-left:auto;}
-.bqty-btn{width:16px;height:16px;border-radius:3px;border:none;font-size:.7rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;}
+.batch-arr{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--accent2);white-space:nowrap;}
+.batch-qty-ctrl{display:flex;align-items:center;gap:2px;flex-wrap:nowrap;}
+.bqty-btn{width:15px;height:15px;border-radius:3px;border:none;font-size:.7rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;}
 .bqty-btn.m{background:#fde8e8;color:var(--red);}
 .bqty-btn.p{background:#e8f7ee;color:var(--green);}
 .bqty-val{font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;min-width:20px;text-align:center;}
-.batch-del{background:transparent;border:none;color:#ddd;font-size:.52rem;padding:1px 2px;cursor:pointer;}
+.batch-del{background:transparent;border:none;color:#ddd;font-size:.52rem;padding:1px 1px;cursor:pointer;}
 .batch-del:hover{color:var(--red);}
 .add-batch-link{font-size:.58rem;color:#aaa;cursor:pointer;padding-left:10px;margin-top:1px;}
 .add-batch-link:hover{color:var(--accent2);}
@@ -171,9 +171,9 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 /* ── 寄 Ji Consignment ── */
 .ji-badge{display:inline-flex;align-items:center;background:#fff3e0;color:#e65100;font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;margin:0 2px;border:1px solid #ffcc80;flex-shrink:0;}
 .ji-badge-sm{display:inline-flex;align-items:center;background:#fff3e0;color:#e65100;font-size:.6rem;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px;border:1px solid #ffcc80;}
-.ji-btn{background:transparent;border:1px solid #ffcc80;color:#e65100;font-size:.58rem;font-weight:700;padding:1px 4px;cursor:pointer;border-radius:3px;margin-left:2px;flex-shrink:0;}
+.ji-btn{background:transparent;border:1px solid #ffcc80;color:#e65100;font-size:.55rem;font-weight:700;padding:1px 3px;cursor:pointer;border-radius:3px;flex-shrink:0;}
 .ji-btn:hover{background:#fff3e0;}
-.bqty-input{width:32px;height:16px;border:1px solid var(--border);border-radius:3px;font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;text-align:center;padding:0 2px;background:#f9fafb;-moz-appearance:textfield;}
+.bqty-input{width:30px;height:16px;border:1px solid var(--border);border-radius:3px;font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;text-align:center;padding:0 2px;background:#f9fafb;-moz-appearance:textfield;}
 .bqty-input::-webkit-inner-spin-button,.bqty-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .bqty-input:focus{outline:none;border-color:var(--accent);background:#fff;}
 </style>
