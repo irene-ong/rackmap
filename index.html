@@ -1441,6 +1441,7 @@ async function setBatchQty(shelfId, code, batchId, val) {
 function setupRealtime() {
   realtimeChannel=sb.channel('rm-changes')
     .on('postgres_changes',{event:'*',schema:'public',table:'assignments'},async()=>{await loadAssignments();render();})
+    .on('postgres_changes',{event:'*',schema:'public',table:'warehouse_structure'},async()=>{await loadStructure();render();})
     .subscribe();
 }
 
@@ -1538,102 +1539,127 @@ function renderSKUList(){
   document.getElementById('skuList').innerHTML=html;
 }
 
+function renderZSlotHtml(z,r){
+  const s=r.shelves[0];
+  const items=assignments[s.id]||[];
+  const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
+  let html='<div class="z-slot'+(hl?' highlight':'')+(items.length?' z-slot-used':'')+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
+  html+='<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="z-slot-label">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="event.stopPropagation();confirmDeleteZSlot(\''+z.id+'\',\''+r.id+'\')">✕</button></div>';
+  if(items.length){
+    for(const item of items){
+      const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
+      const st=item.batches.reduce((a,b)=>a+b.qty,0);
+      const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      html+='<div class="shelf-sku-block" style="width:100%;margin-bottom:3px;"><div class="shelf-sku-header">';
+      html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
+      html+='<div class="row-code" style="color:'+sku2.color+'" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')" onclick="event.stopPropagation();openItemDetail(\''+s.id+'\',\''+sc2+'\')">'+escH(item.code)+'</div>';
+      html+='<span class="row-total">'+st+'</span>';
+      html+='<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
+      html+='<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')" title="Remove">✕</button>';
+      html+='</div><div class="batch-list">';
+      item.batches.forEach(b=>{
+        html+='<div class="batch-row">';
+        html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
+        if(b.weight)html+='<span class="batch-arr" style="color:#888;margin-left:3px;">⚖️ '+escH(b.weight)+'</span>';
+        if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
+        html+='<div class="batch-qty-ctrl">';
+        html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
+        html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
+        html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
+        html+='</div><button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button><button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button></div>';
+        html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
+      });
+    }
+  } else {
+    html+='<div class="empty-shelf">empty · click to assign</div>';
+  }
+  html+='</div>';
+  return html;
+}
+
+function renderRackHtml(z,r){
+  let html='<div class="rack" id="rk-'+r.id+'" ondragover="rackOver(event,\''+r.id+'\')" ondragleave="rackLeave(\''+r.id+'\')" ondrop="rackDrop(event,\''+r.id+'\')">';
+  html+='<div class="rack-header"><span class="rack-name">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="confirmDeleteRack(\''+z.id+'\',\''+r.id+'\')" title="Delete rack">✕</button></div>';
+  for(const s of r.shelves){
+    const items=assignments[s.id]||[];
+    const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
+    html+='<div class="shelf'+(hl?' highlight':'')+'" id="sh-'+s.id+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
+    html+='<div class="shelf-top"><span class="shelf-label">'+escH(s.name)+'</span></div><div class="shelf-items">';
+    if(items.length){
+      for(const item of items){
+        const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
+        const st=item.batches.reduce((a,b)=>a+b.qty,0);
+        const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+        html+='<div class="shelf-sku-block"><div class="shelf-sku-header">';
+        html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
+        html+='<div class="row-code" style="color:'+sku2.color+';cursor:pointer;" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')" onclick="event.stopPropagation();openItemDetail(\''+s.id+'\',\''+sc2+'\')">'+escH(item.code)+'</div>';
+        html+='<span class="row-total">'+st+'</span>';
+        html+='<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
+        html+='<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')" title="Remove">✕</button>';
+        html+='</div><div class="batch-list">';
+        item.batches.forEach(b=>{
+          html+='<div class="batch-row">';
+          html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
+          if(b.weight)html+='<span style="font-size:.58rem;color:#e67e00;margin-left:4px;">⚖️ '+escH(String(b.weight))+'</span>';
+          if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
+          html+='<div class="batch-qty-ctrl">';
+          html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
+          html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
+          html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
+          html+='<button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button>';
+          html+='<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button>';
+          html+='</div>';
+        });
+        html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
+      }
+    } else {
+      html+='<div class="empty-shelf">empty · click to assign</div>';
+    }
+    html+='</div></div>';
+  }
+  html+='</div>';
+  return html;
+}
+
 function renderWarehouse(){
   const map=document.getElementById('warehouseMap');
   let html='';
   for(const z of getZones()){
-    const isZ=z.isZoneZ||z.id==='zZ'||z.id==='zY';
-    html+='<div class="zone-block">';
-    html+='<div class="zone-header"><span class="zone-accent">▌</span><span class="zone-name">'+(isZ?'Zone ':'')+escH(z.name)+'</span>';
-    html+='<button class="zone-del-btn" onclick="confirmDeleteZone(\''+z.id+'\')" title="Delete zone">🗑</button></div>';
-    if(isZ){
-      html+='<div class="rack-row zone-z-grid">';
-      for(const r of z.racks){
-        const s=r.shelves[0];
-        const items=assignments[s.id]||[];
-        const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
-        html+='<div class="z-slot'+(hl?' highlight':'')+(items.length?' z-slot-used':'')+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
-        html+='<div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span class="z-slot-label">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="event.stopPropagation();confirmDeleteZSlot(\''+z.id+'\',\''+r.id+'\')">✕</button></div>';
-        if(items.length){
-          for(const item of items){
-            const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
-            const st=item.batches.reduce((a,b)=>a+b.qty,0);
-            const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-            html+='<div class="shelf-sku-block" style="width:100%;margin-bottom:3px;"><div class="shelf-sku-header">';
-            html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
-            html+='<div class="row-code" style="color:'+sku2.color+'" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')" onclick="event.stopPropagation();openItemDetail(\''+s.id+'\',\''+sc2+'\')">'+escH(item.code)+'</div>';
-            html+='<span class="row-total">'+st+'</span>';
-            html+='<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
-            html+='<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')" title="Remove">✕</button>';
-            html+='</div><div class="batch-list">';
-            item.batches.forEach(b=>{
-              html+='<div class="batch-row">';
-              html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
-              if(b.weight)html+='<span class="batch-arr" style="color:#888;margin-left:3px;">⚖️ '+escH(b.weight)+'</span>';
-              if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
-              html+='<div class="batch-qty-ctrl">';
-              html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
-              html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
-              html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
-              html+='</div><button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button><button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button></div>';
-            html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
-            });
+    try{
+      const isZ=z.isZoneZ||z.id==='zZ'||z.id==='zY';
+      html+='<div class="zone-block">';
+      html+='<div class="zone-header"><span class="zone-accent">▌</span><span class="zone-name">'+(isZ?'Zone ':'')+escH(z.name)+'</span>';
+      html+='<button class="zone-del-btn" onclick="confirmDeleteZone(\''+z.id+'\')" title="Delete zone">🗑</button></div>';
+      if(isZ){
+        html+='<div class="rack-row zone-z-grid">';
+        for(const r of z.racks){
+          try{
+            html+=renderZSlotHtml(z,r);
+          }catch(e){
+            console.error('RackMap: failed to render slot',z&&z.id,r&&r.id,e);
+            html+='<div class="z-slot" style="border-color:#d93025;"><span style="color:#d93025;font-size:.65rem;">⚠️ Error: '+escH((r&&(r.name||r.id))||'slot')+'<br>See console (F12)</span></div>';
           }
-        } else {
-          html+='<div class="empty-shelf">empty · click to assign</div>';
         }
         html+='</div>';
-      }
-      html+='</div>';
-      html+='<button class="add-struct-btn" onclick="addZoneZSlot(\''+z.id+'\')">＋ Add slot</button>';
-    } else {
-      html+='<div class="rack-row">';
-      for(const r of z.racks){
-        html+='<div class="rack" id="rk-'+r.id+'" ondragover="rackOver(event,\''+r.id+'\')" ondragleave="rackLeave(\''+r.id+'\')" ondrop="rackDrop(event,\''+r.id+'\')">';
-        html+='<div class="rack-header"><span class="rack-name">'+escH(r.name)+'</span><button class="rack-del-btn" onclick="confirmDeleteRack(\''+z.id+'\',\''+r.id+'\')" title="Delete rack">✕</button></div>';
-        for(const s of r.shelves){
-          const items=assignments[s.id]||[];
-          const hl=selectedSKU&&items.some(i=>i.code===selectedSKU);
-          html+='<div class="shelf'+(hl?' highlight':'')+'" id="sh-'+s.id+'" onclick="openAssign(\''+s.id+'\')" ondragover="shelfOver(event,\''+s.id+'\')" ondragleave="shelfLeave(\''+s.id+'\')" ondrop="shelfDrop(event,\''+s.id+'\')">';
-          html+='<div class="shelf-top"><span class="shelf-label">'+escH(s.name)+'</span></div><div class="shelf-items">';
-          if(items.length){
-            for(const item of items){
-              const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
-              const st=item.batches.reduce((a,b)=>a+b.qty,0);
-              const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-              html+='<div class="shelf-sku-block"><div class="shelf-sku-header">';
-              html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
-              html+='<div class="row-code" style="color:'+sku2.color+';cursor:pointer;" draggable="true" ondragstart="itemDragStart(event,\''+s.id+'\',\''+sc2+'\','+st+')" onclick="event.stopPropagation();openItemDetail(\''+s.id+'\',\''+sc2+'\')">'+escH(item.code)+'</div>';
-              html+='<span class="row-total">'+st+'</span>';
-              html+='<button class="row-act" onclick="event.stopPropagation();openMoveBlock(\''+s.id+'\',\''+sc2+'\','+st+')" title="Move">⇄</button>';
-              html+='<button class="row-act del" onclick="event.stopPropagation();removeEntry(\''+s.id+'\',\''+sc2+'\')" title="Remove">✕</button>';
-              html+='</div><div class="batch-list">';
-              item.batches.forEach(b=>{
-                html+='<div class="batch-row">';
-                html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
-                if(b.weight)html+='<span style="font-size:.58rem;color:#e67e00;margin-left:4px;">⚖️ '+escH(String(b.weight))+'</span>';
-                if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
-                html+='<div class="batch-qty-ctrl">';
-                html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
-                html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
-                html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
-                html+='<button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button>';
-                html+='<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button>';
-                html+='</div>';
-              });
-              html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
-            }
-          } else {
-            html+='<div class="empty-shelf">empty · click to assign</div>';
+        html+='<button class="add-struct-btn" onclick="addZoneZSlot(\''+z.id+'\')">＋ Add slot</button>';
+      } else {
+        html+='<div class="rack-row">';
+        for(const r of z.racks){
+          try{
+            html+=renderRackHtml(z,r);
+          }catch(e){
+            console.error('RackMap: failed to render rack',z&&z.id,r&&r.id,e);
+            html+='<div class="rack" style="border-color:#d93025;padding:8px;"><span style="color:#d93025;font-size:.7rem;">⚠️ Error rendering '+escH((r&&(r.name||r.id))||'rack')+'<br><span style="color:#888;font-size:.6rem;">See console (F12)</span></span></div>';
           }
-          html+='</div></div>';
         }
         html+='</div>';
+        html+='<button class="add-struct-btn" onclick="addRackToZone(\''+z.id+'\')">＋ Add rack column</button>';
       }
       html+='</div>';
-      html+='<button class="add-struct-btn" onclick="addRackToZone(\''+z.id+'\')">＋ Add rack column</button>';
+    }catch(e){
+      console.error('RackMap: failed to render zone',z&&z.id,e);
+      html+='<div class="zone-block" style="border-color:#d93025;"><div style="color:#d93025;font-size:.8rem;padding:10px;">⚠️ Error rendering zone '+escH((z&&(z.name||z.id))||'?')+'. Open browser console (F12) and send the red error text to Claude/your developer.</div></div>';
     }
-    html+='</div>';
   }
   html+='<div class="add-zone-row"><button class="add-zone-btn" onclick="addRegularZone()">＋ Add R/L Zone</button><button class="add-zone-btn" onclick="addZoneZ()">＋ Add Zone Z (grid)</button></div>';
   map.innerHTML=html;
@@ -1659,57 +1685,66 @@ function renderStats(){
 function selectSKU(code){selectedSKU=(selectedSKU===code)?null:code;render();}
 
 // ── STRUCTURE MANAGEMENT ──
-function addRegularZone(){
+async function addRegularZone(){
   const name=prompt('区域名称（如 R21 或 L21）: | Zone name (e.g. R21 or L21):');if(!name)return;
   const cols=prompt('列字母（如 A,B,C,D,E,F）: | Column letters (e.g. A,B,C,D,E,F):','A,B,C,D,E,F');if(!cols)return;
   const colArr=cols.split(',').map(c=>c.trim()).filter(Boolean);
   const zid='z'+name.replace(/\s/g,'');
-  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');return;}
+  await loadStructure();
+  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');render();return;}
   const racks=colArr.map(col=>{const rname=name+col;return{id:'r'+rname,name:rname,shelves:[{id:'s'+rname+'_1',name:'Top'},{id:'s'+rname+'_2',name:'Middle'},{id:'s'+rname+'_3',name:'Bottom'}]};});
-  getZones().push({id:zid,name:name,racks});saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
+  getZones().push({id:zid,name:name,racks});await saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
 }
-function addZoneZ(){
+async function addZoneZ(){
   const name=prompt('区域名称（如 New Incoming）: | Zone name (e.g. New Incoming):');if(!name)return;
   const count=parseInt(prompt('槽位数量 How many slots?','1'))||1;
   const zid='z'+name.replace(/\s/g,'');
-  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');return;}
+  await loadStructure();
+  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');render();return;}
   const racks=[];
   for(let i=1;i<=count;i++)racks.push({id:'r'+name+i,name:name+i,shelves:[{id:'s'+name+i,name:'Slot'}]});
-  getZones().push({id:zid,name:name,isZoneZ:true,racks});saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
+  getZones().push({id:zid,name:name,isZoneZ:true,racks});await saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
 }
-function addRackToZone(zid){
-  const zone=getZones().find(z=>z.id===zid);if(!zone)return;
+async function addRackToZone(zid){
   const col=prompt('新列字母（如 G）: | New column letter (e.g. G):');if(!col)return;
+  await loadStructure();
+  const zone=getZones().find(z=>z.id===zid);if(!zone){render();return;}
   const rname=zone.name+col.trim().toUpperCase();
-  if(zone.racks.find(r=>r.name===rname)){alert('该货架列已存在！Rack already exists!');return;}
+  if(zone.racks.find(r=>r.name===rname)){alert('该货架列已存在！Rack already exists!');render();return;}
   zone.racks.push({id:'r'+rname,name:rname,shelves:[{id:'s'+rname+'_1',name:'Top'},{id:'s'+rname+'_2',name:'Middle'},{id:'s'+rname+'_3',name:'Bottom'}]});
-  saveStructure();render();toast('✅ '+rname+' 已添加！added!');
+  await saveStructure();render();toast('✅ '+rname+' 已添加！added!');
 }
-function addZoneZSlot(zid){
-  const zone=getZones().find(z=>z.id===zid);if(!zone)return;
+async function addZoneZSlot(zid){
+  await loadStructure();
+  const zone=getZones().find(z=>z.id===zid);if(!zone){render();return;}
   const next=zone.racks.length+1;const sname=zone.name+next;
   zone.racks.push({id:'r'+sname,name:sname,shelves:[{id:'s'+sname,name:'Slot'}]});
-  saveStructure();render();toast('✅ Slot '+sname+' 已添加！added!');
+  await saveStructure();render();toast('✅ Slot '+sname+' 已添加！added!');
 }
-function confirmDeleteZone(zid){
+async function confirmDeleteZone(zid){
   const zone=getZones().find(z=>z.id===zid);if(!zone)return;
   const hasData=zone.racks.some(r=>r.shelves.some(s=>assignments[s.id]&&assignments[s.id].length));
   if(!confirm((hasData?'⚠️ 区域 '+zone.name+' 有库存！has stock! ':'')+'确认删除区域 Delete zone '+zone.name+'?'))return;
-  warehouseZones=getZones().filter(z=>z.id!==zid);saveStructure();render();toast('🗑 区域 '+zone.name+' 已删除 deleted');
+  await loadStructure();
+  warehouseZones=getZones().filter(z=>z.id!==zid);await saveStructure();render();toast('🗑 区域 '+zone.name+' 已删除 deleted');
 }
-function confirmDeleteRack(zid,rid){
-  const zone=getZones().find(z=>z.id===zid);if(!zone)return;
-  const rack=zone.racks.find(r=>r.id===rid);if(!rack)return;
-  const hasData=rack.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
-  if(!confirm((hasData?'⚠️ Rack '+rack.name+' 有库存！has stock! ':'')+'确认删除货架 Delete rack '+rack.name+'?'))return;
-  zone.racks=zone.racks.filter(r=>r.id!==rid);saveStructure();render();toast('🗑 货架 '+rack.name+' 已删除 deleted');
+async function confirmDeleteRack(zid,rid){
+  const zone0=getZones().find(z=>z.id===zid);if(!zone0)return;
+  const rack0=zone0.racks.find(r=>r.id===rid);if(!rack0)return;
+  const hasData=rack0.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
+  if(!confirm((hasData?'⚠️ Rack '+rack0.name+' 有库存！has stock! ':'')+'确认删除货架 Delete rack '+rack0.name+'?'))return;
+  await loadStructure();
+  const zone=getZones().find(z=>z.id===zid);if(!zone){render();return;}
+  zone.racks=zone.racks.filter(r=>r.id!==rid);await saveStructure();render();toast('🗑 货架 '+rack0.name+' 已删除 deleted');
 }
-function confirmDeleteZSlot(zid,rid){
-  const zone=getZones().find(z=>z.id===zid);if(!zone)return;
-  const rack=zone.racks.find(r=>r.id===rid);if(!rack)return;
-  const hasData=rack.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
-  if(!confirm((hasData?'⚠️ Slot '+rack.name+' 有库存！has stock! ':'')+'确认删除槽位 Delete slot '+rack.name+'?'))return;
-  zone.racks=zone.racks.filter(r=>r.id!==rid);saveStructure();render();toast('🗑 槽位 '+rack.name+' 已删除 deleted');
+async function confirmDeleteZSlot(zid,rid){
+  const zone0=getZones().find(z=>z.id===zid);if(!zone0)return;
+  const rack0=zone0.racks.find(r=>r.id===rid);if(!rack0)return;
+  const hasData=rack0.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
+  if(!confirm((hasData?'⚠️ Slot '+rack0.name+' 有库存！has stock! ':'')+'确认删除槽位 Delete slot '+rack0.name+'?'))return;
+  await loadStructure();
+  const zone=getZones().find(z=>z.id===zid);if(!zone){render();return;}
+  zone.racks=zone.racks.filter(r=>r.id!==rid);await saveStructure();render();toast('🗑 槽位 '+rack0.name+' 已删除 deleted');
 }
 
 // ── ASSIGN MODAL ──
