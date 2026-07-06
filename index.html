@@ -1644,6 +1644,24 @@ function renderWarehouse(){
   }
   html+='<div class="add-zone-row"><button class="add-zone-btn" onclick="addRegularZone()">＋ Add R/L Zone</button><button class="add-zone-btn" onclick="addZoneZ()">＋ Add Zone Z (grid)</button></div>';
   map.innerHTML=html;
+  // Force layout on every render - overrides any cached CSS
+  map.querySelectorAll('.rack-row').forEach(function(rr){
+    rr.style.display='flex';
+    rr.style.flexWrap='nowrap';
+    rr.style.overflowX='auto';
+    rr.style.alignItems='flex-start';
+    rr.style.gap='6px';
+  });
+  map.querySelectorAll('.rack').forEach(function(r){
+    r.style.flex='0 0 155px';
+    r.style.width='155px';
+    r.style.minWidth='155px';
+    r.style.maxWidth='155px';
+    r.style.boxSizing='border-box';
+  });
+  map.querySelectorAll('.zone-block').forEach(function(z){
+    z.style.overflow='visible';
+  });
 }
 
 function renderStats(){
