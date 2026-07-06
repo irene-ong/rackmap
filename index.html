@@ -177,6 +177,12 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .bqty-input::-webkit-inner-spin-button,.bqty-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .bqty-input:focus{outline:none;border-color:var(--accent);background:#fff;}
 </style>
+
+<style id="layout-fix">
+.zone-block { overflow: visible !important; height: auto !important; min-height: 0 !important; }
+.rack-row { display: flex !important; flex-wrap: nowrap !important; overflow-x: auto !important; align-items: flex-start !important; gap: 6px !important; padding-bottom: 6px !important; }
+.rack { flex: 0 0 155px !important; width: 155px !important; min-width: 155px !important; max-width: 155px !important; box-sizing: border-box !important; }
+</style>
 </head>
 <body>
 <div class="login-screen" id="loginScreen">
