@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate"/>
-<title>RackMap – Lee Huat Frozen Warehouse</title>
+<title>RackMap – 利发冷冻货仓 Lee Huat Frozen Warehouse</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -71,8 +71,8 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .zone-name{font-size:.85rem;font-weight:700;letter-spacing:.5px;}
 .zone-del-btn{background:transparent;border:none;color:#ccc;font-size:.7rem;cursor:pointer;padding:2px 5px;margin-left:auto;border-radius:4px;}
 .zone-del-btn:hover{color:var(--red);background:#fdf2f2;}
-.rack-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start;}
-.rack{background:#fafbfc;border:1px solid var(--border);border-radius:8px;min-width:148px;max-width:180px;}
+.rack-row{display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;}
+.rack{background:#fafbfc;border:1px solid var(--border);border-radius:8px;flex:0 0 168px;width:168px;}
 .rack.drag-over{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(10,158,138,.2);}
 .rack-header{background:#f0f4ff;padding:5px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);border-radius:8px 8px 0 0;}
 .rack-name{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:700;color:var(--accent);}
@@ -167,45 +167,55 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-txt{font-size:.85rem;color:var(--muted);}
+
+/* ── 寄 Ji Consignment ── */
+.ji-badge{display:inline-flex;align-items:center;background:#fff3e0;color:#e65100;font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:3px;margin:0 2px;border:1px solid #ffcc80;flex-shrink:0;}
+.ji-badge-sm{display:inline-flex;align-items:center;background:#fff3e0;color:#e65100;font-size:.6rem;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px;border:1px solid #ffcc80;}
+.ji-btn{background:transparent;border:1px solid #ffcc80;color:#e65100;font-size:.58rem;font-weight:700;padding:1px 4px;cursor:pointer;border-radius:3px;margin-left:2px;flex-shrink:0;}
+.ji-btn:hover{background:#fff3e0;}
+.bqty-input{width:32px;height:16px;border:1px solid var(--border);border-radius:3px;font-family:'DM Mono',monospace;font-size:.62rem;font-weight:700;text-align:center;padding:0 2px;background:#f9fafb;-moz-appearance:textfield;}
+.bqty-input::-webkit-inner-spin-button,.bqty-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.bqty-input:focus{outline:none;border-color:var(--accent);background:#fff;}
 </style>
 </head>
 <body>
 <div class="login-screen" id="loginScreen">
   <div class="login-box">
     <div class="login-logo">RACK<span>MAP</span></div>
-    <div class="login-tag">Lee Huat Frozen Warehouse System</div>
-    <div class="login-field"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email"/></div>
-    <div class="login-field"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/></div>
-    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-tag">利发冷冻货仓系统
+Lee Huat Frozen Warehouse System</div>
+    <div class="login-field"><label>邮箱 Email</label><input type="email" id="loginEmail" placeholder="邮箱 Email" autocomplete="email"/></div>
+    <div class="login-field"><label>密码 Password</label><input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"/></div>
+    <button class="login-btn" onclick="doLogin()">登录 Sign In</button>
     <div class="login-err" id="loginErr"></div>
-    <div class="login-loading" id="loginLoading">Signing in…</div>
+    <div class="login-loading" id="loginLoading">登录中 Signing in…</div>
   </div>
 </div>
-<div class="loading-overlay" id="loadingOverlay" style="display:none;"><div class="spinner"></div><div class="loading-txt">Loading warehouse data…</div></div>
+<div class="loading-overlay" id="loadingOverlay" style="display:none;"><div class="spinner"></div><div class="loading-txt">加载仓库数据中 Loading warehouse data…</div></div>
 <div id="appShell" style="display:none;">
 <header>
-  <div><div class="logo">RACK<span>MAP</span></div><div class="tagline">Lee Huat · Frozen Goods · Live Sync</div></div>
+  <div><div class="logo">RACK<span>MAP</span></div><div class="tagline">利发冷冻货仓 Lee Huat · 冷冻货物 Frozen Goods · 实时同步 Live Sync</div></div>
   <div class="toolbar">
     <div style="display:flex;gap:6px;align-items:center;">
-      <input type="text" id="searchInput" placeholder="Search SKU or name…" style="width:200px;"/>
+      <input type="text" id="searchInput" placeholder="搜索商品代码或名称 Search SKU or name…" style="width:200px;"/>
       <button onclick="doSearch()">🔍 Search</button>
-      <button class="sec" onclick="clearSearch()">Clear</button>
+      <button class="sec" onclick="clearSearch()">清除 Clear</button>
     </div>
-    <button class="sec" onclick="openSKUManager()">📋 SKU Manager</button>
-    <button class="sec" onclick="window.print()">🖨 Print</button>
-    <button class="grn" onclick="exportToExcel()">📊 Excel</button>
+    <button class="sec" onclick="openSKUManager()">📋 商品管理 SKU Manager</button>
+    <button class="sec" onclick="window.print()">🖨 打印 Print</button>
+    <button class="grn" onclick="exportToExcel()">📊 导出 Export</button>
     <div class="user-badge">
       <div class="sync-dot" id="syncDot"></div>
       <span id="userEmail">—</span>
-      <button onclick="doLogout()" style="background:transparent;border:none;color:var(--muted);font-size:.7rem;padding:0 0 0 6px;cursor:pointer;">Sign out</button>
+      <button onclick="doLogout()" style="background:transparent;border:none;color:var(--muted);font-size:.7rem;padding:0 0 0 6px;cursor:pointer;">退出 Sign out</button>
     </div>
   </div>
 </header>
-<div class="hint-bar">📦 Click any shelf to assign &nbsp;|&nbsp; Click product code to view detail &nbsp;|&nbsp; 🟢 Live sync</div>
+<div class="hint-bar">📦 点击货架分配库存 Click shelf to assign &nbsp;|&nbsp; 点击产品代码查看详情 Click product code for detail &nbsp;|&nbsp; 🟢 实时同步 Live sync</div>
 <div class="main">
   <div class="sidebar">
-    <div class="sidebar-header">SKU REGISTRY <span style="font-size:.65rem;color:var(--muted);font-weight:400" id="skuCount"></span></div>
-    <div style="padding:7px 8px;border-bottom:1px solid var(--border);"><input type="text" id="skuFilter" placeholder="Filter SKUs…" style="width:100%;font-size:.76rem;" oninput="renderSKUList()"/></div>
+    <div class="sidebar-header">商品目录 SKU REGISTRY <span style="font-size:.65rem;color:var(--muted);font-weight:400" id="skuCount"></span></div>
+    <div style="padding:7px 8px;border-bottom:1px solid var(--border);"><input type="text" id="skuFilter" placeholder="筛选商品 Filter SKUs…" style="width:100%;font-size:.76rem;" oninput="renderSKUList()"/></div>
     <div class="sku-list" id="skuList"></div>
   </div>
   <div class="warehouse-wrap">
@@ -216,29 +226,68 @@ button.grn{background:var(--green);}button.grn:hover{background:#155f30;}
 </div>
 
 <!-- Assign -->
-<div class="modal-bg" id="assignBg" style="display:none;"><div class="modal"><h3>Assign SKU to Slot</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">Select SKU</div><select id="assignSku"></select><div class="modal-section">Batch Details</div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="assignQty" value="1" min="1"/></div><div class="modal-row"><label>Weight:</label><input type="text" id="assignWeight" placeholder="e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">Cancel</button><button onclick="doAssign()">Add</button></div></div></div>
+<div class="modal-bg" id="assignBg" style="display:none;"><div class="modal"><h3>分配货物至货架 Assign SKU to Slot</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">选择商品 Select SKU</div><select id="assignSku"></select><div class="modal-section">批次信息 Batch Details</div><div class="modal-row"><label>到货日期 Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>数量 Quantity:</label><input type="number" id="assignQty" value="1" min="1"/></div><div class="modal-row"><label>重量（选填）Weight:</label><input type="text" id="assignWeight" placeholder="如 10kg e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">取消 Cancel</button><button onclick="doAssign()">添加 Add</button></div></div></div>
 <!-- Add Batch -->
-<div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>Quantity:</label><input type="number" id="abQty" value="1" min="1"/></div><div class="modal-row"><label>Weight:</label><input type="text" id="abWeight" placeholder="e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">Cancel</button><button onclick="doAddBatch()">Add Batch</button></div></div></div>
+<div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>添加新批次 Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>到货日期 Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>数量 Quantity:</label><input type="number" id="abQty" value="1" min="1"/></div><div class="modal-row"><label>重量（选填）Weight:</label><input type="text" id="abWeight" placeholder="如 10kg e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">取消 Cancel</button><button onclick="doAddBatch()">添加批次 Add Batch</button></div></div></div>
 <!-- Move -->
-<div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveShelf" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><div class="modal-row"><label>Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">Cancel</button><button onclick="confirmMove()">Move</button></div></div></div>
+<div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>移动到其他货架 Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">移动至 Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveShelf" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><div class="modal-row"><label>移动数量 Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">取消 Cancel</button><button onclick="confirmMove()">移动 Move</button></div></div></div>
 <!-- Item Detail -->
-<div class="modal-bg" id="itemDetailPanel" style="display:none;"><div class="modal" style="max-width:520px;"><h3>📦 Item Detail</h3><div id="itemDetailBody"></div><div class="modal-btns" style="margin-top:12px;"><button class="sec" onclick="closeItemDetail()">Close</button><button class="sec grn" id="itemDetailAddBatchBtn">＋ Add Batch</button><button id="itemDetailMoveBtn">⇄ Move</button></div></div></div>
+<div class="modal-bg" id="itemDetailPanel" style="display:none;"><div class="modal" style="max-width:520px;"><h3>📦 Item Detail</h3><div id="itemDetailBody"></div><div class="modal-btns" style="margin-top:12px;"><button class="sec" onclick="closeItemDetail()">关闭 Close</button><button class="sec grn" id="itemDetailAddBatchBtn">＋ 添加批次 Add Batch</button><button id="itemDetailMoveBtn">⇄ 移动 Move</button></div></div></div>
 <!-- Search -->
 <div class="search-panel" id="searchPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title" id="spTitle">Search Results</div><button class="sp-close" onclick="closeSearchPanel()">✕</button></div><div id="spBody"></div></div></div>
 <!-- History -->
 <div class="history-panel" id="historyPanel" style="display:none;"><div class="panel-inner"><div class="sp-header"><div class="sp-title">📋 Change History</div><button class="sp-close" onclick="closeHistory()">✕</button></div><div id="historyBody"></div></div></div>
 <!-- Unplaced Manager -->
-<div class="search-panel" id="unplacedManagerPanel" style="display:none;"><div class="panel-inner" style="max-width:640px;"><div class="sp-header"><div class="sp-title">⚠️ Unplaced Items <span id="unplacedMgrCount" style="font-size:.7rem;font-weight:400;color:var(--muted);margin-left:8px;"></span></div><div style="display:flex;gap:8px;align-items:center;"><button style="background:#d93025;font-size:.72rem;padding:5px 12px;" onclick="deleteAllUnplaced()">🗑 Delete All</button><button class="sp-close sec" onclick="closeUnplacedManager()">✕</button></div></div><div style="font-size:.75rem;color:var(--muted);margin-bottom:12px;">These items are in the database but not assigned to a valid rack slot. Reassign them or delete them.</div><div id="unplacedMgrBody"></div></div></div>
+<div class="search-panel" id="unplacedManagerPanel" style="display:none;"><div class="panel-inner" style="max-width:640px;"><div class="sp-header"><div class="sp-title">⚠️ Unplaced Items <span id="unplacedMgrCount" style="font-size:.7rem;font-weight:400;color:var(--muted);margin-left:8px;"></span></div><div style="display:flex;gap:8px;align-items:center;"><button style="background:#d93025;font-size:.72rem;padding:5px 12px;" onclick="deleteAllUnplaced()">🗑 全部删除 Delete All</button><button class="sp-close sec" onclick="closeUnplacedManager()">✕</button></div></div><div style="font-size:.75rem;color:var(--muted);margin-bottom:12px;">以下货物在数据库中但未分配到有效货架。请重新分配或删除。
+These items are in the database but not assigned to a valid rack slot.</div><div id="unplacedMgrBody"></div></div></div>
 <!-- SKU Manager -->
-<div class="search-panel" id="skuManagerPanel" style="display:none;"><div class="panel-inner" style="max-width:620px;"><div class="sp-header"><div class="sp-title">📋 SKU Manager <span id="skuMgrCount" style="font-size:.7rem;font-weight:400;color:var(--muted);margin-left:8px;"></span></div><button class="sp-close" onclick="closeSKUManager()">✕</button></div><div style="background:#f0f7ff;border:1px solid #c7dff7;border-radius:10px;padding:14px;margin-bottom:14px;"><div style="font-size:.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">➕ Add New SKU</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><div><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">CODE</label><input type="text" id="newSkuCode" placeholder="e.g. 51010/15CV" style="width:140px;text-transform:uppercase;"/></div><div style="flex:1;min-width:180px;"><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">NAME</label><input type="text" id="newSkuName" placeholder="Item description" style="width:100%;"/></div><div><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">COLOUR</label><input type="color" id="newSkuColor" value="#1a6fc4" class="color-pick"/></div><div style="padding-top:16px;"><button onclick="addSKU()">Add SKU</button></div></div></div><input type="text" id="skuMgrFilter" placeholder="Filter SKUs..." style="width:100%;margin-bottom:10px;" oninput="renderSKUManagerList()"/><div id="skuMgrList" style="max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;"></div></div></div>
+<div class="search-panel" id="skuManagerPanel" style="display:none;"><div class="panel-inner" style="max-width:620px;"><div class="sp-header"><div class="sp-title">📋 SKU Manager <span id="skuMgrCount" style="font-size:.7rem;font-weight:400;color:var(--muted);margin-left:8px;"></span></div><button class="sp-close" onclick="closeSKUManager()">✕</button></div><div style="background:#f0f7ff;border:1px solid #c7dff7;border-radius:10px;padding:14px;margin-bottom:14px;"><div style="font-size:.72rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">➕ Add New SKU</div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;"><div><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">商品代码 CODE</label><input type="text" id="newSkuCode" placeholder="如 51010/15CV" style="width:140px;text-transform:uppercase;"/></div><div style="flex:1;min-width:180px;"><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">名称 NAME</label><input type="text" id="newSkuName" placeholder="商品名称 Item name" style="width:100%;"/></div><div><label style="font-size:.68rem;color:var(--muted);display:block;margin-bottom:3px;">颜色 COLOUR</label><input type="color" id="newSkuColor" value="#1a6fc4" class="color-pick"/></div><div style="padding-top:16px;"><button onclick="addSKU()">添加商品 Add SKU</button></div></div></div><input type="text" id="skuMgrFilter" placeholder="筛选商品 Filter SKUs..." style="width:100%;margin-bottom:10px;" oninput="renderSKUManagerList()"/><div id="skuMgrList" style="max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;"></div></div></div>
 <!-- Edit SKU -->
-<div class="modal-bg" id="editSkuPanel" style="display:none;"><div class="modal" style="max-width:400px;"><h3>Edit SKU</h3><div class="modal-loc" id="editSkuCodeLbl"></div><input type="hidden" id="editSkuCodeHidden"/><div class="modal-row"><label>Name:</label><input type="text" id="editSkuName" style="flex:1;width:auto;"/></div><div class="modal-row"><label>Colour:</label><input type="color" id="editSkuColor" class="color-pick"/></div><div class="modal-btns"><button class="sec" onclick="closeEditSKU()">Cancel</button><button onclick="saveEditSKU()">Save</button></div></div></div>
+<div class="modal-bg" id="editSkuPanel" style="display:none;"><div class="modal" style="max-width:400px;"><h3>编辑商品 Edit SKU</h3><div class="modal-loc" id="editSkuCodeLbl"></div><input type="hidden" id="editSkuCodeHidden"/><div class="modal-row"><label>名称 Name:</label><input type="text" id="editSkuName" style="flex:1;width:auto;"/></div><div class="modal-row"><label>颜色 Colour:</label><input type="color" id="editSkuColor" class="color-pick"/></div><div class="modal-btns"><button class="sec" onclick="closeEditSKU()">取消 Cancel</button><button onclick="saveEditSKU()">保存 Save</button></div></div></div>
+
+
+<!-- 寄 Ji Consignment Modal -->
+<div class="modal-bg" id="jiModalBg" style="display:none;">
+  <div class="modal" style="max-width:420px;">
+    <h3>📦 设置寄存 Set Ji Consignment</h3>
+    <div class="modal-loc" id="jiModalSku" style="margin-bottom:10px;"></div>
+    <input type="hidden" id="jiModalBatchId"/>
+    <input type="hidden" id="jiModalShelfId"/>
+    <input type="hidden" id="jiModalCode"/>
+    <div style="background:#fff8e6;border:1px solid #ffcc80;border-radius:8px;padding:10px 14px;font-size:.78rem;margin-bottom:12px;color:#7a5500;">
+      ⚠️ 寄存货物仍在货架上，但不计入可用库存。<br/>
+      <span style="color:#888;font-size:.72rem;">Ji items remain on shelf but are excluded from available stock count.</span>
+    </div>
+    <div class="modal-section">寄存数量 Ji Quantity (max: <span id="jiModalMax">0</span>)</div>
+    <div class="modal-row">
+      <label>寄存数量 Ji Qty:</label>
+      <input type="number" id="jiQtyInput" value="0" min="0" style="width:80px;"/>
+    </div>
+    <div class="modal-row">
+      <label>客户公司 Company:</label>
+      <input type="text" id="jiCompanyInput" placeholder="公司名称 Company name" style="flex:1;width:auto;"/>
+    </div>
+    <div class="modal-row">
+      <label>发票号 Invoice No.:</label>
+      <input type="text" id="jiInvoiceInput" placeholder="发票号码 Invoice no." style="flex:1;width:auto;"/>
+    </div>
+    <div class="modal-btns" style="justify-content:space-between;">
+      <button class="sec" style="color:#e65100;border-color:#ffcc80;" onclick="clearJi()">清除寄存 Clear Ji</button>
+      <div style="display:flex;gap:8px;">
+        <button class="sec" onclick="closeJiModal()">取消 Cancel</button>
+        <button onclick="saveJi()">保存 Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 <script>
 const SUPABASE_URL='https://xndxogfqaddzzyegtmzl.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhuZHhvZ2ZxYWRkenp5ZWd0bXpsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMDM4NDYsImV4cCI6MjA4ODU3OTg0Nn0.S0fhpOQwvaAtZKovi1dcTgJ72mOenzX86lTFbWABoL4';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+
 
 const ZONES = [
   {id:'zR1',name:'R1',racks:[
@@ -484,8 +533,8 @@ const ZONES = [
   {id:'zZ',name:'Z',isZoneZ:true,racks:[
     {id:'rZ1',name:'Z1',shelves:[{id:'sZ1',name:'Slot'}]}
   ]},
-  {id:'zY',name:'Y',isZoneZ:true,racks:[
-    {id:'rY1',name:'Y1',shelves:[{id:'sY1',name:'Slot'}]}
+  {id:'zY',name:'#01-22',isZoneZ:true,racks:[
+    {id:'rY1',name:'#01-22',shelves:[{id:'sY1',name:'Slot'}]}
   ]}
 ];
 const SKUS=[
@@ -1084,7 +1133,8 @@ function fmtDateTime(s) { if(!s)return'—'; const d=new Date(s); return d.toLoc
 function escH(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function getZones() { return warehouseZones || ZONES; }
 function getSKU(code) { return getAllSKUs().find(s=>s.code===code); }
-function getTotalQty(code) { let t=0; for(const items of Object.values(assignments)){const e=items.find(i=>i.code===code);if(e)e.batches.forEach(b=>t+=b.qty);} return t; }
+function getTotalQty(code) { let t=0; for(const items of Object.values(assignments)){const e=items.find(i=>i.code===code);if(e)e.batches.forEach(b=>t+=(b.qty-(b.jiQty||0)));} return t; }
+function getRawQty(code) { let t=0; for(const items of Object.values(assignments)){const e=items.find(i=>i.code===code);if(e)e.batches.forEach(b=>t+=b.qty);} return t; }
 function getBatchCount(code) { let n=0; for(const items of Object.values(assignments)){const e=items.find(i=>i.code===code);if(e)n+=e.batches.length;} return n; }
 function getShelfLocations(code) { const locs=[]; for(const z of getZones())for(const r of z.racks)for(const s of r.shelves){if((assignments[s.id]||[]).some(i=>i.code===code))locs.push(r.name+(s.name!=='Slot'?'-'+s.name:''));} return locs; }
 function findShelfById(id) { for(const z of getZones())for(const r of z.racks){const s=r.shelves.find(s=>s.id===id);if(s)return{z,r,s};} return null; }
@@ -1101,7 +1151,7 @@ async function doLogin() {
   const pass=document.getElementById('loginPass').value;
   const errEl=document.getElementById('loginErr');
   const loadEl=document.getElementById('loginLoading');
-  if(!email||!pass){errEl.textContent='Enter email and password.';errEl.style.display='block';return;}
+  if(!email||!pass){errEl.textContent='请输入邮箱和密码。 | Please enter email and password.';errEl.style.display='block';return;}
   errEl.style.display='none';loadEl.style.display='block';
   try {
     const res=await sb.auth.signInWithPassword({email,password:pass});
@@ -1172,7 +1222,7 @@ function renderSKUManagerList() {
     html+='</div>';
   }
   document.getElementById('skuMgrList').innerHTML=html||'<div class="no-result">No SKUs found</div>';
-  document.getElementById('skuMgrCount').textContent=skus.length+' SKUs';
+  document.getElementById('skuMgrCount').textContent=skus.length+' 种商品 SKUs';
 }
 
 async function addSKU() {
@@ -1189,7 +1239,7 @@ async function addSKU() {
   document.getElementById('newSkuName').value='';
   document.getElementById('newSkuColor').value='#1a6fc4';
   renderSKUManagerList();render();
-  toast('✅ SKU '+code+' added!');
+  toast('✅ 商品 '+code+' 已添加！added!');
 }
 
 function openEditSKU(code) {
@@ -1210,7 +1260,7 @@ async function saveEditSKU() {
   const res=await sb.from('skus').upsert({code,name,color});
   if(res.error){toast('Failed: '+res.error.message,'err');return;}
   await loadSKUs();closeEditSKU();renderSKUManagerList();render();
-  toast('✅ '+code+' updated!');
+  toast('✅ '+code+' 已更新！updated!');
 }
 
 async function deleteSKU(code) {
@@ -1219,7 +1269,7 @@ async function deleteSKU(code) {
   if(!confirm(msg))return;
   await sb.from('skus').upsert({code,name:'__DELETED__',color:'#cccccc',deleted:true});
   await loadSKUs();renderSKUManagerList();render();
-  toast('🗑 SKU '+code+' deleted');
+  toast('🗑 商品 SKU '+code+' 已删除 deleted');
 }
 
 // ── STRUCTURE ──
@@ -1243,7 +1293,7 @@ async function loadAssignments() {
     if(!assignments[row.shelf_id])assignments[row.shelf_id]=[];
     let entry=assignments[row.shelf_id].find(i=>i.code===row.sku_code);
     if(!entry){entry={code:row.sku_code,batches:[]};assignments[row.shelf_id].push(entry);}
-    entry.batches.push({batchId:row.batch_id,arrival:row.arrival,qty:row.qty,weight:row.weight||''});
+    entry.batches.push({batchId:row.batch_id,arrival:row.arrival,qty:row.qty,weight:row.weight||'',jiQty:row.ji_qty||0,jiCompany:row.ji_company||'',jiInvoice:row.ji_invoice||''});
   }
   setSyncState('ok');
 }
@@ -1258,7 +1308,7 @@ async function dbAddHistory(action,sku,from,to,qty) {
 }
 async function dbAddBatch(shelfId,skuCode,batchId,arrival,qty,weight) {
   setSyncState('syncing');
-  const res=await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty,weight:weight||''});
+  const res=await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty,weight:weight||'',ji_qty:0,ji_company:'',ji_invoice:''});
   if(res.error){setSyncState('error');toast('Save failed: '+res.error.message,'err');return false;}
   setSyncState('ok');return true;
 }
@@ -1280,6 +1330,111 @@ async function dbDeleteEntry(shelfId,skuCode) {
   const res=await sb.from('assignments').delete().eq('shelf_id',shelfId).eq('sku_code',skuCode);
   if(res.error){setSyncState('error');toast('Delete failed: '+res.error.message,'err');return false;}
   setSyncState('ok');return true;
+}
+
+
+// ── 寄 (JI) CONSIGNMENT MANAGEMENT ──────────────────────────────────
+async function dbUpdateJi(batchId, jiQty, jiCompany, jiInvoice) {
+  setSyncState('syncing');
+  const res=await sb.from('assignments').update({ji_qty:jiQty,ji_company:jiCompany,ji_invoice:jiInvoice}).eq('batch_id',batchId);
+  if(res.error){setSyncState('error');toast('寄存更新失败 Update failed: '+res.error.message,'err');return false;}
+  setSyncState('ok');return true;
+}
+
+function openJiModal(shelfId, code, batchId) {
+  const entry=assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;if(!entry)return;
+  const batch=entry.batches.find(b=>b.batchId===batchId);if(!batch)return;
+  document.getElementById('jiModalBatchId').value=batchId;
+  document.getElementById('jiModalShelfId').value=shelfId;
+  document.getElementById('jiModalCode').value=code;
+  document.getElementById('jiModalSku').textContent=code+' @ '+shelfLabel(shelfId);
+  document.getElementById('jiModalMax').textContent=batch.qty;
+  document.getElementById('jiQtyInput').value=batch.jiQty||0;
+  document.getElementById('jiQtyInput').max=batch.qty;
+  document.getElementById('jiCompanyInput').value=batch.jiCompany||'';
+  document.getElementById('jiInvoiceInput').value=batch.jiInvoice||'';
+  document.getElementById('jiModalBg').style.display='flex';
+}
+function closeJiModal(){document.getElementById('jiModalBg').style.display='none';}
+
+async function saveJi() {
+  const batchId=document.getElementById('jiModalBatchId').value;
+  const shelfId=document.getElementById('jiModalShelfId').value;
+  const code=document.getElementById('jiModalCode').value;
+  const jiQty=parseInt(document.getElementById('jiQtyInput').value)||0;
+  const jiCompany=document.getElementById('jiCompanyInput').value.trim();
+  const jiInvoice=document.getElementById('jiInvoiceInput').value.trim();
+  const entry=assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;if(!entry)return;
+  const batch=entry.batches.find(b=>b.batchId===batchId);if(!batch)return;
+  if(jiQty>batch.qty){toast('寄存数量不能超过批次总数 Ji qty cannot exceed batch qty','err');return;}
+  if(jiQty>0&&!jiCompany){toast('请填写客户公司名称 Please enter company name','err');return;}
+  const ok=await dbUpdateJi(batchId,jiQty,jiCompany,jiInvoice);
+  if(ok){
+    batch.jiQty=jiQty;batch.jiCompany=jiCompany;batch.jiInvoice=jiInvoice;
+    closeJiModal();render();
+    toast(jiQty>0?'✅ 寄存已更新 Ji updated!':'✅ 寄存已清除 Ji cleared!');
+  }
+}
+async function clearJi() {
+  const batchId=document.getElementById('jiModalBatchId').value;
+  const shelfId=document.getElementById('jiModalShelfId').value;
+  const code=document.getElementById('jiModalCode').value;
+  const ok=await dbUpdateJi(batchId,0,'','');
+  if(ok){
+    const entry=assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;
+    if(entry){const b=entry.batches.find(b=>b.batchId===batchId);if(b){b.jiQty=0;b.jiCompany='';b.jiInvoice='';}}
+    closeJiModal();render();toast('✅ 寄存已清除 Ji cleared!');
+  }
+}
+
+function getJiItems() {
+  const items=[];
+  for(const z of getZones()) for(const r of z.racks) for(const s of r.shelves) {
+    for(const item of (assignments[s.id]||[])) {
+      const sku=getSKU(item.code);
+      for(const b of item.batches) {
+        if((b.jiQty||0)>0) items.push({
+          zone:z.name,rack:r.name,shelf:s.name,
+          code:item.code,name:sku?sku.name:'',
+          arrival:b.arrival,totalQty:b.qty,jiQty:b.jiQty,
+          availQty:b.qty-b.jiQty,weight:b.weight||'',
+          jiCompany:b.jiCompany,jiInvoice:b.jiInvoice
+        });
+      }
+    }
+  }
+  return items;
+}
+
+function exportJiItems() {
+  const items=getJiItems();
+  if(!items.length){toast('没有寄存货物 No Ji items found','err');return;}
+  const rows=[['货架区 Zone','货架 Rack','层级 Shelf','商品代码 SKU Code','商品名称 Item Name','到货日期 Arrival','批次总量 Total Qty','寄存数量 Ji Qty','可用数量 Avail Qty','重量 Weight','客户公司 Company','发票号 Invoice No.']];
+  items.forEach(it=>rows.push([it.zone,it.rack,it.shelf,it.code,it.name,it.arrival,it.totalQty,it.jiQty,it.availQty,it.weight,it.jiCompany,it.jiInvoice]));
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:8},{wch:8},{wch:8},{wch:16},{wch:36},{wch:14},{wch:10},{wch:10},{wch:10},{wch:10},{wch:24},{wch:18}];
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'寄存 Ji Items');
+  XLSX.writeFile(wb,'RackMap_寄存_Ji_'+todayStr()+'.xlsx');
+  toast('✅ 寄存报告已下载 Ji report downloaded');
+}
+
+// Manual qty entry
+async function setBatchQty(shelfId, code, batchId, val) {
+  const newQty=parseInt(val);
+  if(isNaN(newQty)||newQty<0){render();return;}
+  const entry=assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;if(!entry)return;
+  const batch=entry.batches.find(b=>b.batchId===batchId);if(!batch)return;
+  if(newQty===batch.qty)return; // no change
+  if(newQty===0){
+    if(!confirm('数量将归零，是否删除此批次？\nQty will reach 0. Remove this batch?'))return;
+    const ok=await dbDeleteBatch(batchId);
+    if(ok){await dbAddHistory('批次删除(归零)',code,shelfLabel(shelfId),null,0);await loadAssignments();render();}
+    return;
+  }
+  if(newQty<(batch.jiQty||0)){toast('数量不能少于寄存数量 Cannot be less than Ji qty ('+batch.jiQty+')','err');render();return;}
+  const ok=await dbUpdateQty(batchId,newQty);
+  if(ok){await dbAddHistory('数量手动更新 Qty manual update',code,shelfLabel(shelfId),null,newQty);await loadAssignments();render();}
 }
 
 // ── REALTIME ──
@@ -1318,7 +1473,7 @@ function renderUnplacedList(){
     html+='<div style="width:12px;height:12px;border-radius:50%;background:'+(sku?sku.color:'#888')+';flex-shrink:0;"></div>';
     html+='<div style="flex:1;"><div style="font-family:DM Mono,monospace;font-size:.8rem;font-weight:700;color:#1a6fc4;">'+escH(item.code)+'</div>';
     html+='<div style="font-size:.72rem;color:#6b7280;">'+escH(sku?sku.name:'Unknown SKU')+'</div></div>';
-    html+='<div style="font-size:.75rem;font-weight:700;color:#1a7a3c;">'+item.totalQty+' units · '+item.batches.length+' batch'+(item.batches.length!==1?'es':'')+'</div></div>';
+    html+='<div style="font-size:.75rem;font-weight:700;color:#1a7a3c;">'+item.totalQty+' 件 · '+item.batches.length+' 批次 batch'+(item.batches.length!==1?'es':'')+'</div></div>';
     html+='<div style="width:100%;background:#f9fafb;border-radius:6px;padding:6px 10px;">';
     item.batches.forEach((b,i)=>{html+='<div style="font-size:.7rem;color:#555;padding:2px 0;">Batch '+(i+1)+': 📅 '+fmtDate(b.arrival)+' · Qty: <strong>'+b.qty+'</strong>'+(b.weight?' · ⚖️ '+escH(String(b.weight)):'')+'</div>';});
     html+='<div style="font-size:.65rem;color:#aaa;margin-top:4px;">Orphaned shelf ID: <code>'+escH(item.shelfId)+'</code></div></div>';
@@ -1331,9 +1486,9 @@ function renderUnplacedList(){
 }
 async function deleteUnplaced(btn){
   const code=btn.dataset.code,sid=btn.dataset.sid;
-  if(!confirm('Delete ALL batches of '+code+' from orphaned slot?'))return;
+  if(!confirm('确认删除所有批次： | Delete ALL batches of '+code+' (孤立槽位)？ | from orphaned slot?'))return;
   const ok=await dbDeleteEntry(sid,code);
-  if(ok){await dbAddHistory('Deleted unplaced',code,sid,null,null);await loadAssignments();renderUnplacedList();render();toast('🗑 Deleted');}
+  if(ok){await dbAddHistory('Deleted unplaced',code,sid,null,null);await loadAssignments();renderUnplacedList();render();toast('🗑 已删除 Deleted');}
 }
 function reassignUnplaced(btn){
   const code=btn.dataset.code,sid=btn.dataset.sid;
@@ -1344,10 +1499,10 @@ function reassignUnplaced(btn){
 }
 async function deleteAllUnplaced(){
   const items=getUnplacedItems();
-  if(!items.length){toast('No unplaced items!');return;}
-  if(!confirm('Delete ALL '+items.length+' unplaced item'+(items.length!==1?'s':'')+' permanently?'))return;
+  if(!items.length){toast('没有未放置货物！No unplaced items!');return;}
+  if(!confirm('确认删除全部 '+items.length+' 件未放置货物 | unplaced item'+(items.length!==1?'s':'')+' (永久删除)？ | permanently?'))return;
   for(const item of items){await dbDeleteEntry(item.shelfId,item.code);await dbAddHistory('Bulk deleted unplaced',item.code,item.shelfId,null,null);}
-  await loadAssignments();renderUnplacedList();render();toast('🗑 All unplaced items deleted');
+  await loadAssignments();renderUnplacedList();render();toast('🗑 所有未放置货物已删除 All unplaced items deleted');
 }
 
 // ── RENDER ──
@@ -1356,10 +1511,12 @@ function render(){renderSKUList();renderWarehouse();renderStats();}
 function renderSKUList(){
   const filter=(document.getElementById('skuFilter')||{value:''}).value.toUpperCase();
   const filtered=getAllSKUs().filter(s=>!filter||s.code.includes(filter)||s.name.toUpperCase().includes(filter));
-  document.getElementById('skuCount').textContent=getAllSKUs().length+' SKUs';
+  document.getElementById('skuCount').textContent=getAllSKUs().length+' 种商品 SKUs';
   let html='';
   for(const s of filtered){
     const total=getTotalQty(s.code);
+    const rawTotal=getRawQty(s.code);
+    const jiTotal=rawTotal-total;
     const bcount=getBatchCount(s.code);
     const locs=getShelfLocations(s.code);
     const sc=s.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
@@ -1368,7 +1525,7 @@ function renderSKUList(){
     html+='<div class="sku-info">';
     html+='<div class="sku-code">'+escH(s.code)+'</div>';
     html+='<div class="sku-name">'+escH(s.name)+'</div>';
-    html+='<div class="sku-total">Stock: <strong>'+total+'</strong>'+(bcount?' · <strong style="color:#0077cc">'+bcount+'</strong> batch'+(bcount!==1?'es':''):'')+'</div>';
+    html+='<div class="sku-total">可用 Avail: <strong>'+total+'</strong>'+(jiTotal>0?' <span class=\"ji-badge-sm\">寄 '+jiTotal+'</span>':'')+(bcount?' · <strong style="color:#0077cc">'+bcount+'</strong> batch'+(bcount!==1?'es':''):'')+'</div>';
     if(locs.length){
       html+='<div class="sku-locs">📍 '+locs.slice(0,3).join(' · ')+(locs.length>3?' +'+(locs.length-3)+' more':'')+'</div>';
     } else if(bcount>0){
@@ -1413,13 +1570,14 @@ function renderWarehouse(){
               html+='<div class="batch-row">';
               html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
               if(b.weight)html+='<span class="batch-arr" style="color:#888;margin-left:3px;">⚖️ '+escH(b.weight)+'</span>';
+              if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
               html+='<div class="batch-qty-ctrl">';
               html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
-              html+='<span class="bqty-val">'+b.qty+'</span>';
+              html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
               html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
-              html+='</div><button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">✕</button></div>';
-            });
+              html+='</div><button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button><button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button></div>';
             html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
+            });
           }
         } else {
           html+='<div class="empty-shelf">empty · click to assign</div>';
@@ -1454,12 +1612,14 @@ function renderWarehouse(){
                 html+='<div class="batch-row">';
                 html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
                 if(b.weight)html+='<span style="font-size:.58rem;color:#e67e00;margin-left:4px;">⚖️ '+escH(String(b.weight))+'</span>';
+                if(b.jiQty>0)html+='<span class=\"ji-badge\">寄 '+b.jiQty+'</span>';
+                if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
                 html+='<div class="batch-qty-ctrl">';
                 html+='<button class="bqty-btn m" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
-                html+='<span class="bqty-val">'+b.qty+'</span>';
+                html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
                 html+='<button class="bqty-btn p" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',1)">+</button>';
-                html+='</div>';
-                html+='<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">✕</button>';
+                html+='<button class="ji-btn" onclick="event.stopPropagation();openJiModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">寄</button>';
+                html+='<button class="batch-del" onclick="event.stopPropagation();deleteBatch(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">&#x2715;</button>';
                 html+='</div>';
               });
               html+='</div><span class="add-batch-link" onclick="event.stopPropagation();openAddBatch(\''+s.id+'\',\''+sc2+'\')">＋ add batch</span></div>';
@@ -1483,12 +1643,14 @@ function renderWarehouse(){
 function renderStats(){
   const totalSlots=getZones().flatMap(z=>z.racks).flatMap(r=>r.shelves).length;
   const usedSlots=Object.keys(assignments).filter(k=>assignments[k]&&assignments[k].length).length;
-  const totalUnits=Object.values(assignments).flat().flatMap(e=>e.batches).reduce((a,b)=>a+b.qty,0);
+  const allBatches=Object.values(assignments).flat().flatMap(e=>e.batches);
+  const totalUnits=allBatches.reduce((a,b)=>a+(b.qty-(b.jiQty||0)),0);
+  const totalJi=allBatches.reduce((a,b)=>a+(b.jiQty||0),0);
   const unplacedCount=getUnplacedItems().length;
   const unplacedBtn=unplacedCount>0?'<span class="stat-link" style="background:#fff0f0;color:#d93025;" onclick="openUnplacedManager()">⚠️ '+unplacedCount+' Unplaced</span>':'';
   document.getElementById('statsBar').innerHTML=
     '<div class="stat">📦 <strong>'+getAllSKUs().length+'</strong> SKUs</div>'+
-    '<div class="stat">🗂 <strong>'+usedSlots+'</strong>/'+totalSlots+' slots used</div>'+
+    '<div class="stat">🗂 <strong>'+usedSlots+'</strong>/'+totalSlots+' 个槽位已用 slots used</div>'+
     '<div class="stat">🔢 <strong>'+totalUnits+'</strong> total units</div>'+
     unplacedBtn+
     '<span class="stat-link" onclick="showHistory()">📋 History</span>'+
@@ -1499,56 +1661,56 @@ function selectSKU(code){selectedSKU=(selectedSKU===code)?null:code;render();}
 
 // ── STRUCTURE MANAGEMENT ──
 function addRegularZone(){
-  const name=prompt('Zone name (e.g. R21 or L21):');if(!name)return;
-  const cols=prompt('Column letters (e.g. A,B,C,D,E,F):','A,B,C,D,E,F');if(!cols)return;
+  const name=prompt('区域名称（如 R21 或 L21）: | Zone name (e.g. R21 or L21):');if(!name)return;
+  const cols=prompt('列字母（如 A,B,C,D,E,F）: | Column letters (e.g. A,B,C,D,E,F):','A,B,C,D,E,F');if(!cols)return;
   const colArr=cols.split(',').map(c=>c.trim()).filter(Boolean);
   const zid='z'+name.replace(/\s/g,'');
-  if(getZones().find(z=>z.id===zid)){alert('Zone already exists!');return;}
+  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');return;}
   const racks=colArr.map(col=>{const rname=name+col;return{id:'r'+rname,name:rname,shelves:[{id:'s'+rname+'_1',name:'Top'},{id:'s'+rname+'_2',name:'Middle'},{id:'s'+rname+'_3',name:'Bottom'}]};});
-  getZones().push({id:zid,name:name,racks});saveStructure();render();toast('✅ Zone '+name+' added!');
+  getZones().push({id:zid,name:name,racks});saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
 }
 function addZoneZ(){
-  const name=prompt('Zone name (e.g. Z2):');if(!name)return;
-  const count=parseInt(prompt('How many slots?','1'))||1;
+  const name=prompt('区域名称（如 New Incoming）: | Zone name (e.g. New Incoming):');if(!name)return;
+  const count=parseInt(prompt('槽位数量 How many slots?','1'))||1;
   const zid='z'+name.replace(/\s/g,'');
-  if(getZones().find(z=>z.id===zid)){alert('Zone already exists!');return;}
+  if(getZones().find(z=>z.id===zid)){alert('该区域已存在！Zone already exists!');return;}
   const racks=[];
   for(let i=1;i<=count;i++)racks.push({id:'r'+name+i,name:name+i,shelves:[{id:'s'+name+i,name:'Slot'}]});
-  getZones().push({id:zid,name:name,isZoneZ:true,racks});saveStructure();render();toast('✅ Zone '+name+' added!');
+  getZones().push({id:zid,name:name,isZoneZ:true,racks});saveStructure();render();toast('✅ 区域 '+name+' 已添加！added!');
 }
 function addRackToZone(zid){
   const zone=getZones().find(z=>z.id===zid);if(!zone)return;
-  const col=prompt('New column letter (e.g. G):');if(!col)return;
+  const col=prompt('新列字母（如 G）: | New column letter (e.g. G):');if(!col)return;
   const rname=zone.name+col.trim().toUpperCase();
-  if(zone.racks.find(r=>r.name===rname)){alert('Rack already exists!');return;}
+  if(zone.racks.find(r=>r.name===rname)){alert('该货架列已存在！Rack already exists!');return;}
   zone.racks.push({id:'r'+rname,name:rname,shelves:[{id:'s'+rname+'_1',name:'Top'},{id:'s'+rname+'_2',name:'Middle'},{id:'s'+rname+'_3',name:'Bottom'}]});
-  saveStructure();render();toast('✅ '+rname+' added!');
+  saveStructure();render();toast('✅ '+rname+' 已添加！added!');
 }
 function addZoneZSlot(zid){
   const zone=getZones().find(z=>z.id===zid);if(!zone)return;
   const next=zone.racks.length+1;const sname=zone.name+next;
   zone.racks.push({id:'r'+sname,name:sname,shelves:[{id:'s'+sname,name:'Slot'}]});
-  saveStructure();render();toast('✅ Slot '+sname+' added!');
+  saveStructure();render();toast('✅ Slot '+sname+' 已添加！added!');
 }
 function confirmDeleteZone(zid){
   const zone=getZones().find(z=>z.id===zid);if(!zone)return;
   const hasData=zone.racks.some(r=>r.shelves.some(s=>assignments[s.id]&&assignments[s.id].length));
-  if(!confirm((hasData?'⚠️ Zone '+zone.name+' has stock! ':'')+'Delete zone '+zone.name+'?'))return;
-  warehouseZones=getZones().filter(z=>z.id!==zid);saveStructure();render();toast('🗑 Zone '+zone.name+' deleted');
+  if(!confirm((hasData?'⚠️ 区域 '+zone.name+' 有库存！has stock! ':'')+'确认删除区域 Delete zone '+zone.name+'?'))return;
+  warehouseZones=getZones().filter(z=>z.id!==zid);saveStructure();render();toast('🗑 区域 '+zone.name+' 已删除 deleted');
 }
 function confirmDeleteRack(zid,rid){
   const zone=getZones().find(z=>z.id===zid);if(!zone)return;
   const rack=zone.racks.find(r=>r.id===rid);if(!rack)return;
   const hasData=rack.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
-  if(!confirm((hasData?'⚠️ Rack '+rack.name+' has stock! ':'')+'Delete rack '+rack.name+'?'))return;
-  zone.racks=zone.racks.filter(r=>r.id!==rid);saveStructure();render();toast('🗑 Rack '+rack.name+' deleted');
+  if(!confirm((hasData?'⚠️ Rack '+rack.name+' 有库存！has stock! ':'')+'确认删除货架 Delete rack '+rack.name+'?'))return;
+  zone.racks=zone.racks.filter(r=>r.id!==rid);saveStructure();render();toast('🗑 货架 '+rack.name+' 已删除 deleted');
 }
 function confirmDeleteZSlot(zid,rid){
   const zone=getZones().find(z=>z.id===zid);if(!zone)return;
   const rack=zone.racks.find(r=>r.id===rid);if(!rack)return;
   const hasData=rack.shelves.some(s=>assignments[s.id]&&assignments[s.id].length);
-  if(!confirm((hasData?'⚠️ Slot '+rack.name+' has stock! ':'')+'Delete slot '+rack.name+'?'))return;
-  zone.racks=zone.racks.filter(r=>r.id!==rid);saveStructure();render();toast('🗑 Slot '+rack.name+' deleted');
+  if(!confirm((hasData?'⚠️ Slot '+rack.name+' 有库存！has stock! ':'')+'确认删除槽位 Delete slot '+rack.name+'?'))return;
+  zone.racks=zone.racks.filter(r=>r.id!==rid);saveStructure();render();toast('🗑 槽位 '+rack.name+' 已删除 deleted');
 }
 
 // ── ASSIGN MODAL ──
@@ -1575,7 +1737,7 @@ async function doAssign(){
   const ok=await dbAddBatch(assignShelfId,code,batchId,arrival,qty,weight);
   if(ok){
     await dbAddHistory('Added',code,null,shelfLabel(assignShelfId),qty);
-    await loadAssignments();toast('✅ Added!');closeAssign();render();
+    await loadAssignments();toast('✅ 已添加！Added!');closeAssign();render();
   }
 }
 function closeAssign(){document.getElementById('assignBg').style.display='none';assignShelfId=null;}
@@ -1600,7 +1762,7 @@ async function doAddBatch(){
   if(!arrival){alert('Enter arrival date.');return;}
   const batchId='b'+Date.now()+Math.random().toString(36).slice(2);
   const ok=await dbAddBatch(shelfId,code,batchId,arrival,qty,weight);
-  if(ok){await dbAddHistory('Batch added',code,null,shelfLabel(shelfId),qty);await loadAssignments();toast('✅ Batch added!');closeAddBatch();render();}
+  if(ok){await dbAddHistory('Batch added',code,null,shelfLabel(shelfId),qty);await loadAssignments();toast('✅ 批次已添加！Batch added!');closeAddBatch();render();}
 }
 function closeAddBatch(){document.getElementById('addBatchBg').style.display='none';addBatchState=null;}
 
@@ -1609,19 +1771,19 @@ async function changeBatchQty(shelfId,code,batchId,delta){
   const entry=assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;if(!entry)return;
   const batch=entry.batches.find(b=>b.batchId===batchId);if(!batch)return;
   const newQty=batch.qty+delta;
-  if(newQty<=0){if(!confirm('Qty will reach 0. Remove this batch?'))return;const ok=await dbDeleteBatch(batchId);if(ok){await dbAddHistory('Batch removed (qty 0)',code,shelfLabel(shelfId),null,0);await loadAssignments();render();}return;}
+  if(newQty<=0){if(!confirm('数量将归零。是否删除此批次？ | Qty will reach 0. Remove this batch?'))return;const ok=await dbDeleteBatch(batchId);if(ok){await dbAddHistory('Batch removed (qty 0)',code,shelfLabel(shelfId),null,0);await loadAssignments();render();}return;}
   const ok=await dbUpdateQty(batchId,newQty);
   if(ok){await dbAddHistory('Qty '+(delta>0?'+':'')+delta,code,shelfLabel(shelfId),null,newQty);await loadAssignments();render();}
 }
 async function deleteBatch(shelfId,code,batchId){
-  if(!confirm('Remove this batch?'))return;
+  if(!confirm('确认移除此批次？ | Remove this batch?'))return;
   const ok=await dbDeleteBatch(batchId);
-  if(ok){await dbAddHistory('Batch removed',code,shelfLabel(shelfId),null,null);await loadAssignments();toast('🗑 Removed');render();}
+  if(ok){await dbAddHistory('Batch removed',code,shelfLabel(shelfId),null,null);await loadAssignments();toast('🗑 已移除 Removed');render();}
 }
 async function removeEntry(shelfId,code){
-  if(!confirm('Remove all batches of '+code+' from this slot?'))return;
+  if(!confirm('确认移除所有批次： | Remove all batches of '+code+' 从此货架？ |  from this slot?'))return;
   const ok=await dbDeleteEntry(shelfId,code);
-  if(ok){await dbAddHistory('Removed',code,shelfLabel(shelfId),null,null);await loadAssignments();toast('🗑 Removed');render();}
+  if(ok){await dbAddHistory('Removed',code,shelfLabel(shelfId),null,null);await loadAssignments();toast('🗑 已移除 Removed');render();}
 }
 
 // ── ITEM DETAIL POPUP ──
@@ -1657,7 +1819,7 @@ function openItemDetail(shelfId,code){
 function closeItemDetail(){document.getElementById('itemDetailPanel').style.display='none';}
 async function deleteBatchFromDetail(btn){
   const sid=btn.dataset.sid,code=btn.dataset.code,bid=btn.dataset.bid;
-  if(!confirm('Remove this batch?'))return;
+  if(!confirm('确认移除此批次？ | Remove this batch?'))return;
   const ok=await dbDeleteBatch(bid);
   if(ok){await dbAddHistory('Batch removed',code,shelfLabel(sid),null,null);await loadAssignments();render();
     const entry=assignments[sid]?assignments[sid].find(i=>i.code===code):null;
@@ -1672,7 +1834,7 @@ function openMoveBlock(fromShelfId,code,maxQty){
   document.getElementById('moveInfo').innerHTML='Moving: <strong>'+escH(code)+'</strong><br>From: <strong>'+locName+'</strong><br>Available: <strong>'+maxQty+' units</strong>';
   document.getElementById('moveQtyInput').value=1;document.getElementById('moveQtyInput').max=maxQty;
   let zOpts='';
-  for(const z of getZones())zOpts+='<option value="'+z.id+'">'+(z.isZoneZ?'Zone ':'')+escH(z.name)+'</option>';
+  for(const z of getZones())zOpts+='<option value="'+z.id+'">'+(z.isZoneZ&&z.name!=='#01-22'?'Zone ':'')+escH(z.name)+'</option>';
   document.getElementById('moveZone').innerHTML=zOpts;
   updateMoveRack();
   document.getElementById('moveBg').style.display='flex';
@@ -1699,7 +1861,7 @@ async function confirmMove(){
   const isSingleSlot=z&&z.isZoneZ&&z.racks.length===1;
   const toShelfId=isSingleSlot?z.racks[0].shelves[0].id:document.getElementById('moveShelf').value;
   const qty=parseInt(document.getElementById('moveQtyInput').value)||1;
-  if(toShelfId===fromShelfId){alert('Same slot.');return;}if(qty>maxQty){alert('Only '+maxQty+' available.');return;}
+  if(toShelfId===fromShelfId){alert('目标货架相同。Same slot.');return;}if(qty>maxQty){alert('仅剩 Only '+maxQty+' 件可用。 available.');return;}
   const srcEntry=assignments[fromShelfId]?assignments[fromShelfId].find(i=>i.code===code):null;if(!srcEntry)return;
   const sorted=srcEntry.batches.map(b=>({...b})).sort((a,b)=>a.arrival.localeCompare(b.arrival));
   let remaining=qty;const toAdd=[];
@@ -1708,7 +1870,7 @@ async function confirmMove(){
   for(const t of toAdd){const newId='b'+Date.now()+Math.random().toString(36).slice(2);await dbAddBatch(toShelfId,code,newId,t.arrival,t.take,'');}
   await sb.from('assignments').delete().lte('qty',0);
   await dbAddHistory('Moved',code,shelfLabel(fromShelfId),shelfLabel(toShelfId),qty);
-  await loadAssignments();closeMove();render();toast('✅ Moved '+qty+' units');
+  await loadAssignments();closeMove();render();toast('✅ 已移动 Moved '+qty+' 件 件 units');
 }
 function closeMove(){document.getElementById('moveBg').style.display='none';moveState=null;}
 
@@ -1739,7 +1901,7 @@ function closeHistory(){document.getElementById('historyPanel').style.display='n
 function doSearch(){
   const q=document.getElementById('searchInput').value.trim().toUpperCase();if(!q)return;
   const matches=getAllSKUs().filter(s=>s.code.includes(q)||s.name.toUpperCase().includes(q));
-  document.getElementById('spTitle').textContent='SEARCH: "'+q+'" — '+matches.length+' result'+(matches.length!==1?'s':'');
+  document.getElementById('spTitle').textContent='SEARCH: "'+q+'" — '+matches.length+' 条结果 result'+(matches.length!==1?'s':'');
   let html='';
   if(!matches.length)html='<div class="no-result">No SKU found.</div>';
   for(const s of matches){
@@ -1798,7 +1960,7 @@ function exportToExcel(){
   for(var s of getAllSKUs()){var t=getTotalQty(s.code);if(t>0)sum.push([s.code,s.name,t,getShelfLocations(s.code).join(', ')]);}
   var ws1=XLSX.utils.aoa_to_sheet(sum);ws1['!cols']=[{wch:18},{wch:45},{wch:12},{wch:50}];
   XLSX.utils.book_append_sheet(wb,ws1,'Stock Summary');
-  var det=[['Zone','Rack','Shelf','SKU Code','Item Name','Arrival Date','Weight','Qty']];
+  var det=[['Zone','Rack','Shelf','SKU Code','Item Name','Arrival Date','Weight','数量 | Qty']];
   for(var z of getZones())for(var r of z.racks)for(var sh of r.shelves){
     for(var item of(assignments[sh.id]||[])){
       var sku2=getAllSKUs().find(sk=>sk.code===item.code);
@@ -1807,7 +1969,7 @@ function exportToExcel(){
   }
   var ws2=XLSX.utils.aoa_to_sheet(det);ws2['!cols']=[{wch:8},{wch:10},{wch:10},{wch:18},{wch:40},{wch:14},{wch:10},{wch:8}];
   XLSX.utils.book_append_sheet(wb,ws2,'Batch Detail');
-  var hist=[['Time','User','Action','SKU','From','To','Qty']];
+  var hist=[['时间 | Time','用户 | User','操作 | Action','SKU','来源 | From','目标 | To','数量 | Qty']];
   for(var h of history)hist.push([fmtDateTime(h.ts),h.user_email||h.user||'',h.action,h.sku_code||h.sku||'',h.from_loc||h.from||'—',h.to_loc||h.to||'—',h.qty||'—']);
   var ws3=XLSX.utils.aoa_to_sheet(hist);ws3['!cols']=[{wch:18},{wch:25},{wch:14},{wch:18},{wch:20},{wch:20},{wch:8}];
   XLSX.utils.book_append_sheet(wb,ws3,'Change History');
@@ -1835,6 +1997,8 @@ function showFullReport(){
   for(const s of getAllSKUs()){const total=getTotalQty(s.code);if(!total)continue;msg+=s.code+' | '+s.name+'\n  Total: '+total+' units\n';for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){const entry=(assignments[sh.id]||[]).find(i=>i.code===s.code);if(!entry||!entry.batches.length)continue;msg+='  📍 '+r.name+(sh.name!=='Slot'?'-'+sh.name:'')+': '+entry.batches.reduce((a,b)=>a+b.qty,0)+'\n';}msg+='\n';}
   alert(msg);
 }
+
+
 
 </script>
 </body>
