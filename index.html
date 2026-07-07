@@ -2005,42 +2005,93 @@ function exportToExcel(){
 
 function showFullReport(){ exportFullReport(); }
 function exportFullReport(){
-  // Sheet 1: Stock Summary (available qty only, Ji excluded)
-  const sum=[['商品代码 SKU Code','商品名称 Item Name','可用数量 Available Qty','批次数 Batches','位置 Locations']];
-  for(const s of getAllSKUs()){
-    const avail=getTotalQty(s.code);if(!avail)continue;
-    const locs=[];let batches=0;
-    for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
-      const e=(assignments[sh.id]||[]).find(i=>i.code===s.code);
-      if(!e||!e.batches.length)continue;
-      locs.push(r.name+'-'+sh.name);
-      batches+=e.batches.length;
+  try{
+    // ── Sheet 1: Stock Summary ──────────────────────────────────────
+    // All SKUs with stock, available qty (Ji excluded), location summary
+    const sum=[['商品代码 SKU Code','商品名称 Item Name','可用数量 Avail Qty','寄存数量 Ji Qty','总数量 Total Qty','批次数 Batches','货架位置 Locations']];
+    for(const s of getAllSKUs()){
+      const avail=getTotalQty(s.code);
+      const rawQty=getRawQty(s.code);
+      const jiQty=rawQty-avail;
+      if(!rawQty)continue;
+      const locs=[];let batches=0;
+      for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
+        const e=(assignments[sh.id]||[]).find(i=>i.code===s.code);
+        if(!e||!e.batches.length)continue;
+        locs.push(r.name+'-'+sh.name);
+        batches+=e.batches.length;
+      }
+      sum.push([s.code,s.name,avail,jiQty,rawQty,batches,locs.join(', ')]);
     }
-    sum.push([s.code,s.name,avail,batches,locs.join(', ')]);
-  }
-  // Sheet 2: Batch Detail (excludes Ji qty from available)
-  const det=[['区 Zone','货架 Rack','层 Shelf','商品代码 SKU','商品名称 Name','到货日期 Arrival','总数 Total Qty','寄存 Ji Qty','可用 Avail Qty','重量 Weight']];
-  for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
-    for(const item of (assignments[sh.id]||[])){
-      const sku=getSKU(item.code);
-      for(const b of item.batches){
-        det.push([z.name,r.name,sh.name,item.code,sku?sku.name:'',b.arrival,b.qty,b.jiQty||0,b.qty-(b.jiQty||0),b.weight||'']);
+
+    // ── Sheet 2: Batch Detail ───────────────────────────────────────
+    // Every batch: zone, rack, shelf, SKU, arrival, qty, ji, avail, weight
+    const det=[['区域 Zone','货架 Rack','层级 Shelf','商品代码 SKU','商品名称 Name','到货日期 Arrival Date','批次总量 Total Qty','寄存数量 Ji Qty','可用数量 Avail Qty','重量 Weight','寄存公司 Ji Company','发票号 Invoice No.']];
+    for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
+      for(const item of (assignments[sh.id]||[])){
+        const sku=getSKU(item.code)||{name:''};
+        for(const b of item.batches){
+          det.push([z.name,r.name,sh.name,item.code,sku.name,b.arrival||'',b.qty,b.jiQty||0,b.qty-(b.jiQty||0),b.weight||'',b.jiCompany||'',b.jiInvoice||'']);
+        }
       }
     }
-  }
-  // Sheet 3: Change History
-  const hist=[['时间 Time','用户 User','操作 Action','商品 SKU','来源 From','目标 To','数量 Qty']];
-  for(const h of changeHistory)hist.push([h.ts,h.user_email,h.action,h.sku_code,h.from_loc||'',h.to_loc||'',h.qty||'']);
 
-  const wb=XLSX.utils.book_new();
-  const ws1=XLSX.utils.aoa_to_sheet(sum);ws1['!cols']=[{wch:16},{wch:36},{wch:14},{wch:10},{wch:30}];
-  const ws2=XLSX.utils.aoa_to_sheet(det);ws2['!cols']=[{wch:8},{wch:8},{wch:8},{wch:16},{wch:36},{wch:14},{wch:10},{wch:10},{wch:10},{wch:10}];
-  const ws3=XLSX.utils.aoa_to_sheet(hist);ws3['!cols']=[{wch:20},{wch:24},{wch:20},{wch:16},{wch:16},{wch:16},{wch:8}];
-  XLSX.utils.book_append_sheet(wb,ws1,'库存汇总 Stock Summary');
-  XLSX.utils.book_append_sheet(wb,ws2,'批次明细 Batch Detail');
-  XLSX.utils.book_append_sheet(wb,ws3,'变更历史 Change History');
-  XLSX.writeFile(wb,'RackMap_完整报告_'+todayStr()+'.xlsx');
-  toast('✅ 完整报告已下载 Full report downloaded');
+    // ── Sheet 3: Ji Consignment Report ─────────────────────────────
+    // All Ji items only
+    const ji=[['区域 Zone','货架 Rack','层级 Shelf','商品代码 SKU','商品名称 Name','到货日期 Arrival','批次总量 Total Qty','寄存数量 Ji Qty','可用数量 Avail Qty','重量 Weight','客户公司 Company','发票号 Invoice No.']];
+    for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
+      for(const item of (assignments[sh.id]||[])){
+        const sku=getSKU(item.code)||{name:''};
+        for(const b of item.batches){
+          if((b.jiQty||0)>0)ji.push([z.name,r.name,sh.name,item.code,sku.name,b.arrival||'',b.qty,b.jiQty,b.qty-b.jiQty,b.weight||'',b.jiCompany||'',b.jiInvoice||'']);
+        }
+      }
+    }
+
+    // ── Sheet 4: Change History ─────────────────────────────────────
+    const hist=[['时间 Timestamp','用户 User','操作 Action','商品代码 SKU','来源 From','目标 To','数量 Qty']];
+    if(Array.isArray(history)){
+      for(const h of history)hist.push([h.ts||'',h.user_email||'',h.action||'',h.sku_code||'',h.from_loc||'',h.to_loc||'',h.qty||'']);
+    }
+
+    // ── Sheet 5: Warehouse Grid Map ─────────────────────────────────
+    const grid=[['区域 Zone','货架 Rack','层级 Shelf','状态 Status','商品代码 SKU','商品名称 Name','可用数量 Avail Qty','到货日期 Arrival']];
+    for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
+      const items=assignments[sh.id]||[];
+      if(!items.length){
+        grid.push([z.name,r.name,sh.name,'空 Empty','','','','']);
+      } else {
+        for(const item of items){
+          const sku=getSKU(item.code)||{name:''};
+          const avail=item.batches.reduce((a,b)=>a+(b.qty-(b.jiQty||0)),0);
+          const latest=item.batches.slice().sort((a,b)=>b.arrival>a.arrival?1:-1)[0];
+          grid.push([z.name,r.name,sh.name,'有货 In Use',item.code,sku.name,avail,latest?latest.arrival:'']);
+        }
+      }
+    }
+
+    const wb=XLSX.utils.book_new();
+    const ws1=XLSX.utils.aoa_to_sheet(sum);
+    ws1['!cols']=[{wch:16},{wch:36},{wch:12},{wch:10},{wch:10},{wch:8},{wch:36}];
+    const ws2=XLSX.utils.aoa_to_sheet(det);
+    ws2['!cols']=[{wch:8},{wch:8},{wch:8},{wch:16},{wch:36},{wch:14},{wch:10},{wch:10},{wch:10},{wch:10},{wch:24},{wch:16}];
+    const ws3=XLSX.utils.aoa_to_sheet(ji);
+    ws3['!cols']=[{wch:8},{wch:8},{wch:8},{wch:16},{wch:36},{wch:14},{wch:10},{wch:10},{wch:10},{wch:10},{wch:24},{wch:16}];
+    const ws4=XLSX.utils.aoa_to_sheet(hist);
+    ws4['!cols']=[{wch:22},{wch:26},{wch:22},{wch:16},{wch:16},{wch:16},{wch:8}];
+    const ws5=XLSX.utils.aoa_to_sheet(grid);
+    ws5['!cols']=[{wch:8},{wch:8},{wch:8},{wch:10},{wch:16},{wch:36},{wch:10},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,ws1,'库存汇总 Stock Summary');
+    XLSX.utils.book_append_sheet(wb,ws2,'批次明细 Batch Detail');
+    XLSX.utils.book_append_sheet(wb,ws3,'寄存报告 Ji Report');
+    XLSX.utils.book_append_sheet(wb,ws4,'变更历史 Change History');
+    XLSX.utils.book_append_sheet(wb,ws5,'仓库地图 Grid Map');
+    XLSX.writeFile(wb,'RackMap_完整报告_'+todayStr()+'.xlsx');
+    toast('✅ 完整报告已下载 Full report downloaded');
+  } catch(e){
+    console.error('Export error:',e);
+    toast('导出失败 Export failed: '+e.message,'err');
+  }
 }
 
 
