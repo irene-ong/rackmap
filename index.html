@@ -212,6 +212,7 @@ Lee Huat Frozen Warehouse System</div>
     </div>
   </div>
 </header>
+<div class="stats-bar" id="statsBar"></div>
 <div class="hint-bar">📦 点击货架分配库存 Click shelf to assign &nbsp;|&nbsp; 点击产品代码查看详情 Click product code for detail &nbsp;|&nbsp; 🟢 实时同步 Live sync</div>
 <div class="main">
   <div class="sidebar">
@@ -221,7 +222,6 @@ Lee Huat Frozen Warehouse System</div>
   </div>
   <div class="warehouse-wrap">
     <div class="warehouse" id="warehouseMap"></div>
-    <div class="stats-bar" id="statsBar"></div>
   </div>
 </div>
 </div>
@@ -1655,14 +1655,17 @@ function renderStats(){
   const totalUnits=allBatches.reduce((a,b)=>a+(b.qty-(b.jiQty||0)),0);
   const totalJi=allBatches.reduce((a,b)=>a+(b.jiQty||0),0);
   const unplacedCount=getUnplacedItems().length;
-  const unplacedBtn=unplacedCount>0?'<span class="stat-link" style="background:#fff0f0;color:#d93025;" onclick="openUnplacedManager()">⚠️ '+unplacedCount+' Unplaced</span>':'';
+  const unplacedBtn=unplacedCount>0?'<span class="stat-link" style="background:#fff0f0;color:#d93025;" onclick="openUnplacedManager()">⚠️ '+unplacedCount+' 件未放置 Unplaced</span>':'';
+  const jiBtn=totalJi>0?'<span class="stat-link" style="background:#fff8e6;color:#c47a15;font-weight:700;" onclick="exportJiItems()">📦 寄 '+totalJi+' 件 ↓ Ji Report</span>':'';
   document.getElementById('statsBar').innerHTML=
-    '<div class="stat">📦 <strong>'+getAllSKUs().length+'</strong> SKUs</div>'+
-    '<div class="stat">🗂 <strong>'+usedSlots+'</strong>/'+totalSlots+' 个槽位已用 slots used</div>'+
-    '<div class="stat">🔢 <strong>'+totalUnits+'</strong> total units</div>'+
+    '<div class="stat">📦 <strong>'+getAllSKUs().length+'</strong> 种商品 SKUs</div>'+
+    '<div class="stat">🗂 <strong>'+usedSlots+'</strong>/'+totalSlots+' 槽位已用 slots used</div>'+
+    '<div class="stat">🔢 <strong>'+totalUnits+'</strong> 件可用 units available</div>'+
+    (totalJi>0?'<div class="stat" style="color:#c47a15;">📦 寄存 <strong>'+totalJi+'</strong> 件 Ji held</div>':'')+
     unplacedBtn+
-    '<span class="stat-link" onclick="showHistory()">📋 History</span>'+
-    '<span class="stat-link" onclick="showFullReport()">Full Report ›</span>';
+    '<span class="stat-link" onclick="showHistory()">📋 变更历史 History</span>'+
+    jiBtn+
+    '<span class="stat-link" onclick="exportFullReport()">📊 完整报告 Full Report ↓</span>';
 }
 
 function selectSKU(code){selectedSKU=(selectedSKU===code)?null:code;render();}
@@ -2000,10 +2003,44 @@ function exportToExcel(){
   XLSX.writeFile(wb,'RackMap_Export_'+todayStr()+'.xlsx');
 }
 
-function showFullReport(){
-  let msg='══ WAREHOUSE STOCK REPORT ══\n\n';
-  for(const s of getAllSKUs()){const total=getTotalQty(s.code);if(!total)continue;msg+=s.code+' | '+s.name+'\n  Total: '+total+' units\n';for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){const entry=(assignments[sh.id]||[]).find(i=>i.code===s.code);if(!entry||!entry.batches.length)continue;msg+='  📍 '+r.name+(sh.name!=='Slot'?'-'+sh.name:'')+': '+entry.batches.reduce((a,b)=>a+b.qty,0)+'\n';}msg+='\n';}
-  alert(msg);
+function showFullReport(){ exportFullReport(); }
+function exportFullReport(){
+  // Sheet 1: Stock Summary (available qty only, Ji excluded)
+  const sum=[['商品代码 SKU Code','商品名称 Item Name','可用数量 Available Qty','批次数 Batches','位置 Locations']];
+  for(const s of getAllSKUs()){
+    const avail=getTotalQty(s.code);if(!avail)continue;
+    const locs=[];let batches=0;
+    for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
+      const e=(assignments[sh.id]||[]).find(i=>i.code===s.code);
+      if(!e||!e.batches.length)continue;
+      locs.push(r.name+'-'+sh.name);
+      batches+=e.batches.length;
+    }
+    sum.push([s.code,s.name,avail,batches,locs.join(', ')]);
+  }
+  // Sheet 2: Batch Detail (excludes Ji qty from available)
+  const det=[['区 Zone','货架 Rack','层 Shelf','商品代码 SKU','商品名称 Name','到货日期 Arrival','总数 Total Qty','寄存 Ji Qty','可用 Avail Qty','重量 Weight']];
+  for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
+    for(const item of (assignments[sh.id]||[])){
+      const sku=getSKU(item.code);
+      for(const b of item.batches){
+        det.push([z.name,r.name,sh.name,item.code,sku?sku.name:'',b.arrival,b.qty,b.jiQty||0,b.qty-(b.jiQty||0),b.weight||'']);
+      }
+    }
+  }
+  // Sheet 3: Change History
+  const hist=[['时间 Time','用户 User','操作 Action','商品 SKU','来源 From','目标 To','数量 Qty']];
+  for(const h of changeHistory)hist.push([h.ts,h.user_email,h.action,h.sku_code,h.from_loc||'',h.to_loc||'',h.qty||'']);
+
+  const wb=XLSX.utils.book_new();
+  const ws1=XLSX.utils.aoa_to_sheet(sum);ws1['!cols']=[{wch:16},{wch:36},{wch:14},{wch:10},{wch:30}];
+  const ws2=XLSX.utils.aoa_to_sheet(det);ws2['!cols']=[{wch:8},{wch:8},{wch:8},{wch:16},{wch:36},{wch:14},{wch:10},{wch:10},{wch:10},{wch:10}];
+  const ws3=XLSX.utils.aoa_to_sheet(hist);ws3['!cols']=[{wch:20},{wch:24},{wch:20},{wch:16},{wch:16},{wch:16},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws1,'库存汇总 Stock Summary');
+  XLSX.utils.book_append_sheet(wb,ws2,'批次明细 Batch Detail');
+  XLSX.utils.book_append_sheet(wb,ws3,'变更历史 Change History');
+  XLSX.writeFile(wb,'RackMap_完整报告_'+todayStr()+'.xlsx');
+  toast('✅ 完整报告已下载 Full report downloaded');
 }
 
 
