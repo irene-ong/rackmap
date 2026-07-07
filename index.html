@@ -204,7 +204,7 @@ Lee Huat Frozen Warehouse System</div>
     </div>
     <button class="sec" onclick="openSKUManager()">📋 商品管理 SKU Manager</button>
     <button class="sec" onclick="window.print()">🖨 打印 Print</button>
-    <button class="grn" onclick="exportToExcel()">📊 导出 Export</button>
+    <button class="grn" onclick="exportToExcel()" title="快速导出 Quick operational export (4 sheets)">📊 导出 Export</button>
     <div class="user-badge">
       <div class="sync-dot" id="syncDot"></div>
       <span id="userEmail">—</span>
@@ -1665,7 +1665,7 @@ function renderStats(){
     unplacedBtn+
     '<span class="stat-link" onclick="showHistory()">📋 变更历史 History</span>'+
     jiBtn+
-    '<span class="stat-link" onclick="exportFullReport()">📊 完整报告 Full Report ↓</span>';
+    '<span class="stat-link" onclick="exportFullReport()" title="管理报告含寄存明细 Management report with Ji detail">📊 管理报告 Mgmt Report ↓</span>';
 }
 
 function selectSKU(code){selectedSKU=(selectedSKU===code)?null:code;render();}
