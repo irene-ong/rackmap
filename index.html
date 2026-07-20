@@ -231,7 +231,7 @@ Lee Huat Frozen Warehouse System</div>
 <!-- Add Batch -->
 <div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>添加新批次 Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>到货日期 Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>数量 Quantity:</label><input type="number" id="abQty" value="1" min="1"/></div><div class="modal-row"><label>重量（选填）Weight:</label><input type="text" id="abWeight" placeholder="如 10kg e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">取消 Cancel</button><button onclick="doAddBatch()">添加批次 Add Batch</button></div></div></div>
 <!-- Move -->
-<div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>移动到其他货架 Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">移动至 Move to:</div><select id="moveZone" onchange="updateMoveRack()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveRack" onchange="updateMoveShelf()" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><select id="moveShelf" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;font-size:.85rem;"></select><div class="modal-row"><label>移动数量 Qty to move:</label><input type="number" id="moveQtyInput" value="1" min="1"/></div><div class="modal-btns"><button class="sec" onclick="closeMove()">取消 Cancel</button><button onclick="confirmMove()">移动 Move</button></div></div></div>
+<div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>移动到其他货架 Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">移动至（最多 3 个目的地）Move to (up to 3 destinations):</div><div id="mvRows"></div><div style="font-size:.7rem;color:var(--muted);margin-bottom:8px;">数量为 0 的目的地将被忽略 Destinations with qty 0 are skipped</div><div class="modal-btns"><button class="sec" onclick="closeMove()">取消 Cancel</button><button onclick="confirmMove()">移动 Move</button></div></div></div>
 <!-- Item Detail -->
 <div class="modal-bg" id="itemDetailPanel" style="display:none;"><div class="modal" style="max-width:520px;"><h3>📦 Item Detail</h3><div id="itemDetailBody"></div><div class="modal-btns" style="margin-top:12px;"><button class="sec" onclick="closeItemDetail()">关闭 Close</button><button class="sec grn" id="itemDetailAddBatchBtn">＋ 添加批次 Add Batch</button><button id="itemDetailMoveBtn">⇄ 移动 Move</button></div></div></div>
 <!-- Search -->
@@ -1307,9 +1307,9 @@ async function dbAddHistory(action,sku,from,to,qty) {
   const res=await sb.from('change_history').insert(row);
   if(!res.error)history.unshift({...row,ts:new Date().toISOString()});
 }
-async function dbAddBatch(shelfId,skuCode,batchId,arrival,qty,weight) {
+async function dbAddBatch(shelfId,skuCode,batchId,arrival,qty,weight,jiQty,jiCompany,jiInvoice) {
   setSyncState('syncing');
-  const res=await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty,weight:weight||'',ji_qty:0,ji_company:'',ji_invoice:''});
+  const res=await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty,weight:weight||'',ji_qty:jiQty||0,ji_company:jiCompany||'',ji_invoice:jiInvoice||''});
   if(res.error){setSyncState('error');toast('Save failed: '+res.error.message,'err');return false;}
   setSyncState('ok');return true;
 }
@@ -1563,7 +1563,7 @@ function renderWarehouse(){
         if(items.length){
           for(const item of items){
             const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
-            const st=item.batches.reduce((a,b)=>a+b.qty,0);
+            const st=item.batches.reduce((a,b)=>a+(b.qty-(b.jiQty||0)),0);
             const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
             html+='<div class="shelf-sku-block" style="width:100%;margin-bottom:3px;"><div class="shelf-sku-header">';
             html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
@@ -1607,7 +1607,7 @@ function renderWarehouse(){
           if(items.length){
             for(const item of items){
               const sku2=getAllSKUs().find(sk=>sk.code===item.code);if(!sku2)continue;
-              const st=item.batches.reduce((a,b)=>a+b.qty,0);
+              const st=item.batches.reduce((a,b)=>a+(b.qty-(b.jiQty||0)),0);
               const sc2=item.code.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
               html+='<div class="shelf-sku-block"><div class="shelf-sku-header">';
               html+='<div class="row-dot" style="background:'+sku2.color+'"></div>';
@@ -1841,48 +1841,92 @@ async function deleteBatchFromDetail(btn){
 function openMoveBlock(fromShelfId,code,maxQty){
   moveState={fromShelfId,code,maxQty};
   const loc=findShelfById(fromShelfId);
-  const locName=loc?loc.r.name+(loc.s.name!=='Slot'?' – '+loc.s.name:''):fromShelfId;
-  document.getElementById('moveInfo').innerHTML='Moving: <strong>'+escH(code)+'</strong><br>From: <strong>'+locName+'</strong><br>Available: <strong>'+maxQty+' units</strong>';
-  document.getElementById('moveQtyInput').value=1;document.getElementById('moveQtyInput').max=maxQty;
+  const locName=loc?loc.r.name+(loc.s.name!=='Slot'?' \u2013 '+loc.s.name:''):fromShelfId;
+  document.getElementById('moveInfo').innerHTML='Moving: <strong>'+escH(code)+'</strong><br>From: <strong>'+locName+'</strong><br>\u53ef\u79fb\u52a8 Movable (\u5bc4 excluded): <strong>'+maxQty+' \u4ef6 units</strong>';
   let zOpts='';
   for(const z of getZones())zOpts+='<option value="'+z.id+'">'+(z.isZoneZ&&z.name!=='#01-22'?'Zone ':'')+escH(z.name)+'</option>';
-  document.getElementById('moveZone').innerHTML=zOpts;
-  updateMoveRack();
+  const selStyle='width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;margin-bottom:6px;font-size:.85rem;';
+  let rowsHtml='';
+  for(let i=1;i<=3;i++){
+    rowsHtml+='<div style="border:1px solid var(--border);border-radius:8px;padding:8px;margin-bottom:8px;background:'+(i===1?'#f8faff':'#fff')+';">';
+    rowsHtml+='<div style="font-size:.72rem;font-weight:700;color:var(--accent);margin-bottom:6px;">\u76ee\u7684\u5730 Destination '+i+(i>1?'\uff08\u9009\u586b optional\uff09':'')+'</div>';
+    rowsHtml+='<select id="moveZone_'+i+'" onchange="updateMoveRack('+i+')" style="'+selStyle+'">'+zOpts+'</select>';
+    rowsHtml+='<select id="moveRack_'+i+'" onchange="updateMoveShelf('+i+')" style="'+selStyle+'"></select>';
+    rowsHtml+='<select id="moveShelf_'+i+'" style="'+selStyle+'"></select>';
+    rowsHtml+='<div class="modal-row"><label>\u6570\u91cf Qty:</label><input type="number" id="moveQty_'+i+'" value="'+(i===1?1:0)+'" min="0" max="'+maxQty+'"/></div>';
+    rowsHtml+='</div>';
+  }
+  document.getElementById('mvRows').innerHTML=rowsHtml;
+  for(let i=1;i<=3;i++)updateMoveRack(i);
   document.getElementById('moveBg').style.display='flex';
 }
-function updateMoveRack(){
-  const zid=document.getElementById('moveZone').value;
+function updateMoveRack(i){
+  i=i||1;
+  const zid=document.getElementById('moveZone_'+i).value;
   const z=getZones().find(z=>z.id===zid);
   const isSingleSlot=z&&z.isZoneZ&&z.racks.length===1;
-  document.getElementById('moveRack').style.display=isSingleSlot?'none':'';
-  document.getElementById('moveShelf').style.display=isSingleSlot?'none':'';
+  document.getElementById('moveRack_'+i).style.display=isSingleSlot?'none':'';
+  document.getElementById('moveShelf_'+i).style.display=isSingleSlot?'none':'';
   let opts='';if(z)for(const r of z.racks)opts+='<option value="'+r.id+'">'+escH(r.name)+'</option>';
-  document.getElementById('moveRack').innerHTML=opts;updateMoveShelf();
+  document.getElementById('moveRack_'+i).innerHTML=opts;updateMoveShelf(i);
 }
-function updateMoveShelf(){
-  const rid=document.getElementById('moveRack').value;const found=findRackById(rid);
+function updateMoveShelf(i){
+  i=i||1;
+  const rid=document.getElementById('moveRack_'+i).value;const found=findRackById(rid);
   let opts='';if(found)for(const s of found.r.shelves)opts+='<option value="'+s.id+'">'+escH(s.name)+'</option>';
-  document.getElementById('moveShelf').innerHTML=opts;
+  document.getElementById('moveShelf_'+i).innerHTML=opts;
 }
 async function confirmMove(){
   if(!moveState)return;
   const{fromShelfId,code,maxQty}=moveState;
-  const zid=document.getElementById('moveZone').value;
-  const z=getZones().find(z=>z.id===zid);
-  const isSingleSlot=z&&z.isZoneZ&&z.racks.length===1;
-  const toShelfId=isSingleSlot?z.racks[0].shelves[0].id:document.getElementById('moveShelf').value;
-  const qty=parseInt(document.getElementById('moveQtyInput').value)||1;
-  if(toShelfId===fromShelfId){alert('目标货架相同。Same slot.');return;}if(qty>maxQty){alert('仅剩 Only '+maxQty+' 件可用。 available.');return;}
+  // Collect destinations with qty > 0
+  const dests=[];
+  for(let i=1;i<=3;i++){
+    const q=parseInt(document.getElementById('moveQty_'+i).value)||0;
+    if(q<=0)continue;
+    const zid=document.getElementById('moveZone_'+i).value;
+    const z=getZones().find(z=>z.id===zid);
+    const isSingleSlot=z&&z.isZoneZ&&z.racks.length===1;
+    const toShelfId=isSingleSlot?z.racks[0].shelves[0].id:document.getElementById('moveShelf_'+i).value;
+    if(!toShelfId){alert('\u76ee\u7684\u5730 '+i+' \u65e0\u6548\u3002Destination '+i+' invalid.');return;}
+    if(toShelfId===fromShelfId){alert('\u76ee\u7684\u5730 '+i+' \u4e0e\u6765\u6e90\u76f8\u540c\u3002Destination '+i+' is the same slot.');return;}
+    dests.push({toShelfId,qty:q});
+  }
+  if(!dests.length){alert('\u8bf7\u81f3\u5c11\u586b\u5199\u4e00\u4e2a\u76ee\u7684\u5730\u6570\u91cf\u3002Enter qty for at least one destination.');return;}
+  const totalQty=dests.reduce((a,d)=>a+d.qty,0);
+  if(totalQty>maxQty){alert('\u603b\u6570\u8d85\u51fa\u53ef\u7528\uff01Total '+totalQty+' exceeds movable '+maxQty+'.');return;}
   const srcEntry=assignments[fromShelfId]?assignments[fromShelfId].find(i=>i.code===code):null;if(!srcEntry)return;
-  const sorted=srcEntry.batches.map(b=>({...b})).sort((a,b)=>a.arrival.localeCompare(b.arrival));
-  let remaining=qty;const toAdd=[];
-  for(const b of sorted){if(remaining<=0)break;const take=Math.min(remaining,b.qty);toAdd.push({arrival:b.arrival,take,batchId:b.batchId,leftOver:b.qty-take});remaining-=take;}
-  for(const t of toAdd){if(t.leftOver===0)await dbDeleteBatch(t.batchId);else await dbUpdateQty(t.batchId,t.leftOver);}
-  for(const t of toAdd){const newId='b'+Date.now()+Math.random().toString(36).slice(2);await dbAddBatch(toShelfId,code,newId,t.arrival,t.take,'');}
+  // Working copy: FIFO by arrival, only available (non-Ji) units can move
+  const work=srcEntry.batches.map(b=>({batchId:b.batchId,arrival:b.arrival,qtyLeft:b.qty,availLeft:b.qty-(b.jiQty||0)})).sort((a,b)=>a.arrival.localeCompare(b.arrival));
+  const adds=[];
+  for(const d of dests){
+    let remaining=d.qty;
+    for(const w of work){
+      if(remaining<=0)break;
+      if(w.availLeft<=0)continue;
+      const take=Math.min(remaining,w.availLeft);
+      adds.push({toShelfId:d.toShelfId,arrival:w.arrival,take});
+      w.availLeft-=take;w.qtyLeft-=take;remaining-=take;
+    }
+  }
+  // Apply source batch updates (Ji-locked qty always stays behind)
+  for(const w of work){
+    const orig=srcEntry.batches.find(b=>b.batchId===w.batchId);
+    if(w.qtyLeft===orig.qty)continue;
+    if(w.qtyLeft===0)await dbDeleteBatch(w.batchId);
+    else await dbUpdateQty(w.batchId,w.qtyLeft);
+  }
+  // Create destination batches
+  for(const a of adds){
+    const newId='b'+Date.now()+Math.random().toString(36).slice(2);
+    await dbAddBatch(a.toShelfId,code,newId,a.arrival,a.take,'');
+  }
   await sb.from('assignments').delete().lte('qty',0);
-  await dbAddHistory('Moved',code,shelfLabel(fromShelfId),shelfLabel(toShelfId),qty);
-  await loadAssignments();closeMove();render();toast('✅ 已移动 Moved '+qty+' 件 件 units');
+  for(const d of dests)await dbAddHistory('Moved',code,shelfLabel(fromShelfId),shelfLabel(d.toShelfId),d.qty);
+  await loadAssignments();closeMove();render();
+  toast('\u2705 \u5df2\u79fb\u52a8 Moved '+totalQty+' \u4ef6 \u2192 '+dests.length+' \u4e2a\u4f4d\u7f6e slot(s)');
 }
+
 function closeMove(){document.getElementById('moveBg').style.display='none';moveState=null;}
 
 // ── HISTORY PANEL ──
@@ -1922,7 +1966,7 @@ function doSearch(){
     for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
       const entry=(assignments[sh.id]||[]).find(i=>i.code===s.code);
       if(!entry||!entry.batches.length)continue;hasAny=true;
-      const st=entry.batches.reduce((a,b)=>a+b.qty,0);
+      const st=entry.batches.reduce((a,b)=>a+(b.qty-(b.jiQty||0)),0);
       const locName=r.name+(sh.name!=='Slot'?' – '+sh.name:'');
       html+='<div class="sp-location-block"><div class="sp-loc-label">📍 '+escH(locName)+' ('+st+' units)</div>';
       html+='<table class="hist-table"><thead><tr><th>#</th><th>Arrival</th><th>Weight</th><th>Qty</th></tr></thead><tbody>';
@@ -1955,7 +1999,7 @@ async function shelfDrop(e,toShelfId){
   const fromShelfId=dragState.fromShelfId;const moveCode=dragState.code;
   const batchesCopy=srcEntry.batches.map(b=>({...b}));
   for(const b of batchesCopy)await dbDeleteBatch(b.batchId);
-  for(const b of batchesCopy){const newId='b'+Date.now()+Math.random().toString(36).slice(2);await dbAddBatch(toShelfId,moveCode,newId,b.arrival,b.qty,b.weight||'');}
+  for(const b of batchesCopy){const newId='b'+Date.now()+Math.random().toString(36).slice(2);await dbAddBatch(toShelfId,moveCode,newId,b.arrival,b.qty,b.weight||'',b.jiQty||0,b.jiCompany||'',b.jiInvoice||'');}
   await sb.from('assignments').delete().lte('qty',0);
   await dbAddHistory('Moved (drag)',moveCode,shelfLabel(fromShelfId),shelfLabel(toShelfId),'—');
   await loadAssignments();dragState=null;render();toast('✅ Moved');
