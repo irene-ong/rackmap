@@ -227,9 +227,9 @@ Lee Huat Frozen Warehouse System</div>
 </div>
 
 <!-- Assign -->
-<div class="modal-bg" id="assignBg" style="display:none;"><div class="modal"><h3>分配货物至货架 Assign SKU to Slot</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">选择商品 Select SKU</div><select id="assignSku"></select><div class="modal-section">批次信息 Batch Details</div><div class="modal-row"><label>到货日期 Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>数量 Quantity:</label><input type="number" id="assignQty" value="1" min="1"/></div><div class="modal-row"><label>重量（选填）Weight:</label><input type="text" id="assignWeight" placeholder="如 10kg e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAssign()">取消 Cancel</button><button onclick="doAssign()">添加 Add</button></div></div></div>
+<div class="modal-bg" id="assignBg" style="display:none;"><div class="modal"><h3>分配货物至货架 Assign SKU to Slot</h3><div class="modal-loc" id="assignLoc"></div><div class="modal-section">选择商品 Select SKU</div><select id="assignSku"></select><div class="modal-section">批次信息 Batch Details</div><div class="modal-row"><label>到货日期 Arrival Date:</label><input type="date" id="assignArrival"/></div><div class="modal-row"><label>数量 Quantity:</label><input type="number" id="assignQty" value="1" min="1" oninput="wtRecalc('assign')"/></div><div class="modal-row"><label>重量规格（选填，最多3种）Weight variations (up to 3):</label></div><div class="modal-row"><label style="font-size:.72rem;color:#888;">规格 Variation 1:</label><input type="text" id="assignWeight1" placeholder="如 10kg e.g. 10kg" style="width:128px;"/><input type="number" id="assignWQty1" value="0" min="0" oninput="wtRecalc('assign')" title="此规格数量 Qty for this weight" style="width:68px;margin-left:6px;"/></div><div class="modal-row"><label style="font-size:.72rem;color:#888;">规格 Variation 2:</label><input type="text" id="assignWeight2" placeholder="选填 optional" style="width:128px;"/><input type="number" id="assignWQty2" value="0" min="0" oninput="wtRecalc('assign')" title="此规格数量 Qty for this weight" style="width:68px;margin-left:6px;"/></div><div class="modal-row"><label style="font-size:.72rem;color:#888;">规格 Variation 3:</label><input type="text" id="assignWeight3" placeholder="选填 optional" style="width:128px;"/><input type="number" id="assignWQty3" value="0" min="0" oninput="wtRecalc('assign')" title="此规格数量 Qty for this weight" style="width:68px;margin-left:6px;"/></div><div id="assignAlloc" style="border-radius:6px;padding:6px 12px;font-size:.74rem;margin-bottom:6px;background:#f5f6fa;"></div><div style="font-size:.66rem;color:#999;margin-bottom:8px;">填写数量后会按重量拆成独立批次，合计须等于总数量。Entering qty splits into one batch per weight; total must equal Quantity.</div><div class="modal-btns"><button class="sec" onclick="closeAssign()">取消 Cancel</button><button onclick="doAssign()">添加 Add</button></div></div></div>
 <!-- Add Batch -->
-<div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>添加新批次 Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>到货日期 Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>数量 Quantity:</label><input type="number" id="abQty" value="1" min="1"/></div><div class="modal-row"><label>重量（选填）Weight:</label><input type="text" id="abWeight" placeholder="如 10kg e.g. 10kg" style="width:120px;"/></div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">取消 Cancel</button><button onclick="doAddBatch()">添加批次 Add Batch</button></div></div></div>
+<div class="modal-bg" id="addBatchBg" style="display:none;"><div class="modal"><h3>添加新批次 Add New Batch</h3><div class="modal-loc" id="addBatchLoc"></div><div class="modal-row"><label>到货日期 Arrival Date:</label><input type="date" id="abArrival"/></div><div class="modal-row"><label>数量 Quantity:</label><input type="number" id="abQty" value="1" min="1" oninput="wtRecalc('ab')"/></div><div class="modal-row"><label>重量规格（选填，最多3种）Weight variations (up to 3):</label></div><div class="modal-row"><label style="font-size:.72rem;color:#888;">规格 Variation 1:</label><input type="text" id="abWeight1" placeholder="如 10kg e.g. 10kg" style="width:128px;"/><input type="number" id="abWQty1" value="0" min="0" oninput="wtRecalc('ab')" title="此规格数量 Qty for this weight" style="width:68px;margin-left:6px;"/></div><div class="modal-row"><label style="font-size:.72rem;color:#888;">规格 Variation 2:</label><input type="text" id="abWeight2" placeholder="选填 optional" style="width:128px;"/><input type="number" id="abWQty2" value="0" min="0" oninput="wtRecalc('ab')" title="此规格数量 Qty for this weight" style="width:68px;margin-left:6px;"/></div><div class="modal-row"><label style="font-size:.72rem;color:#888;">规格 Variation 3:</label><input type="text" id="abWeight3" placeholder="选填 optional" style="width:128px;"/><input type="number" id="abWQty3" value="0" min="0" oninput="wtRecalc('ab')" title="此规格数量 Qty for this weight" style="width:68px;margin-left:6px;"/></div><div id="abAlloc" style="border-radius:6px;padding:6px 12px;font-size:.74rem;margin-bottom:6px;background:#f5f6fa;"></div><div style="font-size:.66rem;color:#999;margin-bottom:8px;">填写数量后会按重量拆成独立批次，合计须等于总数量。Entering qty splits into one batch per weight; total must equal Quantity.</div><div class="modal-btns"><button class="sec" onclick="closeAddBatch()">取消 Cancel</button><button onclick="doAddBatch()">添加批次 Add Batch</button></div></div></div>
 <!-- Move -->
 <div class="modal-bg" id="moveBg" style="display:none;"><div class="modal"><h3>移动到其他货架 Move to Another Slot</h3><div class="move-info" id="moveInfo"></div><div class="modal-section">移动至（最多 3 个目的地）Move to (up to 3 destinations):</div><div id="mvRows"></div><div style="font-size:.7rem;color:var(--muted);margin-bottom:8px;">数量为 0 的目的地将被忽略 Destinations with qty 0 are skipped</div><div class="modal-btns"><button class="sec" onclick="closeMove()">取消 Cancel</button><button onclick="confirmMove()">移动 Move</button></div></div></div>
 <!-- Item Detail -->
@@ -259,18 +259,11 @@ These items are in the database but not assigned to a valid rack slot.</div><div
       ⚠️ 寄存货物仍在货架上，但不计入可用库存。<br/>
       <span style="color:#888;font-size:.72rem;">Ji items remain on shelf but are excluded from available stock count.</span>
     </div>
-    <div class="modal-section">寄存数量 Ji Quantity (max: <span id="jiModalMax">0</span>)</div>
-    <div class="modal-row">
-      <label>寄存数量 Ji Qty:</label>
-      <input type="number" id="jiQtyInput" value="0" min="0" style="width:80px;"/>
-    </div>
-    <div class="modal-row">
-      <label>客户公司 Company:</label>
-      <input type="text" id="jiCompanyInput" placeholder="公司名称 Company name" style="flex:1;width:auto;"/>
-    </div>
-    <div class="modal-row">
-      <label>发票号 Invoice No.:</label>
-      <input type="text" id="jiInvoiceInput" placeholder="发票号码 Invoice no." style="flex:1;width:auto;"/>
+    <div class="modal-section">寄存客户（最多 3 家）Ji Customers (up to 3) &nbsp;|&nbsp; 批次总量 batch qty: <span id="jiModalMax">0</span></div>
+    <div id="jiRows"></div>
+    <div style="background:#f0f4ff;border-radius:6px;padding:7px 12px;font-size:.78rem;margin-bottom:10px;">
+      合计寄存 Total Ji: <strong id="jiRunTotal" style="color:#e65100;">0</strong>
+      &nbsp;·&nbsp; 剩余可用 Remaining avail: <strong id="jiRunAvail" style="color:#1a7a3c;">0</strong>
     </div>
     <div class="modal-btns" style="justify-content:space-between;">
       <button class="sec" style="color:#e65100;border-color:#ffcc80;" onclick="clearJi()">清除寄存 Clear Ji</button>
@@ -1294,7 +1287,12 @@ async function loadAssignments() {
     if(!assignments[row.shelf_id])assignments[row.shelf_id]=[];
     let entry=assignments[row.shelf_id].find(i=>i.code===row.sku_code);
     if(!entry){entry={code:row.sku_code,batches:[]};assignments[row.shelf_id].push(entry);}
-    entry.batches.push({batchId:row.batch_id,arrival:row.arrival,qty:row.qty,weight:row.weight||'',jiQty:row.ji_qty||0,jiCompany:row.ji_company||'',jiInvoice:row.ji_invoice||''});
+    var jl=parseJ(row.ji_list).filter(function(e){return e&&(+e.q||0)>0;}).slice(0,3);
+    if(!jl.length&&(row.ji_qty||0)>0)jl=[{q:row.ji_qty,c:row.ji_company||'',i:row.ji_invoice||''}];
+    var jiTot=jl.reduce(function(a,e){return a+(+e.q||0);},0);
+    var wl=parseJ(row.weight_list).filter(function(w){return w&&String(w).trim();}).slice(0,3).map(String);
+    if(!wl.length&&row.weight)wl=[row.weight];
+    entry.batches.push({batchId:row.batch_id,arrival:row.arrival,qty:row.qty,weight:wl.join(' / '),weightList:wl,jiQty:jiTot,jiList:jl,jiCompany:jl.length?(jl[0].c||''):'',jiInvoice:jl.length?(jl[0].i||''):''});
   }
   setSyncState('ok');
 }
@@ -1307,9 +1305,15 @@ async function dbAddHistory(action,sku,from,to,qty) {
   const res=await sb.from('change_history').insert(row);
   if(!res.error)history.unshift({...row,ts:new Date().toISOString()});
 }
-async function dbAddBatch(shelfId,skuCode,batchId,arrival,qty,weight,jiQty,jiCompany,jiInvoice) {
+async function dbAddBatch(shelfId,skuCode,batchId,arrival,qty,weight,jiQty,jiCompany,jiInvoice,weightList,jiList) {
   setSyncState('syncing');
-  const res=await sb.from('assignments').insert({shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival,qty,weight:weight||'',ji_qty:jiQty||0,ji_company:jiCompany||'',ji_invoice:jiInvoice||''});
+  var wl=(weightList&&weightList.length)?weightList:(weight?[weight]:[]);
+  var jl=(jiList&&jiList.length)?jiList:(((jiQty||0)>0)?[{q:jiQty,c:jiCompany||'',i:jiInvoice||''}]:[]);
+  var jiTot=jl.reduce(function(a,e){return a+(+e.q||0);},0);
+  var base={shelf_id:shelfId,sku_code:skuCode,batch_id:batchId,arrival:arrival,qty:qty,weight:wl.join(' / '),ji_qty:jiTot,ji_company:jl.length?(jl[0].c||''):'',ji_invoice:jl.length?(jl[0].i||''):''};
+  var row=HAS_MULTI?Object.assign({},base,{weight_list:wl,ji_list:jl}):base;
+  var res=await sb.from('assignments').insert(row);
+  if(res.error&&HAS_MULTI&&isMissingCol(res.error)){HAS_MULTI=false;res=await sb.from('assignments').insert(base);}
   if(res.error){setSyncState('error');toast('Save failed: '+res.error.message,'err');return false;}
   setSyncState('ok');return true;
 }
@@ -1335,10 +1339,25 @@ async function dbDeleteEntry(shelfId,skuCode) {
 
 
 // ── 寄 (JI) CONSIGNMENT MANAGEMENT ──────────────────────────────────
-async function dbUpdateJi(batchId, jiQty, jiCompany, jiInvoice) {
+async function dbUpdateJi(batchId, jiList) {
   setSyncState('syncing');
-  const res=await sb.from('assignments').update({ji_qty:jiQty,ji_company:jiCompany,ji_invoice:jiInvoice}).eq('batch_id',batchId);
+  var jl=(jiList||[]).filter(function(e){return e&&(+e.q||0)>0;}).slice(0,3);
+  var jiTot=jl.reduce(function(a,e){return a+(+e.q||0);},0);
+  var base={ji_qty:jiTot,ji_company:jl.length?(jl[0].c||''):'',ji_invoice:jl.length?(jl[0].i||''):''};
+  var upd=HAS_MULTI?Object.assign({},base,{ji_list:jl}):base;
+  var res=await sb.from('assignments').update(upd).eq('batch_id',batchId);
+  if(res.error&&HAS_MULTI&&isMissingCol(res.error)){HAS_MULTI=false;res=await sb.from('assignments').update(base).eq('batch_id',batchId);}
   if(res.error){setSyncState('error');toast('寄存更新失败 Update failed: '+res.error.message,'err');return false;}
+  setSyncState('ok');return true;
+}
+async function dbUpdateWeights(batchId, weightList) {
+  setSyncState('syncing');
+  var wl=(weightList||[]).filter(function(w){return w&&String(w).trim();}).slice(0,3).map(String);
+  var base={weight:wl.join(' / ')};
+  var upd=HAS_MULTI?Object.assign({},base,{weight_list:wl}):base;
+  var res=await sb.from('assignments').update(upd).eq('batch_id',batchId);
+  if(res.error&&HAS_MULTI&&isMissingCol(res.error)){HAS_MULTI=false;res=await sb.from('assignments').update(base).eq('batch_id',batchId);}
+  if(res.error){setSyncState('error');toast('重量更新失败 Weight update failed: '+res.error.message,'err');return false;}
   setSyncState('ok');return true;
 }
 
@@ -1350,11 +1369,28 @@ function openJiModal(shelfId, code, batchId) {
   document.getElementById('jiModalCode').value=code;
   document.getElementById('jiModalSku').textContent=code+' @ '+shelfLabel(shelfId);
   document.getElementById('jiModalMax').textContent=batch.qty;
-  document.getElementById('jiQtyInput').value=batch.jiQty||0;
-  document.getElementById('jiQtyInput').max=batch.qty;
-  document.getElementById('jiCompanyInput').value=batch.jiCompany||'';
-  document.getElementById('jiInvoiceInput').value=batch.jiInvoice||'';
+  jiMaxQty=batch.qty;
+  var es=jiEntries(batch);
+  var h='';
+  for(var k=1;k<=3;k++){
+    var e0=es[k-1]||{q:0,c:'',i:''};
+    h+='<div style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:8px;background:'+(k===1?'#fffdf7':'#fff')+';">';
+    h+='<div style="font-size:.72rem;font-weight:700;color:#c47a15;margin-bottom:6px;">客户 Customer '+k+(k>1?'（选填 optional）':'')+'</div>';
+    h+='<div class="modal-row"><label>寄存数量 Ji Qty:</label><input type="number" id="jiQty_'+k+'" value="'+(+e0.q||0)+'" min="0" max="'+batch.qty+'" oninput="jiRecalc()" style="width:80px;"/></div>';
+    h+='<div class="modal-row"><label>客户公司 Company:</label><input type="text" id="jiCo_'+k+'" value="'+escH(e0.c||'')+'" placeholder="公司名称 Company name" style="flex:1;width:auto;"/></div>';
+    h+='<div class="modal-row"><label>发票号 Invoice:</label><input type="text" id="jiInv_'+k+'" value="'+escH(e0.i||'')+'" placeholder="发票号码 Invoice no." style="flex:1;width:auto;"/></div>';
+    h+='</div>';
+  }
+  document.getElementById('jiRows').innerHTML=h;
+  jiRecalc();
   document.getElementById('jiModalBg').style.display='flex';
+}
+function jiRecalc(){
+  var t=0;
+  for(var k=1;k<=3;k++){var el=document.getElementById('jiQty_'+k);if(el)t+=parseInt(el.value)||0;}
+  var tEl=document.getElementById('jiRunTotal'),aEl=document.getElementById('jiRunAvail');
+  if(tEl)tEl.textContent=t;
+  if(aEl){aEl.textContent=(jiMaxQty-t);aEl.style.color=(t>jiMaxQty)?'#d93025':'#1a7a3c';}
 }
 function closeJiModal(){document.getElementById('jiModalBg').style.display='none';}
 
@@ -1362,44 +1398,196 @@ async function saveJi() {
   const batchId=document.getElementById('jiModalBatchId').value;
   const shelfId=document.getElementById('jiModalShelfId').value;
   const code=document.getElementById('jiModalCode').value;
-  const jiQty=parseInt(document.getElementById('jiQtyInput').value)||0;
-  const jiCompany=document.getElementById('jiCompanyInput').value.trim();
-  const jiInvoice=document.getElementById('jiInvoiceInput').value.trim();
   const entry=assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;if(!entry)return;
   const batch=entry.batches.find(b=>b.batchId===batchId);if(!batch)return;
-  if(jiQty>batch.qty){toast('寄存数量不能超过批次总数 Ji qty cannot exceed batch qty','err');return;}
-  if(jiQty>0&&!jiCompany){toast('请填写客户公司名称 Please enter company name','err');return;}
-  const ok=await dbUpdateJi(batchId,jiQty,jiCompany,jiInvoice);
+  var list=[];var seen={};
+  for(var k=1;k<=3;k++){
+    var q=parseInt(document.getElementById('jiQty_'+k).value)||0;
+    var c=document.getElementById('jiCo_'+k).value.trim();
+    var iv=document.getElementById('jiInv_'+k).value.trim();
+    if(q<=0)continue;
+    if(!c){toast('客户 '+k+' 请填写公司名称 Customer '+k+': company name required','err');return;}
+    var key=c.toLowerCase();
+    if(seen[key]){toast('客户公司重复 Duplicate company: '+c,'err');return;}
+    seen[key]=1;list.push({q:q,c:c,i:iv});
+  }
+  var tot=list.reduce(function(a,e){return a+e.q;},0);
+  if(tot>batch.qty){toast('寄存合计 '+tot+' 超过批次总数 '+batch.qty+' — Total Ji exceeds batch qty','err');return;}
+  const ok=await dbUpdateJi(batchId,list);
   if(ok){
-    batch.jiQty=jiQty;batch.jiCompany=jiCompany;batch.jiInvoice=jiInvoice;
+    batch.jiList=list;batch.jiQty=tot;
+    batch.jiCompany=list.length?list[0].c:'';batch.jiInvoice=list.length?list[0].i:'';
     closeJiModal();render();
-    toast(jiQty>0?'✅ 寄存已更新 Ji updated!':'✅ 寄存已清除 Ji cleared!');
+    toast(tot>0?('✅ 寄存已更新 Ji updated: '+tot+' 件 / '+list.length+' 家 company(ies)'):'✅ 寄存已清除 Ji cleared!');
   }
 }
 async function clearJi() {
   const batchId=document.getElementById('jiModalBatchId').value;
   const shelfId=document.getElementById('jiModalShelfId').value;
   const code=document.getElementById('jiModalCode').value;
-  const ok=await dbUpdateJi(batchId,0,'','');
+  const ok=await dbUpdateJi(batchId,[]);
   if(ok){
     const entry=assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;
-    if(entry){const b=entry.batches.find(b=>b.batchId===batchId);if(b){b.jiQty=0;b.jiCompany='';b.jiInvoice='';}}
+    if(entry){const b=entry.batches.find(b=>b.batchId===batchId);if(b){b.jiQty=0;b.jiList=[];b.jiCompany='';b.jiInvoice='';}}
     closeJiModal();render();toast('✅ 寄存已清除 Ji cleared!');
   }
 }
 
+function parseJ(v){if(!v)return[];if(Array.isArray(v))return v;try{var p=JSON.parse(v);return Array.isArray(p)?p:[];}catch(e){return[];}}
+function jiEntries(b){return (Array.isArray(b.jiList)?b.jiList:[]).filter(function(e){return e&&(+e.q||0)>0;}).slice(0,3);}
+function wtEntries(b){return (Array.isArray(b.weightList)?b.weightList:[]).filter(function(w){return w&&String(w).trim();}).slice(0,3).map(String);}
+function jiCoLabel(b){var es=jiEntries(b);return es.map(function(e){return (e.c||'?')+' '+e.q+(e.i?' #'+e.i:'');}).join(' | ');}
+var HAS_MULTI=true;var jiMaxQty=0;
+function isMissingCol(err){var m=((err&&err.message)||'').toLowerCase();return m.indexOf('ji_list')>-1||m.indexOf('weight_list')>-1||(m.indexOf('column')>-1&&m.indexOf('does not exist')>-1);}
+function collectWeightBatches(P,Q,total){
+  var rows=[];
+  for(var k=1;k<=3;k++){
+    var w=(document.getElementById(P+k).value||'').trim();
+    var q=parseInt(document.getElementById(Q+k).value)||0;
+    if(q>0||w)rows.push({w:w,q:q,k:k});
+  }
+  var withQty=rows.filter(function(r){return r.q>0;});
+  if(!withQty.length)return [{qty:total,weight:rows.length?rows[0].w:''}];
+  for(var i=0;i<withQty.length;i++){
+    if(!withQty[i].w){toast('\u89c4\u683c '+withQty[i].k+' \u8bf7\u586b\u5199\u91cd\u91cf \u2014 Variation '+withQty[i].k+': weight required','err');return null;}
+  }
+  var seen={};
+  for(var i=0;i<withQty.length;i++){
+    var key=withQty[i].w.toLowerCase();
+    if(seen[key]){toast('\u91cd\u91cf\u89c4\u683c\u91cd\u590d Duplicate weight: '+withQty[i].w,'err');return null;}
+    seen[key]=1;
+  }
+  var sum=withQty.reduce(function(a,r){return a+r.q;},0);
+  if(sum!==total){toast('\u91cd\u91cf\u6570\u91cf\u5408\u8ba1 '+sum+' \u4e0e\u603b\u6570\u91cf '+total+' \u4e0d\u7b26 \u2014 Weight total must equal Quantity','err');return null;}
+  return withQty.map(function(r){return {qty:r.q,weight:r.w};});
+}
+function openWeightFromEl(el){openWeightModal(el.getAttribute('data-sid'),el.getAttribute('data-code'),el.getAttribute('data-bid'));}
+function splitFromEl(el){openSplitModal(el.getAttribute('data-sid'),el.getAttribute('data-code'),el.getAttribute('data-bid'));}
+function qtyFromEl(el){setBatchQtyFromDetail(el.getAttribute('data-sid'),el.getAttribute('data-code'),el.getAttribute('data-bid'),el.value);}
+function findBatch(sid,code,bid){
+  var entry=assignments[sid]?assignments[sid].find(function(i){return i.code===code;}):null;
+  if(!entry)return null;
+  var b=entry.batches.find(function(x){return x.batchId===bid;});
+  return b?{entry:entry,batch:b}:null;
+}
+function openWeightModal(sid,code,bid){
+  var f=findBatch(sid,code,bid); if(!f)return;
+  document.getElementById('wtEditSid').value=sid;
+  document.getElementById('wtEditCode').value=code;
+  document.getElementById('wtEditBid').value=bid;
+  document.getElementById('wtEditInfo').textContent=code+' @ '+shelfLabel(sid)+'  \u00b7  '+f.batch.qty+' \u4ef6 units';
+  document.getElementById('wtEditVal').value=f.batch.weight||'';
+  document.getElementById('wtEditBg').style.display='flex';
+  setTimeout(function(){document.getElementById('wtEditVal').focus();},50);
+}
+function closeWtEdit(){document.getElementById('wtEditBg').style.display='none';}
+async function saveWtEdit(){
+  var sid=document.getElementById('wtEditSid').value;
+  var code=document.getElementById('wtEditCode').value;
+  var bid=document.getElementById('wtEditBid').value;
+  var val=document.getElementById('wtEditVal').value.trim();
+  var ok=await dbUpdateWeights(bid, val?[val]:[]);
+  if(ok){
+    await dbAddHistory('\u91cd\u91cf\u66f4\u65b0 Weight update',code,shelfLabel(sid),null,null);
+    await loadAssignments(); closeWtEdit(); render();
+    if(document.getElementById('itemDetailPanel').style.display==='flex')openItemDetail(sid,code);
+    toast(val?('\u2705 \u91cd\u91cf\u5df2\u66f4\u65b0 Weight updated: '+val):'\u2705 \u91cd\u91cf\u5df2\u6e05\u9664 Weight cleared');
+  }
+}
+async function setBatchQtyFromDetail(sid,code,bid,val){
+  await setBatchQty(sid,code,bid,val);
+  var entry=assignments[sid]?assignments[sid].find(function(i){return i.code===code;}):null;
+  if(!entry||!entry.batches.length)closeItemDetail();else openItemDetail(sid,code);
+}
+function openSplitModal(sid,code,bid){
+  var f=findBatch(sid,code,bid); if(!f)return;
+  var b=f.batch;
+  if((b.jiQty||0)>0){toast('\u6b64\u6279\u6b21\u6709\u5bc4\u5b58\uff0c\u8bf7\u5148\u6e05\u9664\u5bc4\u5b58\u518d\u62c6\u5206 \u2014 Clear Ji before splitting','err');return;}
+  if(b.qty<2){toast('\u6570\u91cf\u4e0d\u8db3\uff0c\u65e0\u6cd5\u62c6\u5206 Qty too small to split','err');return;}
+  document.getElementById('splitSid').value=sid;
+  document.getElementById('splitCode').value=code;
+  document.getElementById('splitBid').value=bid;
+  document.getElementById('splitTotal').value=b.qty;
+  document.getElementById('splitInfo').textContent=code+' @ '+shelfLabel(sid)+'  \u00b7  '+fmtDate(b.arrival)+'  \u00b7  \u5171 '+b.qty+' \u4ef6 units';
+  var html='';
+  for(var k=1;k<=3;k++){
+    html+='<div class="modal-row"><label style="font-size:.72rem;color:#888;">\u89c4\u683c Variation '+k+':</label>';
+    html+='<input type="text" id="splitW'+k+'" value="'+(k===1?escH(b.weight||''):'')+'" placeholder="'+(k===1?'\u5982 10kg':'\u9009\u586b optional')+'" style="width:128px;"/>';
+    html+='<input type="number" id="splitQ'+k+'" value="'+(k===1?b.qty:0)+'" min="0" oninput="wtRecalc(\'split\')" style="width:68px;margin-left:6px;"/></div>';
+  }
+  document.getElementById('splitRows').innerHTML=html;
+  wtRecalc('split');
+  document.getElementById('splitBg').style.display='flex';
+}
+function closeSplit(){document.getElementById('splitBg').style.display='none';}
+async function saveSplit(){
+  var sid=document.getElementById('splitSid').value;
+  var code=document.getElementById('splitCode').value;
+  var bid=document.getElementById('splitBid').value;
+  var f=findBatch(sid,code,bid); if(!f)return;
+  var b=f.batch, total=b.qty;
+  var parts=collectWeightBatches('splitW','splitQ',total);
+  if(!parts)return;
+  var ok=await dbUpdateQty(bid,parts[0].qty);
+  if(ok)ok=await dbUpdateWeights(bid,parts[0].weight?[parts[0].weight]:[]);
+  for(var i=1;i<parts.length&&ok;i++){
+    var nid='b'+Date.now()+'s'+i+Math.random().toString(36).slice(2);
+    ok=await dbAddBatch(sid,code,nid,b.arrival,parts[i].qty,parts[i].weight,0,'','',parts[i].weight?[parts[i].weight]:[],[]);
+  }
+  if(ok){
+    await dbAddHistory('\u6279\u6b21\u62c6\u5206 Batch split',code,shelfLabel(sid),null,total);
+    await loadAssignments(); closeSplit(); render();
+    if(document.getElementById('itemDetailPanel').style.display==='flex')openItemDetail(sid,code);
+    toast('\u2705 \u5df2\u62c6\u5206 Split into '+parts.length+' \u4e2a\u6279\u6b21 batches');
+  }
+}
+function jiTipLabel(b){return jiEntries(b).map(function(e){return (e.c||'?')+' \u2014 '+e.q+' \u4ef6';}).join(' | ');}
+function wtCfg(tag){
+  if(tag==='assign')return {P:'assignWeight',Q:'assignWQty',T:'assignQty',A:'assignAlloc'};
+  if(tag==='ab')return {P:'abWeight',Q:'abWQty',T:'abQty',A:'abAlloc'};
+  return {P:'splitW',Q:'splitQ',T:'splitTotal',A:'splitAlloc'};
+}
+function wtRecalc(tag){
+  var c=wtCfg(tag);
+  var el=document.getElementById(c.A); if(!el)return;
+  var tEl=document.getElementById(c.T); if(!tEl)return;
+  var tot=parseInt(tEl.value)||0, sum=0, n=0;
+  for(var k=1;k<=3;k++){var q=parseInt((document.getElementById(c.Q+k)||{}).value)||0;if(q>0){sum+=q;n++;}}
+  if(!n){el.innerHTML=(tag==='split')?'\u8bf7\u586b\u5199\u5404\u89c4\u683c\u6570\u91cf Enter qty for each weight':'\u672a\u6309\u91cd\u91cf\u5206\u914d \u00b7 \u5c06\u5efa\u7acb 1 \u4e2a\u6279\u6b21 No weight split \u2014 creates 1 batch';el.style.background='#f5f6fa';return;}
+  var okm=(sum===tot);
+  el.innerHTML='\u5df2\u5206\u914d Allocated: <strong style="color:'+(okm?'#1a7a3c':'#d93025')+'">'+sum+'</strong> / '+tot+' \u00b7 '+(tag==='split'?'\u5c06\u5f97\u5230 ':'\u5c06\u5efa\u7acb ')+'<strong>'+n+'</strong> \u4e2a\u6279\u6b21 batches'+(okm?'':' \u26a0\ufe0f \u4e0d\u7b26 mismatch');
+  el.style.background=okm?'#eaf7ee':'#fff0f0';
+}
+function showJiTip(el){
+  var t=document.getElementById('jiTip'); if(!t)return;
+  var parts=(el.getAttribute('data-ji')||'').split('|').map(function(s){return s.trim();}).filter(Boolean);
+  if(!parts.length)return;
+  t.innerHTML='<div style="font-weight:700;color:#ffcc80;margin-bottom:3px;">\u5bc4\u5b58 Ji Consignment</div>'+parts.map(function(p){return '<div>\u2022 '+p+'</div>';}).join('');
+  t.style.display='block';
+  var r=el.getBoundingClientRect();
+  var top=r.top-t.offsetHeight-7; if(top<4)top=r.bottom+7;
+  var left=r.left; if(left+t.offsetWidth>window.innerWidth-8)left=window.innerWidth-t.offsetWidth-8;
+  if(left<4)left=4;
+  t.style.top=top+'px'; t.style.left=left+'px';
+}
+function hideJiTip(){var t=document.getElementById('jiTip');if(t)t.style.display='none';}
 function getJiItems() {
   const items=[];
   for(const z of getZones()) for(const r of z.racks) for(const s of r.shelves) {
     for(const item of (assignments[s.id]||[])) {
       const sku=getSKU(item.code);
       for(const b of item.batches) {
-        if((b.jiQty||0)>0) items.push({
-          zone:z.name,rack:r.name,shelf:s.name,
-          code:item.code,name:sku?sku.name:'',
-          arrival:b.arrival,totalQty:b.qty,jiQty:b.jiQty,
-          availQty:b.qty-b.jiQty,weight:b.weight||'',
-          jiCompany:b.jiCompany,jiInvoice:b.jiInvoice
+        var es=jiEntries(b);
+        if(!es.length)continue;
+        es.forEach(function(e,idx){
+          items.push({
+            zone:z.name,rack:r.name,shelf:s.name,
+            code:item.code,name:sku?sku.name:'',
+            arrival:b.arrival,totalQty:b.qty,jiQty:e.q,
+            availQty:b.qty-(b.jiQty||0),weight:b.weight||'',
+            jiCompany:e.c||'',jiInvoice:e.i||'',
+            custNo:(idx+1)+'/'+es.length
+          });
         });
       }
     }
@@ -1410,8 +1598,8 @@ function getJiItems() {
 function exportJiItems() {
   const items=getJiItems();
   if(!items.length){toast('没有寄存货物 No Ji items found','err');return;}
-  const rows=[['货架区 Zone','货架 Rack','层级 Shelf','商品代码 SKU Code','商品名称 Item Name','到货日期 Arrival','批次总量 Total Qty','寄存数量 Ji Qty','可用数量 Avail Qty','重量 Weight','客户公司 Company','发票号 Invoice No.']];
-  items.forEach(it=>rows.push([it.zone,it.rack,it.shelf,it.code,it.name,it.arrival,it.totalQty,it.jiQty,it.availQty,it.weight,it.jiCompany,it.jiInvoice]));
+  const rows=[['货架区 Zone','货架 Rack','层级 Shelf','商品代码 SKU Code','商品名称 Item Name','到货日期 Arrival','批次总量 Total Qty','本客户寄存 This Cust Ji','批次可用 Avail Qty','重量 Weight','客户公司 Company','发票号 Invoice No.','客户序号 Cust #']];
+  items.forEach(it=>rows.push([it.zone,it.rack,it.shelf,it.code,it.name,it.arrival,it.totalQty,it.jiQty,it.availQty,it.weight,it.jiCompany,it.jiInvoice,it.custNo]));
   const ws=XLSX.utils.aoa_to_sheet(rows);
   ws['!cols']=[{wch:8},{wch:8},{wch:8},{wch:16},{wch:36},{wch:14},{wch:10},{wch:10},{wch:10},{wch:10},{wch:24},{wch:18}];
   const wb=XLSX.utils.book_new();
@@ -1575,8 +1763,8 @@ function renderWarehouse(){
             item.batches.forEach(b=>{
               html+='<div style="'+BRS+'">';
               html+='<span class="batch-arr">📅 '+fmtDate(b.arrival)+'</span>';
-              if(b.weight)html+='<span style="font-size:.56rem;color:#e67e00;">⚖️ '+escH(String(b.weight))+'</span>';
-              if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
+              html+='<span style="font-size:.56rem;color:'+(b.weight?'#e67e00':'#ccc')+';cursor:pointer;" title="修改重量 Edit weight" onclick="event.stopPropagation();openWeightModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">⚖️ '+(b.weight?escH(String(b.weight)):'+')+'</span>';
+              if(b.jiQty>0)html+='<span class="ji-badge" data-ji="'+escH(jiTipLabel(b))+'" onmouseenter="showJiTip(this)" onmouseleave="hideJiTip()">寄 '+b.jiQty+(jiEntries(b).length>1?' ('+jiEntries(b).length+'\u5bb6)':'')+'</span>';
               html+='<div style="'+QCS+'">';
               html+='<button class="bqty-btn m" style="width:15px;height:15px;padding:0;" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
               html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" style="width:28px!important;padding:0!important;height:15px;box-sizing:border-box;" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
@@ -1619,8 +1807,8 @@ function renderWarehouse(){
               item.batches.forEach(b=>{
                 html+='<div style="'+BRS+'">';
                 html+='<span style="font-size:.56rem;color:#0A9E8A;white-space:nowrap;">📅 '+fmtDate(b.arrival)+'</span>';
-                if(b.weight)html+='<span style="font-size:.56rem;color:#e67e00;">⚖️ '+escH(String(b.weight))+'</span>';
-                if(b.jiQty>0)html+='<span class="ji-badge">寄 '+b.jiQty+'</span>';
+                html+='<span style="font-size:.56rem;color:'+(b.weight?'#e67e00':'#ccc')+';cursor:pointer;" title="修改重量 Edit weight" onclick="event.stopPropagation();openWeightModal(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\')">⚖️ '+(b.weight?escH(String(b.weight)):'+')+'</span>';
+                if(b.jiQty>0)html+='<span class="ji-badge" data-ji="'+escH(jiTipLabel(b))+'" onmouseenter="showJiTip(this)" onmouseleave="hideJiTip()">寄 '+b.jiQty+(jiEntries(b).length>1?' ('+jiEntries(b).length+'\u5bb6)':'')+'</span>';
                 html+='<div style="'+QCS+'">';
                 html+='<button class="bqty-btn m" style="width:15px;height:15px;padding:0;flex-shrink:0;" onclick="event.stopPropagation();changeBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',-1)">−</button>';
                 html+='<input class="bqty-input" type="number" value="'+b.qty+'" min="0" style="width:28px!important;padding:0!important;height:15px;box-sizing:border-box;flex-shrink:0;" onchange="event.stopPropagation();setBatchQty(\''+s.id+'\',\''+sc2+'\',\''+b.batchId+'\',this.value)" onclick="event.stopPropagation()" />';
@@ -1735,20 +1923,29 @@ function openAssign(shelfId){
   document.getElementById('assignSku').innerHTML=opts;
   document.getElementById('assignArrival').value=todayStr();
   document.getElementById('assignQty').value=1;
-  document.getElementById('assignWeight').value='';
+  for(var wk=1;wk<=3;wk++){document.getElementById('assignWeight'+wk).value='';document.getElementById('assignWQty'+wk).value=0;}wtRecalc('assign');
   document.getElementById('assignBg').style.display='flex';
 }
 async function doAssign(){
   const code=document.getElementById('assignSku').value;
   const arrival=document.getElementById('assignArrival').value;
   const qty=parseInt(document.getElementById('assignQty').value)||1;
-  const weight=document.getElementById('assignWeight').value.trim();
-  if(!code){alert('Select a SKU.');return;}if(!arrival){alert('Enter arrival date.');return;}
-  const batchId='b'+Date.now()+Math.random().toString(36).slice(2);
-  const ok=await dbAddBatch(assignShelfId,code,batchId,arrival,qty,weight);
-  if(ok){
+  if(!code){alert('Select a SKU.');return;}
+  if(!arrival){alert('Enter arrival date.');return;}
+  var batches=collectWeightBatches('assignWeight','assignWQty',qty);
+  if(!batches)return;
+  var okAll=true;
+  for(var i=0;i<batches.length;i++){
+    var bId='b'+Date.now()+'x'+i+Math.random().toString(36).slice(2);
+    var wl=batches[i].weight?[batches[i].weight]:[];
+    var ok=await dbAddBatch(assignShelfId,code,bId,arrival,batches[i].qty,batches[i].weight,0,'','',wl,[]);
+    if(!ok)okAll=false;
+  }
+  if(okAll){
     await dbAddHistory('Added',code,null,shelfLabel(assignShelfId),qty);
-    await loadAssignments();toast('✅ 已添加！Added!');closeAssign();render();
+    await loadAssignments();
+    toast('\u2705 \u5df2\u6dfb\u52a0 Added: '+qty+' \u4ef6 / '+batches.length+' \u6279\u6b21 batch(es)');
+    closeAssign();render();
   }
 }
 function closeAssign(){document.getElementById('assignBg').style.display='none';assignShelfId=null;}
@@ -1761,7 +1958,7 @@ function openAddBatch(shelfId,code){
   document.getElementById('addBatchLoc').textContent=code+' @ '+loc;
   document.getElementById('abArrival').value=todayStr();
   document.getElementById('abQty').value=1;
-  document.getElementById('abWeight').value='';
+  for(var wk=1;wk<=3;wk++){document.getElementById('abWeight'+wk).value='';document.getElementById('abWQty'+wk).value=0;}wtRecalc('ab');
   document.getElementById('addBatchBg').style.display='flex';
 }
 async function doAddBatch(){
@@ -1769,11 +1966,22 @@ async function doAddBatch(){
   const{shelfId,code}=addBatchState;
   const arrival=document.getElementById('abArrival').value;
   const qty=parseInt(document.getElementById('abQty').value)||1;
-  const weight=document.getElementById('abWeight').value.trim();
   if(!arrival){alert('Enter arrival date.');return;}
-  const batchId='b'+Date.now()+Math.random().toString(36).slice(2);
-  const ok=await dbAddBatch(shelfId,code,batchId,arrival,qty,weight);
-  if(ok){await dbAddHistory('Batch added',code,null,shelfLabel(shelfId),qty);await loadAssignments();toast('✅ 批次已添加！Batch added!');closeAddBatch();render();}
+  var batches=collectWeightBatches('abWeight','abWQty',qty);
+  if(!batches)return;
+  var okAll=true;
+  for(var i=0;i<batches.length;i++){
+    var bId='b'+Date.now()+'x'+i+Math.random().toString(36).slice(2);
+    var wl=batches[i].weight?[batches[i].weight]:[];
+    var ok=await dbAddBatch(shelfId,code,bId,arrival,batches[i].qty,batches[i].weight,0,'','',wl,[]);
+    if(!ok)okAll=false;
+  }
+  if(okAll){
+    await dbAddHistory('Batch added',code,null,shelfLabel(shelfId),qty);
+    await loadAssignments();
+    toast('\u2705 \u6279\u6b21\u5df2\u6dfb\u52a0 Added: '+qty+' \u4ef6 / '+batches.length+' \u6279\u6b21 batch(es)');
+    closeAddBatch();render();
+  }
 }
 function closeAddBatch(){document.getElementById('addBatchBg').style.display='none';addBatchState=null;}
 
@@ -1782,6 +1990,7 @@ async function changeBatchQty(shelfId,code,batchId,delta){
   const entry=assignments[shelfId]?assignments[shelfId].find(i=>i.code===code):null;if(!entry)return;
   const batch=entry.batches.find(b=>b.batchId===batchId);if(!batch)return;
   const newQty=batch.qty+delta;
+  if((batch.jiQty||0)>0&&newQty<batch.jiQty){toast('\u6570\u91cf\u4e0d\u80fd\u5c11\u4e8e\u5bc4\u5b58\u6570\u91cf Cannot go below Ji qty ('+batch.jiQty+')','err');return;}
   if(newQty<=0){if(!confirm('数量将归零。是否删除此批次？ | Qty will reach 0. Remove this batch?'))return;const ok=await dbDeleteBatch(batchId);if(ok){await dbAddHistory('Batch removed (qty 0)',code,shelfLabel(shelfId),null,0);await loadAssignments();render();}return;}
   const ok=await dbUpdateQty(batchId,newQty);
   if(ok){await dbAddHistory('Qty '+(delta>0?'+':'')+delta,code,shelfLabel(shelfId),null,newQty);await loadAssignments();render();}
@@ -1816,9 +2025,10 @@ function openItemDetail(shelfId,code){
     html+='<tr>';
     html+='<td>'+(i+1)+'</td>';
     html+='<td>'+fmtDate(b.arrival)+'</td>';
-    html+='<td>'+(b.weight?'⚖️ '+escH(String(b.weight)):'—')+'</td>';
-    html+='<td><strong>'+b.qty+'</strong></td>';
-    html+='<td><button class="batch-del" data-sid="'+escH(shelfId)+'" data-code="'+escH(code)+'" data-bid="'+escH(b.batchId)+'" onclick="deleteBatchFromDetail(this)">✕</button></td>';
+    var dat=' data-sid="'+escH(shelfId)+'" data-code="'+escH(code)+'" data-bid="'+escH(b.batchId)+'"';
+    html+='<td><span style="cursor:pointer;color:'+(b.weight?'#e67e00':'#bbb')+';" title="点击修改重量 Click to edit weight"'+dat+' onclick="openWeightFromEl(this)">⚖️ '+(b.weight?escH(String(b.weight)):'+')+'</span></td>';
+    html+='<td><input type="number" value="'+b.qty+'" min="0"'+dat+' onchange="qtyFromEl(this)" title="点击修改数量 Click to edit qty" style="width:64px;padding:3px 4px;border:1px solid #e2e4ed;border-radius:4px;font-weight:700;text-align:center;font-family:inherit;font-size:.8rem;"/></td>';
+    html+='<td style="white-space:nowrap;"><button class="batch-del" title="按重量拆分 Split by weight"'+dat+' onclick="splitFromEl(this)">✂️</button><button class="batch-del" title="删除批次 Delete batch"'+dat+' onclick="deleteBatchFromDetail(this)">✕</button></td>';
     html+='</tr>';
   });
   html+='</tbody></table></div>';
@@ -2070,12 +2280,12 @@ function exportFullReport(){
 
     // ── Sheet 2: Batch Detail ───────────────────────────────────────
     // Every batch: zone, rack, shelf, SKU, arrival, qty, ji, avail, weight
-    const det=[['区域 Zone','货架 Rack','层级 Shelf','商品代码 SKU','商品名称 Name','到货日期 Arrival Date','批次总量 Total Qty','寄存数量 Ji Qty','可用数量 Avail Qty','重量 Weight','寄存公司 Ji Company','发票号 Invoice No.']];
+    const det=[['区域 Zone','货架 Rack','层级 Shelf','商品代码 SKU','商品名称 Name','到货日期 Arrival Date','批次总量 Total Qty','寄存数量 Ji Qty','可用数量 Avail Qty','重量 Weight','寄存公司 Ji Companies','客户数 # Cust']];
     for(const z of getZones())for(const r of z.racks)for(const sh of r.shelves){
       for(const item of (assignments[sh.id]||[])){
         const sku=getSKU(item.code)||{name:''};
         for(const b of item.batches){
-          det.push([z.name,r.name,sh.name,item.code,sku.name,b.arrival||'',b.qty,b.jiQty||0,b.qty-(b.jiQty||0),b.weight||'',b.jiCompany||'',b.jiInvoice||'']);
+          det.push([z.name,r.name,sh.name,item.code,sku.name,b.arrival||'',b.qty,b.jiQty||0,b.qty-(b.jiQty||0),b.weight||'',jiCoLabel(b),String(jiEntries(b).length)]);
         }
       }
     }
@@ -2087,7 +2297,7 @@ function exportFullReport(){
       for(const item of (assignments[sh.id]||[])){
         const sku=getSKU(item.code)||{name:''};
         for(const b of item.batches){
-          if((b.jiQty||0)>0)ji.push([z.name,r.name,sh.name,item.code,sku.name,b.arrival||'',b.qty,b.jiQty,b.qty-b.jiQty,b.weight||'',b.jiCompany||'',b.jiInvoice||'']);
+          jiEntries(b).forEach(function(e){ji.push([z.name,r.name,sh.name,item.code,sku.name,b.arrival||'',b.qty,e.q,b.qty-(b.jiQty||0),b.weight||'',e.c||'',e.i||'']);});
         }
       }
     }
@@ -2141,5 +2351,30 @@ function exportFullReport(){
 
 
 </script>
+<div id="jiTip" style="display:none;position:fixed;z-index:9999;background:#2b2b2b;color:#fff;padding:6px 11px;border-radius:6px;font-size:.68rem;line-height:1.55;white-space:nowrap;box-shadow:0 3px 12px rgba(0,0,0,.32);pointer-events:none;"></div>
+<!-- Edit Weight -->
+<div class="modal-bg" id="wtEditBg" style="display:none;">
+  <div class="modal" style="max-width:400px;">
+    <h3>⚖️ 修改重量 Edit Weight</h3>
+    <div class="modal-loc" id="wtEditInfo" style="margin-bottom:12px;"></div>
+    <input type="hidden" id="wtEditSid"/><input type="hidden" id="wtEditCode"/><input type="hidden" id="wtEditBid"/>
+    <div class="modal-row"><label>重量 Weight:</label><input type="text" id="wtEditVal" placeholder="如 10kg e.g. 10kg" style="flex:1;width:auto;"/></div>
+    <div style="font-size:.68rem;color:#999;margin-bottom:6px;">留空可清除重量。Leave blank to clear the weight.</div>
+    <div class="modal-btns"><button class="sec" onclick="closeWtEdit()">取消 Cancel</button><button onclick="saveWtEdit()">保存 Save</button></div>
+  </div>
+</div>
+<!-- Split Batch -->
+<div class="modal-bg" id="splitBg" style="display:none;">
+  <div class="modal" style="max-width:470px;">
+    <h3>✂️ 按重量拆分批次 Split Batch by Weight</h3>
+    <div class="modal-loc" id="splitInfo" style="margin-bottom:12px;"></div>
+    <input type="hidden" id="splitSid"/><input type="hidden" id="splitCode"/><input type="hidden" id="splitBid"/><input type="hidden" id="splitTotal"/>
+    <div class="modal-section">拆分为（最多 3 种重量）Split into (up to 3 weights):</div>
+    <div id="splitRows"></div>
+    <div id="splitAlloc" style="border-radius:6px;padding:6px 12px;font-size:.74rem;margin-bottom:6px;background:#f5f6fa;"></div>
+    <div style="font-size:.66rem;color:#999;margin-bottom:8px;">合计须等于原批次数量；到货日期保持不变。Total must equal the original qty; arrival date is kept.</div>
+    <div class="modal-btns"><button class="sec" onclick="closeSplit()">取消 Cancel</button><button onclick="saveSplit()">✂️ 拆分 Split</button></div>
+  </div>
+</div>
 </body>
 </html>
